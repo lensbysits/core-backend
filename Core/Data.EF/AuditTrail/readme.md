@@ -1,0 +1,2 @@
+﻿dotnet ef migrations add InitialAuditTrailSetup -o AuditTrail/Migrations -c AuditTrailDbContext
+Add-Migration -Name initialAuditTrailSetup -OutputDir AuditTrail/Migrations -Project CoreApp.Data -Context AuditTrailDbContext
