@@ -17,6 +17,7 @@ namespace CoreApp.Web.Services
             _accessor = accessor;
         }
 
+        //TODO: Move to business specific extension methods
         public Guid EmployeeId => ClaimValue<Guid>("employeeId");
         
         public string Username => UserClaims?.Identity?.Name ?? "anonymous";

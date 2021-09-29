@@ -5,7 +5,7 @@ using System;
 
 namespace CoreLib
 {
-    public static class ApplicationSetupBuilderExtentions
+    public static class ApplicationSetupBuilderExtensions
     {
         public static IApplicationSetupBuilder AddProgramInitializer<T>(this IApplicationSetupBuilder applicationSetup) where T : class, IProgramInitializer
         {

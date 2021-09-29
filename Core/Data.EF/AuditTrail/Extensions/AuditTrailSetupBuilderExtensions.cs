@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CoreApp.Data.AuditTrail
 {
-    public static class AuditTrailSetupBuilderExtentions
+    public static class AuditTrailSetupBuilderExtensions
     {
         public static IApplicationSetupBuilder AddAuditTrailing(this IApplicationSetupBuilder builder, 
             string connectionStringName = "DefaultConnection", 
@@ -13,9 +13,9 @@ namespace CoreApp.Data.AuditTrail
         {
             builder
                 .AddProgramInitializer<AuditTrailInitializerService>()
+                .AddAssemblies(typeof(AutoMapperProfile).Assembly)
                 .AddDatabase<AuditTrailDbContext>(connectionStringName, connectionStringPassword)
                 .Services
-                .AddAutoMapper(typeof(AutoMapperProfile).Assembly)
                 .AddScoped<IAuditTrailService, AuditTrailService>();
 
             return builder;

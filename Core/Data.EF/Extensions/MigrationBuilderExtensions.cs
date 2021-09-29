@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CoreApp.Data
 {
-    public static class MigrationBuilderExtentions
+    public static class MigrationBuilderExtensions
     {
         public static MigrationBuilder DropStoredProcedureIfExists(this MigrationBuilder builder, string storedProcedureName, string schemaName = "dbo")
         {

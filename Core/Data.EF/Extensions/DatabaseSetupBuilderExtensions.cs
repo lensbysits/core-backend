@@ -8,7 +8,7 @@ using Serilog;
 
 namespace CoreApp.Data
 {
-    public static class DatabaseSetupBuilderExtentions
+    public static class DatabaseSetupBuilderExtensions
     {
         public static IApplicationSetupBuilder AddDatabase<TContext>(this IApplicationSetupBuilder builder, 
             string connectionStringName = "DefaultConnection", 

@@ -5,6 +5,7 @@ using System.Reflection;
 
 namespace CoreLib.Builders
 {
+    //TODO: add ILogger reference and try to get rid of Serilog dependency
     public interface IApplicationSetupBuilder
     {
         IServiceCollection Services { get; }
@@ -12,5 +13,7 @@ namespace CoreLib.Builders
         List<Assembly> Assemblies { get; }
 
         IApplicationSetupBuilder AddAssemblies(params Assembly[] assemblies);
+        IApplicationSetupBuilder AddAutoMapper();
+        IApplicationSetupBuilder AddMediatR();
     }
 }

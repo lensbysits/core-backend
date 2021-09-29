@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace CoreApp.Data.AuditTrail
 {
-    public static class DbContextExtentions
+    public static class DbContextExtensions
     {
         public static IEnumerable<EntityChangeModel> CaptureChanges(this DbContext dbContext, IUserContext userContext = null, string changeReason = null)
         {

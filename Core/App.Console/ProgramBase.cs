@@ -7,12 +7,7 @@ namespace CoreApp.Console
 {
     public abstract class ProgramBase : Program.ProgramBase
     {
-        private static Action<HostBuilderContext, IApplicationSetupBuilder> _applicationSetup;
-        protected static Action<HostBuilderContext, IApplicationSetupBuilder> ApplicationSetup
-        {
-            get => _applicationSetup;
-            set => _applicationSetup = value;
-        }
+        protected static Action<HostBuilderContext, IApplicationSetupBuilder> ApplicationSetup { get; set; }
 
         public static async Task<int> Start(string[] args) =>
             await Start(args, CreateHostBuilder);
