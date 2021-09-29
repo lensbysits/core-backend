@@ -1,9 +1,9 @@
-﻿using CoreApp.Data.Entities;
+﻿using Lens.Core.Data.EF.Entities;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CoreApp.Data.AuditTrail
+namespace Lens.Core.Data.EF.AuditTrail.Entities
 {
     [Table("EntityChange", Schema = "audittrail")]
     public class EntityChange : IIdEntity

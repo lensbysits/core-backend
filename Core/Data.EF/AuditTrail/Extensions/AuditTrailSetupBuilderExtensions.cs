@@ -1,9 +1,10 @@
-﻿using CoreLib;
-using CoreLib.Builders;
-using CoreLib.Services;
+﻿using Lens.Core.Data.EF.AuditTrail.Services;
+using Lens.Core.Data.Services;
+using Lens.Core.Lib;
+using Lens.Core.Lib.Builders;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CoreApp.Data.AuditTrail
+namespace Lens.Core.Data.EF.AuditTrail
 {
     public static class AuditTrailSetupBuilderExtensions
     {

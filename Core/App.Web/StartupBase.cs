@@ -1,4 +1,4 @@
-﻿using CoreLib.Builders;
+﻿using Lens.Core.Lib.Builders;
 using Lamar;
 using Lamar.Scanning.Conventions;
 using Microsoft.AspNetCore.Builder;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace CoreApp.Web
+namespace Lens.Core.App.Web
 {
     public class StartupBase
     {

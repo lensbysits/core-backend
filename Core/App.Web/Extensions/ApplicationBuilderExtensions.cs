@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 
-namespace CoreApp.Web
+namespace Lens.Core.App.Web
 {
-    public static class ApplicationBuilderExtentions
+    public static class ApplicationBuilderExtensions
     {
         public static IApplicationBuilder UseErrorHandling(this IApplicationBuilder appBuilder)
         {

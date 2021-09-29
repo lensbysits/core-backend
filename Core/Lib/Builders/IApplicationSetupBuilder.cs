@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace CoreLib.Builders
+namespace Lens.Core.Lib.Builders
 {
     //TODO: add ILogger reference and try to get rid of Serilog dependency
     public interface IApplicationSetupBuilder

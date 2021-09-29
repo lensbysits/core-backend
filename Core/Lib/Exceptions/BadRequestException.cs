@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreLib.Exceptions
+namespace Lens.Core.Lib.Exceptions
 {
     public class BadRequestException : Exception
     {

@@ -1,5 +1,5 @@
-﻿using CoreApp.Web.Services;
-using CoreLib.Services;
+﻿using Lens.Core.App.Web.Services;
+using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -9,9 +9,9 @@ using Microsoft.IdentityModel.Logging;
 using System;
 using System.Linq;
 
-namespace CoreApp.Web
+namespace Lens.Core.App.Web
 {
-    public static class ServiceCollectionExtentions
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddCors(this IServiceCollection services, IConfiguration configuration,
             Action<CorsOptions> corsConfigureOptions = null)

@@ -1,11 +1,11 @@
-﻿using CoreLib.Services;
+﻿using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Claims;
 
-namespace CoreApp.Web.Services
+namespace Lens.Core.App.Web.Services
 {
     public class UserContext : IUserContext
     {

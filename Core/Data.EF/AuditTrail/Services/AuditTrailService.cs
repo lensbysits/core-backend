@@ -1,5 +1,7 @@
-﻿using CoreLib.Models;
-using CoreLib.Services;
+﻿using Lens.Core.Data.EF.AuditTrail.Entities;
+using Lens.Core.Data.Models;
+using Lens.Core.Data.Services;
+using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -7,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CoreApp.Data.AuditTrail
+namespace Lens.Core.Data.EF.AuditTrail.Services
 {
     public class AuditTrailService : BaseService<AuditTrailService>, IAuditTrailService
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreApp.Data.Entities
+namespace Lens.Core.Data.EF.Entities
 {
     public interface IIdEntity
     {

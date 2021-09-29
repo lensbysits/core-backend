@@ -1,4 +1,4 @@
-﻿using CoreLib.Exceptions;
+﻿using Lens.Core.Lib.Exceptions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
@@ -10,7 +10,7 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace CoreApp.Web
+namespace Lens.Core.App.Web
 {
     public class ErrorHandlingMiddleware
     {

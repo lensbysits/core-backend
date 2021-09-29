@@ -1,16 +1,18 @@
-﻿using CoreApp.Data.AuditTrail;
-using CoreApp.Data.Entities;
-using CoreApp.Data.Services;
-using CoreLib.Services;
-using Microsoft.EntityFrameworkCore;
+﻿using Lens.Core.Data.EF.Entities;
+using Lens.Core.Data.EF.Services;
+using Lens.Core.Data.Services;
+using Lens.Core.Lib.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using EFCore = Microsoft.EntityFrameworkCore.EF;
+using Lens.Core.Data.EF.AuditTrail;
 
-namespace CoreApp.Data
+namespace Lens.Core.Data.EF
 {
     public class ApplicationDbContext : DbContext
     {   
@@ -125,8 +127,8 @@ namespace CoreApp.Data
         {
             //the HasQueryFilter applies only the last query; so, in this case overrides the check for deleted records from the base package.
             builder.Entity<T>().HasQueryFilter(item =>
-                EF.Property<RecordStateEnum>(item, ShadowProperties.RecordState) != RecordStateEnum.Deleted
-                && EF.Property<Guid>(item, ShadowProperties.TenantId) == _tenantId);
+                EFCore.Property<RecordStateEnum>(item, ShadowProperties.RecordState) != RecordStateEnum.Deleted
+                && EFCore.Property<Guid>(item, ShadowProperties.TenantId) == _tenantId);
         }
     }
 }

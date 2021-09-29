@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CoreLib.Models
+namespace Lens.Core.Data.Models
 {
     public class EntityChangeModel
     {

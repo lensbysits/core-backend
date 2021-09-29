@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace CoreApp.Data
+namespace Lens.Core.Data.EF
 {
     public static class ModelBuilderExtensions
     {

@@ -1,10 +1,10 @@
-﻿using CoreLib.Services;
+﻿using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace CoreApp.Data.Services
+namespace Lens.Core.Data.EF.Services
 {
     public class DatabaseInitializerService : BaseService<DatabaseInitializerService>, IProgramInitializer
     {

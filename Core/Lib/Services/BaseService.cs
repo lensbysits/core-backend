@@ -1,4 +1,4 @@
-﻿namespace CoreLib.Services
+﻿namespace Lens.Core.Lib.Services
 {
     public abstract class BaseService<TLogger>
     {

@@ -1,9 +1,10 @@
-﻿using CoreApp.Data.Entities;
+﻿using Lens.Core.Data.EF.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using EFCore = Microsoft.EntityFrameworkCore.EF;
 using System;
 
-namespace CoreApp.Data.Services
+namespace Lens.Core.Data.EF.Services
 {
     public class RecordStateModelBuilderService : IModelBuilderService
     {
@@ -17,7 +18,7 @@ namespace CoreApp.Data.Services
                 .HasDefaultValue(RecordStateEnum.NotDefined);
 
             builder
-                .AppendQueryFilter<IRecordState>(e => EF.Property<RecordStateEnum>(e, ShadowProperties.RecordState) != RecordStateEnum.Deleted);
+                .AppendQueryFilter<IRecordState>(e => EFCore.Property<RecordStateEnum>(e, ShadowProperties.RecordState) != RecordStateEnum.Deleted);
         }
     }
 }

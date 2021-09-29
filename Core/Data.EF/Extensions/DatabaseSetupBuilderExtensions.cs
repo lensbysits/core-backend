@@ -1,12 +1,12 @@
-﻿using CoreApp.Data.Services;
-using CoreLib.Builders;
+﻿using Lens.Core.Data.EF.Services;
+using Lens.Core.Lib.Builders;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
-namespace CoreApp.Data
+namespace Lens.Core.Data.EF
 {
     public static class DatabaseSetupBuilderExtensions
     {

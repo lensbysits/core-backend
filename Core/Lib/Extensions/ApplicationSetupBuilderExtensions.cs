@@ -1,9 +1,9 @@
-﻿using CoreLib.Builders;
-using CoreLib.Services;
+﻿using Lens.Core.Lib.Builders;
+using Lens.Core.Lib.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace CoreLib
+namespace Lens.Core.Lib
 {
     public static class ApplicationSetupBuilderExtensions
     {

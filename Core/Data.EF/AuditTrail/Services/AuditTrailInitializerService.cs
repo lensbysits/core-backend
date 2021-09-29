@@ -1,10 +1,10 @@
-﻿using CoreLib.Services;
+﻿using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace CoreApp.Data.AuditTrail
+namespace Lens.Core.Data.EF.AuditTrail.Services
 {
     public class AuditTrailInitializerService : BaseService<AuditTrailInitializerService>, IProgramInitializer
     {

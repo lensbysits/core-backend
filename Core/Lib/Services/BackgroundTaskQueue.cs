@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CoreLib.Services
+namespace Lens.Core.Lib.Services
 {
     public class BackgroundTaskQueue : IBackgroundTaskQueue
     {

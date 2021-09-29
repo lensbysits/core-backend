@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CoreLib.Services
+namespace Lens.Core.Lib.Services
 {
     public class ApiBearerTokenHandler : DelegatingHandler
     {

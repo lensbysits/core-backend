@@ -1,4 +1,4 @@
-﻿using CoreLib.Services;
+﻿using Lens.Core.Lib.Services;
 using Lamar.Microsoft.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +9,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace CoreApp.Program
+namespace Lens.Core.App
 {
     public class ProgramBase
     {

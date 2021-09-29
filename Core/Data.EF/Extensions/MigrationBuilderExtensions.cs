@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace CoreApp.Data
+namespace Lens.Core.Data.EF
 {
     public static class MigrationBuilderExtensions
     {

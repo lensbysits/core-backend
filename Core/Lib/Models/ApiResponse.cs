@@ -1,4 +1,4 @@
-﻿namespace CoreLib.Models
+﻿namespace Lens.Core.Lib.Models
 {
     public class ApiResponse<T>
     {

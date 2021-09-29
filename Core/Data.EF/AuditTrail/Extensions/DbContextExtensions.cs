@@ -1,12 +1,13 @@
-﻿using CoreLib.Models;
-using CoreLib.Services;
+﻿using Lens.Core.Data.EF.AuditTrail.Entities;
+using Lens.Core.Data.Models;
+using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CoreApp.Data.AuditTrail
+namespace Lens.Core.Data.EF.AuditTrail
 {
     public static class DbContextExtensions
     {

@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace CoreLib.Services
+namespace Lens.Core.Lib.Services
 {
     public interface IApplicationService<TLogger>
     {

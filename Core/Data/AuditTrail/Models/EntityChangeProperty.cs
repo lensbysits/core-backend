@@ -1,4 +1,4 @@
-﻿namespace CoreLib.Models
+﻿namespace Lens.Core.Data.Models
 {
     public class EntityChangeProperty
     {

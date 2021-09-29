@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreLib.Services
+namespace Lens.Core.Lib.Services
 {
     public interface IUserContext
     {

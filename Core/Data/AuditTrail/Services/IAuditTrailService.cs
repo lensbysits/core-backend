@@ -1,9 +1,9 @@
-﻿using CoreLib.Models;
+﻿using Lens.Core.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace CoreLib.Services
+namespace Lens.Core.Data.Services
 {
     public interface IAuditTrailService
     {

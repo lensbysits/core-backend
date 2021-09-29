@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace CoreLib.Builders
+namespace Lens.Core.Lib.Builders
 {
     public class ApplicationSetupBuilder : IApplicationSetupBuilder
     {

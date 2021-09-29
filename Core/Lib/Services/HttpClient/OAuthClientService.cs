@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using httpClient = System.Net.Http.HttpClient;
 
-namespace CoreLib.Services
+namespace Lens.Core.Lib.Services
 {
     public class OAuthClientService : IOAuthClientService
     {

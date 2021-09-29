@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CoreLib.Services
+namespace Lens.Core.Lib.Services
 {
     public class OAuthClientSettings : Dictionary<string, OAuthClientSetting>
     {

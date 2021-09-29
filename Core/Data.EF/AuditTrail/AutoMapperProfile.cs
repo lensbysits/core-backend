@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using CoreLib.Models;
+using Lens.Core.Data.EF.AuditTrail.Entities;
+using Lens.Core.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace CoreApp.Data.AuditTrail
+namespace Lens.Core.Data.EF.AuditTrail
 {
     public class AutoMapperProfile : Profile
     {

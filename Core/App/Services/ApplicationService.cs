@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
-using CoreLib.Services;
+using Lens.Core.Lib.Services;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 
-namespace CoreApp.Services
+namespace Lens.Core.App.Services
 {
     public class ApplicationService<TLogger> : IApplicationService<TLogger>
     {

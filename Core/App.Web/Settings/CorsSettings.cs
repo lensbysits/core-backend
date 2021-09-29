@@ -1,4 +1,4 @@
-﻿namespace CoreApp.Web
+﻿namespace Lens.Core.App.Web
 {
     public class CorsSettings
     {
