@@ -10,10 +10,14 @@ namespace Lens.Core.Lib.Models
         public int? Offset { get; set; } = 0;
         public int? Limit { get; set; } = 50;
 
+        public string Tag { get; set; }
         public string Q { get; set; }
         public string SortField { get; set; }
         public SortOrder? SortOrder { get; set; } = Models.SortOrder.asc;
 
+        public string CreatedBy { get; set; }
+        public DateTime? CreatedSince { get; set; }
+        public string UpdatedBy { get; set; }
         public DateTime? UpdatedSince { get; set; }
 
         public string QueryString
@@ -27,6 +31,9 @@ namespace Lens.Core.Lib.Models
                 if (Limit.HasValue)
                     queryStringSegments.Add($"limit={Limit}");
 
+                if (!string.IsNullOrEmpty(Tag))
+                    queryStringSegments.Add($"q={UrlEncoder.Default.Encode(Tag)}");
+
                 if (!string.IsNullOrEmpty(Q))
                     queryStringSegments.Add($"q={UrlEncoder.Default.Encode(Q)}");
 
@@ -35,6 +42,15 @@ namespace Lens.Core.Lib.Models
 
                 if (SortOrder.HasValue)
                     queryStringSegments.Add($"sortOrder={SortOrder}");
+
+                if (!string.IsNullOrEmpty(CreatedBy))
+                    queryStringSegments.Add($"createdBy={CreatedBy}");
+
+                if (CreatedSince.HasValue)
+                    queryStringSegments.Add($"updatedSince={CreatedSince}");
+
+                if (!string.IsNullOrEmpty(UpdatedBy))
+                    queryStringSegments.Add($"updatedBy={UpdatedBy}");
 
                 if (UpdatedSince.HasValue)
                     queryStringSegments.Add($"updatedSince={UpdatedSince}");
