@@ -16,32 +16,17 @@ namespace Lens.Core.App
         /// <summary>
         /// Allows the overriding class to add additional configuration sources while settting up the Logging Configuration
         /// </summary>
-        private static Action<IConfigurationBuilder> _loggingConfigurationSetup;
-        protected static Action<IConfigurationBuilder> LoggingConfigurationSetup
-        {
-            get => _loggingConfigurationSetup;
-            set => _loggingConfigurationSetup = value;
-        }
+        protected static Action<IConfigurationBuilder> LoggingConfigurationSetup { get; set; }
 
         /// <summary>
         /// Allows the overriding class to add additional configuration sources while settting up the Host Configuration
         /// </summary>
-        private static Action<IConfigurationBuilder> _hostConfigurationSetup;
-        protected static Action<IConfigurationBuilder> HostConfigurationSetup
-        {
-            get => _hostConfigurationSetup;
-            set => _hostConfigurationSetup = value;
-        }
+        protected static Action<IConfigurationBuilder> HostConfigurationSetup { get; set; }
 
         /// <summary>
         /// Allows the overriding class to add additional configuration sources while settting up the App Configuration
         /// </summary>
-        private static Action<IConfigurationBuilder> _appConfigurationSetup;
-        protected static Action<IConfigurationBuilder> AppConfigurationSetup
-        {
-            get => _appConfigurationSetup;
-            set => _appConfigurationSetup = value;
-        }
+        protected static Action<IConfigurationBuilder> AppConfigurationSetup { get; set; }
 
         public static async Task<int> Start(string[] args, Func<string[], IHostBuilder> appHostBuilder)
         {
