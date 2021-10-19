@@ -38,6 +38,7 @@ namespace Lens.Core.Data.EF.Services
         {
             var entity = ApplicationService.Mapper.Map<T>(value);
             var trackedEntity = ApplicationDbContext.Set<T>().Add(entity).Entity;
+            
             await ApplicationDbContext.SaveChangesAsync();
 
             return await Get<TModel>(trackedEntity.Id);
@@ -48,6 +49,8 @@ namespace Lens.Core.Data.EF.Services
             var entity = await ApplicationDbContext.Set<T>().GetById(id);
             ApplicationService.Mapper.Map(value, entity);
             ApplicationDbContext.Set<T>().Update(entity);
+
+            await ApplicationDbContext.SaveChangesAsync();
 
             return await Get<TModel>(id);
         }
