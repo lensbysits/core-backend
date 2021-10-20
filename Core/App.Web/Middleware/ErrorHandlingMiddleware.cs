@@ -63,9 +63,10 @@ namespace Lens.Core.App.Web
                 _logger.LogError(exception, "Unexpected error");
             }
 
+            var exceptionData = GetExceptionData(exception);
             string result = _webHostEnvironment.IsDevelopment()
-                ? JsonSerializer.Serialize(new { exception = exception.ToString()})
-                : JsonSerializer.Serialize(new { error = exceptionMessage, data = GetExceptionData(exception) });
+                ? JsonSerializer.Serialize(new { error = exceptionMessage, data = exceptionData, exception = exception.ToString()})
+                : JsonSerializer.Serialize(new { error = exceptionMessage, data = exceptionData });
             
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)exceptionCode;
