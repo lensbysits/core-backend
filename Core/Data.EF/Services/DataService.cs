@@ -2,6 +2,7 @@
 using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
@@ -21,9 +22,15 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext = applicationDbContext;
         }
 
-        protected async Task<ResultListModel<TModel>> Get<TModel>(QueryModel queryModel, Expression<Func<T, bool>> searchPredicate = null)
+        protected async Task<ResultListModel<TModel>> Get<TModel>(QueryModel queryModel, Expression<Func<T, bool>> searchPredicate = null, Expression<Func<T, bool>> filterPredicate = null)
         {
-            return await ApplicationDbContext.Set<T>()
+            var entities = ApplicationDbContext.Set<T>().AsQueryable();
+            if (filterPredicate != null)
+            {
+                entities = entities.Where(filterPredicate);
+            }
+
+            return await entities
                    .GetByQueryModel(queryModel, searchPredicate)
                    .ToResultList<T, TModel>(queryModel, ApplicationService.Mapper);
         }
