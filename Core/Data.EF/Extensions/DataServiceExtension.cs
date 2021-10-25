@@ -5,6 +5,7 @@ using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
@@ -17,8 +18,8 @@ namespace Lens.Core.Data.EF
 {
     public static class DataServiceExtension
     {
-        public async static Task<TModel> ToModel<T, TModel>(this IQueryable<T> entities, Guid id, IMapper mapper)
-            where T : class, IIdEntity
+        public async static Task<TModel> ToModel<TEntity, TModel>(this IQueryable<TEntity> entities, Guid id, IMapper mapper)
+            where TEntity : class, IIdEntity
         {
             var result = await entities
                 .Where(t => t.Id == id)
@@ -33,8 +34,16 @@ namespace Lens.Core.Data.EF
             return result;
         }
 
-        public static async Task<ResultListModel<TModel>> ToResultList<T, TModel>(this IQueryable<T> entities, QueryModel queryModel, IMapper mapper)
-            where T : class, IIdEntity
+        public static async Task<IEnumerable<TModel>> ToModel<TEntity, TModel>(this IQueryable<TEntity> entities, IMapper mapper)
+            where TEntity : class, IIdEntity
+        {
+            return await entities
+                .ProjectTo<TModel>(mapper.ConfigurationProvider)
+                .ToListAsync();
+        }
+
+        public static async Task<ResultListModel<TModel>> ToResultList<TEntity, TModel>(this IQueryable<TEntity> entities, QueryModel queryModel, IMapper mapper)
+            where TEntity : class, IIdEntity
         {
             var result = entities.ProjectTo<TModel>(mapper.ConfigurationProvider);
 
@@ -45,28 +54,28 @@ namespace Lens.Core.Data.EF
             };
         }
 
-        public static async Task<T> GetById<T>(this IQueryable<T> entities, Guid id)
-            where T : class, IIdEntity
+        public static async Task<TEntity> GetById<TEntity>(this IQueryable<TEntity> entities, Guid id)
+            where TEntity : class, IIdEntity
         {
-            T result = await entities.FirstOrDefaultAsync(entity => entity.Id == id);
+            TEntity result = await entities.FirstOrDefaultAsync(entity => entity.Id == id);
             if (result == null)
             {
-                throw new NotFoundException($"{typeof(T).Name} with id {id} not found");
+                throw new NotFoundException($"{typeof(TEntity).Name} with id {id} not found");
             }
             return result;
         }
 
-        public static IQueryable<T> GetByQueryModel<T>(this IQueryable<T> entities, QueryModel queryModel, Expression<Func<T, bool>> searchPredicate = null)
-           where T : class, IIdEntity
+        public static IQueryable<TEntity> GetByQueryModel<TEntity>(this IQueryable<TEntity> entities, QueryModel queryModel, Expression<Func<TEntity, bool>> searchPredicate = null)
+           where TEntity : class, IIdEntity
         {
             // apply default filters
-            if (typeof(ITagsEntity).IsAssignableFrom(typeof(T)) && !string.IsNullOrEmpty(queryModel.Tag))
+            if (typeof(ITagsEntity).IsAssignableFrom(typeof(TEntity)) && !string.IsNullOrEmpty(queryModel.Tag))
             {
                 entities = entities
                     .Where(entity => EFCore.Property<string>(entity, ShadowProperties.Tag).Contains($"\"{queryModel.Tag}\""));
             }
 
-            if (typeof(ICreatedUpdatedEntity).IsAssignableFrom(typeof(T)))
+            if (typeof(ICreatedUpdatedEntity).IsAssignableFrom(typeof(TEntity)))
             {
                 if (!string.IsNullOrEmpty(queryModel.CreatedBy))
                 {
@@ -107,19 +116,19 @@ namespace Lens.Core.Data.EF
 
         #region Private static methods
 
-        private static IQueryable<T> ApplySort<T>(IQueryable<T> entities, QueryModel queryModel)
+        private static IQueryable<TEntity> ApplySort<TEntity>(IQueryable<TEntity> entities, QueryModel queryModel)
         {
             if (!entities.Any()) return entities;
 
             // default sorting when 'order by' query param is missing.
-            if (string.IsNullOrWhiteSpace(queryModel.OrderBy) && typeof(ICreatedUpdatedEntity).IsAssignableFrom(typeof(T)))
+            if (string.IsNullOrWhiteSpace(queryModel.OrderBy) && typeof(ICreatedUpdatedEntity).IsAssignableFrom(typeof(TEntity)))
             {
                 entities.OrderByDescending(entity => EFCore.Property<DateTime>(entity, ShadowProperties.UpdatedOn));
                 return entities;
             }
 
             var orderParams = queryModel.OrderBy.Split(',', StringSplitOptions.TrimEntries);
-            var propertyInfos = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var propertyInfos = typeof(TEntity).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var orderQueryBuilder = new StringBuilder();
 
             foreach (var param in orderParams)

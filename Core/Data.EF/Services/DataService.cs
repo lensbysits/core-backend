@@ -2,6 +2,7 @@
 using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -9,8 +10,8 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Lens.Core.Data.EF.Services
 {
-    public class DataService<TService, T, TDbContext> : BaseService<TService>
-        where T : class, IIdEntity
+    public class DataService<TService, TEntity, TDbContext> : BaseService<TService>
+        where TEntity : class, IIdEntity
         where TDbContext : ApplicationDbContext
     {
         protected TDbContext ApplicationDbContext { get; set; }
@@ -22,9 +23,9 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext = applicationDbContext;
         }
 
-        protected async Task<ResultListModel<TModel>> Get<TModel>(QueryModel queryModel, Expression<Func<T, bool>> searchPredicate = null, Expression<Func<T, bool>> filterPredicate = null)
+        protected async Task<ResultListModel<TModel>> Get<TModel>(QueryModel queryModel, Expression<Func<TEntity, bool>> searchPredicate = null, Expression<Func<TEntity, bool>> filterPredicate = null)
         {
-            var entities = ApplicationDbContext.Set<T>().AsQueryable();
+            var entities = ApplicationDbContext.Set<TEntity>().AsQueryable();
             if (filterPredicate != null)
             {
                 entities = entities.Where(filterPredicate);
@@ -32,19 +33,25 @@ namespace Lens.Core.Data.EF.Services
 
             return await entities
                    .GetByQueryModel(queryModel, searchPredicate)
-                   .ToResultList<T, TModel>(queryModel, ApplicationService.Mapper);
+                   .ToResultList<TEntity, TModel>(queryModel, ApplicationService.Mapper);
         }
 
         protected async Task<TModel> Get<TModel>(Guid id)
         {
-            return await ApplicationDbContext.Set<T>()
-                .ToModel<T, TModel>(id, ApplicationService.Mapper);
+            return await ApplicationDbContext.Set<TEntity>()
+                .ToModel<TEntity, TModel>(id, ApplicationService.Mapper);
+        }
+
+        protected async Task<IEnumerable<TModel>> Get<TModel>()
+        {
+            return await ApplicationDbContext.Set<TEntity>()
+                .ToModel<TEntity, TModel>(ApplicationService.Mapper);
         }
 
         protected async Task<TModel> Add<TModel, VModel>(VModel value)
         {
-            var entity = ApplicationService.Mapper.Map<T>(value);
-            var trackedEntity = ApplicationDbContext.Set<T>().Add(entity).Entity;
+            var entity = ApplicationService.Mapper.Map<TEntity>(value);
+            var trackedEntity = ApplicationDbContext.Set<TEntity>().Add(entity).Entity;
             
             await ApplicationDbContext.SaveChangesAsync();
 
@@ -53,9 +60,9 @@ namespace Lens.Core.Data.EF.Services
 
         protected async Task<TModel> Update<TModel, VModel>(Guid id, VModel value)
         {
-            var entity = await ApplicationDbContext.Set<T>().GetById(id);
+            var entity = await ApplicationDbContext.Set<TEntity>().GetById(id);
             ApplicationService.Mapper.Map(value, entity);
-            ApplicationDbContext.Set<T>().Update(entity);
+            ApplicationDbContext.Set<TEntity>().Update(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
 
@@ -64,18 +71,18 @@ namespace Lens.Core.Data.EF.Services
 
         protected async Task SoftDelete(Guid id)
         {
-            var entity = await ApplicationDbContext.Set<T>().GetById(id);
+            var entity = await ApplicationDbContext.Set<TEntity>().GetById(id);
 
             ApplicationDbContext.Entry(entity).Property(ShadowProperties.RecordState).CurrentValue = RecordStateEnum.Deleted;
-            ApplicationDbContext.Set<T>().Update(entity);
+            ApplicationDbContext.Set<TEntity>().Update(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
         }
 
         protected async Task HardDelete(Guid id)
         {
-            var entity = await ApplicationDbContext.Set<T>().GetById(id);
-            ApplicationDbContext.Set<T>().Remove(entity);
+            var entity = await ApplicationDbContext.Set<TEntity>().GetById(id);
+            ApplicationDbContext.Set<TEntity>().Remove(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
         }
