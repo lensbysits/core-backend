@@ -10,7 +10,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Lens.Core.Data.EF.Services
 {
-    public class DataService<TService, TEntity, TDbContext> : BaseService<TService>
+    public abstract class DataService<TService, TEntity, TDbContext> : BaseService<TService>
         where TEntity : class, IIdEntity
         where TDbContext : ApplicationDbContext
     {

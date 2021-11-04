@@ -14,6 +14,7 @@ namespace Lens.Core.Data.EF
             string connectionStringName = "DefaultConnection", 
             string connectionStringPassword = "dbPassword") where TContext : DbContext
         {
+            // connect to a SQL Server database
             var connectionStringBuilder = new SqlConnectionStringBuilder(builder.Configuration.GetConnectionString(connectionStringName));
             if (string.IsNullOrWhiteSpace(connectionStringBuilder.Password))
             {

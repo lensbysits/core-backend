@@ -11,14 +11,14 @@ namespace Lens.Core.Data.EF.Services
         public void ConfigureBaseProperties(Type entityType, EntityTypeBuilder builder)
         {
             // RecordState
-            if (!typeof(IRecordState).IsAssignableFrom(entityType)) return;
+            if (!typeof(IRecordStateEntity).IsAssignableFrom(entityType)) return;
             
             builder
                 .Property<RecordStateEnum>(ShadowProperties.RecordState)
                 .HasDefaultValue(RecordStateEnum.NotDefined);
 
             builder
-                .AppendQueryFilter<IRecordState>(e => EFCore.Property<RecordStateEnum>(e, ShadowProperties.RecordState) != RecordStateEnum.Deleted);
+                .AppendQueryFilter<IRecordStateEntity>(e => EFCore.Property<RecordStateEnum>(e, ShadowProperties.RecordState) != RecordStateEnum.Deleted);
         }
     }
 }
