@@ -35,9 +35,14 @@ namespace Lens.Core.Data.EF
             return result;
         }
 
-        public static async Task<IEnumerable<TModel>> ToModel<TEntity, TModel>(this IQueryable<TEntity> entities, IMapper mapper)
+        public static async Task<IEnumerable<TModel>> ToModel<TEntity, TModel>(this IQueryable<TEntity> entities, IMapper mapper, Expression<Func<TEntity, bool>> predicate = null)
             where TEntity : class, IIdEntity
         {
+            if (predicate != null)
+            {
+                entities = entities.Where(predicate);
+            }
+
             return await entities
                 .ProjectTo<TModel>(mapper.ConfigurationProvider)
                 .ToListAsync();

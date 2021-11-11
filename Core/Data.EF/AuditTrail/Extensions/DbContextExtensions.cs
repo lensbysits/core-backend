@@ -1,4 +1,5 @@
-﻿using Lens.Core.Data.EF.AuditTrail.Entities;
+﻿using Lens.Core.Data.Attributes;
+using Lens.Core.Data.EF.AuditTrail.Entities;
 using Lens.Core.Data.Models;
 using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,8 @@ namespace Lens.Core.Data.EF.AuditTrail
 {
     public static class DbContextExtensions
     {
+        private const string NonAuditValue = "[non-audit]";
+
         public static IEnumerable<EntityChangeModel> CaptureChanges(this DbContext dbContext, IUserContext userContext = null, string changeReason = null)
         {
             var changes = new List<EntityChangeModel>();
@@ -72,6 +75,10 @@ namespace Lens.Core.Data.EF.AuditTrail
 
         private static EntityChangeProperty GetPropertyChange(PropertyEntry prop)
         {
+            var hasNonAuditAttribute = 
+                prop.Metadata.PropertyInfo != null 
+                && prop.Metadata.PropertyInfo.GetCustomAttributes(typeof(NonAuditAttribute), false).Any();
+
             switch (prop.EntityEntry.State)
             {
                 case EntityState.Detached:
@@ -82,20 +89,20 @@ namespace Lens.Core.Data.EF.AuditTrail
                     return new EntityChangeProperty
                     {
                         PropertyName = prop.Metadata.Name,
-                        OriginalValue = prop.OriginalValue
+                        OriginalValue = hasNonAuditAttribute ? NonAuditValue : prop.OriginalValue
                     };
                 case EntityState.Modified:
                     return new EntityChangeProperty
                     {
                         PropertyName = prop.Metadata.Name,
-                        OriginalValue = prop.OriginalValue,
-                        NewValue = prop.CurrentValue
+                        OriginalValue = hasNonAuditAttribute ? NonAuditValue : prop.OriginalValue,
+                        NewValue = hasNonAuditAttribute ? NonAuditValue : prop.CurrentValue
                     };
                 case EntityState.Added:
                     return new EntityChangeProperty
                     {
                         PropertyName = prop.Metadata.Name,
-                        NewValue = prop.CurrentValue
+                        NewValue = hasNonAuditAttribute ? NonAuditValue : prop.CurrentValue
                     };
                 default:
                     break;

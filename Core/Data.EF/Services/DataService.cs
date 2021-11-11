@@ -42,10 +42,10 @@ namespace Lens.Core.Data.EF.Services
                 .ToModel<TEntity, TModel>(id, ApplicationService.Mapper);
         }
 
-        protected async Task<IEnumerable<TModel>> Get<TModel>()
+        protected async Task<IEnumerable<TModel>> Get<TModel>(Expression<Func<TEntity, bool>> filterPredicate = null)
         {
             return await ApplicationDbContext.Set<TEntity>()
-                .ToModel<TEntity, TModel>(ApplicationService.Mapper);
+                .ToModel<TEntity, TModel>(ApplicationService.Mapper, filterPredicate);
         }
 
         protected async Task<TModel> Add<TModel, VModel>(VModel value)
