@@ -86,5 +86,11 @@ namespace Lens.Core.Data.EF.Services
 
             await ApplicationDbContext.SaveChangesAsync();
         }
+
+        protected async Task HardDelete(Expression<Func<TEntity, bool>> filterPredicate)
+        {
+            ApplicationDbContext.Set<TEntity>().DeleteWhere(filterPredicate);
+            await ApplicationDbContext.SaveChangesAsync();
+        }
     }
 }
