@@ -1,4 +1,5 @@
 ﻿using IdentityModel.Client;
+using Lens.Core.Lib.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -27,10 +28,17 @@ namespace Lens.Core.Lib.Services
         {
             if (!_oauthClientSettings.TryGetValue(clientName, out var clientSettings))
             {
-                throw new Exception($"Settings are missing for client '{clientName}'. Please add {nameof(OAuthClientService)}:{clientName} to the settings.");
+                throw new NotFoundException($"Settings are missing for client '{clientName}'. Please add {nameof(OAuthClientService)}:{clientName} to the settings.");
             }
 
-            return await GetToken(clientSettings);
+            try
+            {
+                return await GetToken(clientSettings);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"An error had occured when trying to retrieve the token for the client '{clientName}'", e);
+            }
         }
 
         private async Task<string> GetToken(OAuthClientSetting clientSettings)

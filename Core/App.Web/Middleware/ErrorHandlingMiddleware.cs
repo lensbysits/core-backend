@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
@@ -52,21 +51,29 @@ namespace Lens.Core.App.Web
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var exceptionMessage = GetExceptionMessage(exception);
+            
+            var basicExceptionResult = JsonSerializer.Serialize(new 
+            { 
+                message = exceptionMessage, data = exception.Data 
+            });
+            var fullExceptionResult = JsonSerializer.Serialize(new 
+            { 
+                message = exceptionMessage, data = exception.Data, exception = exception.ToString() 
+            });
+
             if (_exceptionTypes.TryGetValue(exception.GetType().Name, out HttpStatusCode exceptionCode))
             {
-                _logger.LogWarning(exceptionMessage); // log as warning the expected errors 
+                // log as warning the expected exceptions
+                _logger.LogWarning($"Expected exception ({(int)exceptionCode})-{exceptionCode}: {basicExceptionResult}"); 
             }
             else
             {
-                //probably unexpected. Log Error
-                exceptionCode = HttpStatusCode.InternalServerError; // 500 if unexpected
-                _logger.LogError(exception, "Unexpected error");
+                // log as error the unexpected exceptions
+                exceptionCode = HttpStatusCode.InternalServerError; 
+                _logger.LogError(exception, $"Unexpected exception ({(int)exceptionCode})-{exceptionCode}");
             }
 
-            var exceptionData = GetExceptionData(exception);
-            string result = _webHostEnvironment.IsDevelopment()
-                ? JsonSerializer.Serialize(new { error = exceptionMessage, data = exceptionData, exception = exception.ToString()})
-                : JsonSerializer.Serialize(new { error = exceptionMessage, data = exceptionData });
+            string result = _webHostEnvironment.IsDevelopment() ? fullExceptionResult : basicExceptionResult;
             
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)exceptionCode;
@@ -85,38 +92,6 @@ namespace Lens.Core.App.Web
             }
 
             return message;
-        }
-
-        /// <summary>
-        /// Get exception data recursively including the inner exception data, too.
-        /// </summary>
-        private string GetExceptionData(Exception e)
-        {
-            string data = GetExceptionDataCollection(e);
-            if (e.InnerException != null)
-            {
-                data = $"{data}{GetExceptionData(e.InnerException)}";
-            }
-
-            return data;
-        }
-
-        /// <summary>
-        /// Get exception data collection specifying key and value
-        /// </summary>
-        private static string GetExceptionDataCollection(Exception e)
-        {
-            string data = string.Empty;
-            if (e.Data != null && e.Data.Count > 0)
-            {
-                foreach (DictionaryEntry entry in e.Data)
-                {
-                    string newLine = !string.IsNullOrEmpty(data) ? Environment.NewLine : string.Empty;
-                    data = $"{data}{newLine}Key: {entry.Key} Value: {entry.Value}";
-                }
-            }
-
-            return data;
         }
         #endregion
     }
