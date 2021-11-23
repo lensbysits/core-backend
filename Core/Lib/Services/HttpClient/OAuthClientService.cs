@@ -37,7 +37,7 @@ namespace Lens.Core.Lib.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"An error had occured when trying to retrieve the token for the client '{clientName}'", e);
+                throw new UnauthorizedException($"An error had occured when trying to retrieve the token for the client '{clientName}'", e);
             }
         }
 
