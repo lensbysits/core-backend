@@ -51,7 +51,9 @@ namespace Lens.Core.Data.EF
 
             return new ResultListModel<TModel>
             {
-                Value = await result.Skip(queryModel.Offset).Take(queryModel.Limit).ToListAsync(),
+                Value = queryModel.NoLimit
+                    ? await result.Skip(queryModel.Offset).ToListAsync()
+                    : await result.Skip(queryModel.Offset).Take(queryModel.Limit).ToListAsync(),
                 Size = await result.CountAsync()
             };
         }

@@ -9,6 +9,7 @@ namespace Lens.Core.Lib.Models
     {
         public int Offset { get; set; } = 0;
         public int Limit { get; set; } = 50;
+        public bool NoLimit { get;set; } = false;
         
         // Filter by
         public string Tag { get; set; }
@@ -27,15 +28,16 @@ namespace Lens.Core.Lib.Models
         {
             get
             {
-                var queryStringSegments = new List<string>();
+                List<string> queryStringSegments = new();
                     
                 queryStringSegments.Add($"offset={Offset}");
                 queryStringSegments.Add($"limit={Limit}");
+                queryStringSegments.Add($"noLimit={NoLimit}");
 
-                // Filtery by
+                // Filter by
                 if (!string.IsNullOrWhiteSpace(Tag))
                 {
-                    queryStringSegments.Add($"q={UrlEncoder.Default.Encode(Tag)}");
+                    queryStringSegments.Add($"tag={UrlEncoder.Default.Encode(Tag)}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(CreatedBy))

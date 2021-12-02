@@ -41,5 +41,20 @@ namespace Lens.Core.Lib
 
             return applicationSetup;
         }
+
+        /// <summary>
+        /// Add a HttpClient Service without getting a bearer-token from the configured IdentityServer
+        /// This method should be only used for testing-purpose.
+        /// </summary>
+        public static IApplicationSetupBuilder AddHttpClientServiceWithoutToken<TClient, TImplementation>(this IApplicationSetupBuilder applicationSetup, string baseUri = null)
+            where TClient : class
+            where TImplementation : class, TClient
+        {
+            applicationSetup.Services
+                .AddHttpClient<TClient, TImplementation>()
+                    .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUri));
+
+            return applicationSetup;
+        }
     }
 }
