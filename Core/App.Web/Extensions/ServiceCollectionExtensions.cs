@@ -20,9 +20,7 @@ namespace Lens.Core.App.Web
             {
                 corsOptions.AddDefaultPolicy(defaultPolicyBuilder =>
                 {
-                    var corsSettings = configuration.GetSection(nameof(CorsSettings)).Get<CorsSettings>();
-
-                    var origins = corsSettings?.Origins ?? new[] { "*" };
+                    string[] origins = GetCorsOrigins(configuration);
 
                     defaultPolicyBuilder
                         .WithOrigins(origins)
@@ -40,7 +38,6 @@ namespace Lens.Core.App.Web
 
             return services;
         }
-
 
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration
                 , Action<AuthorizationOptions> authorizationOptions = null
@@ -89,6 +86,18 @@ namespace Lens.Core.App.Web
                 new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
                     .RequireAuthenticatedUser()
                     .Build();
+        }
+
+        private static string[] GetCorsOrigins(IConfiguration configuration)
+        {
+            var corsSettings = configuration.GetSection(nameof(CorsSettings)).Get<CorsSettings>();
+            var origins = corsSettings?.Origins?.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            if (origins == null || origins.Length == 0)
+            {
+                origins = new[] { "*" };
+            }
+
+            return origins;
         }
     }
 }
