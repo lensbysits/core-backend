@@ -91,7 +91,11 @@ namespace Lens.Core.App.Web
         private static string[] GetCorsOrigins(IConfiguration configuration)
         {
             var corsSettings = configuration.GetSection(nameof(CorsSettings)).Get<CorsSettings>();
-            var origins = corsSettings?.Origins?.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            var origins = corsSettings?.Origins?
+                .Trim()
+                .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .ToArray();
             if (origins == null || origins.Length == 0)
             {
                 origins = new[] { "*" };
