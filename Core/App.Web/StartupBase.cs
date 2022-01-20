@@ -43,9 +43,8 @@ namespace Lens.Core.App.Web
 
             services
                 .AddAuthentication(Configuration)
-                .AddCors(Configuration);
-
-            services.AddSwaggerGen();
+                .AddCors(Configuration)
+                .AddSwagger(Configuration);
 
             services.AddControllers(config =>
             {
@@ -68,11 +67,7 @@ namespace Lens.Core.App.Web
 
             app
                 .UseSwagger()
-                .UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("swagger/v1/swagger.json", "API V1");
-                    c.RoutePrefix = string.Empty;
-                });
+                .AddSwaggerUI(Configuration);
 
             app.UseAuthentication();
 

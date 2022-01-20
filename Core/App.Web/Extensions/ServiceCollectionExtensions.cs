@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.OpenApi.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Lens.Core.App.Web
@@ -76,6 +78,38 @@ namespace Lens.Core.App.Web
 
             services.AddHttpContextAccessor();
             services.AddScoped<IUserContext, UserContext>();
+
+            return services;
+        }
+
+
+        public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
+        {
+            var oAuthClientSettings = configuration.GetSection(nameof(OAuthClientSettings)).Get<OAuthClientSettings>();
+
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Protected API", Version = "v1" });
+
+                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        AuthorizationCode = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl = new Uri($"{oAuthClientSettings["Allie"].Authority}connect/authorize"),
+                            TokenUrl = new Uri($"{oAuthClientSettings["Allie"].Authority}connect/token"),
+                            Scopes = new Dictionary<string, string>
+                            {
+                                {oAuthClientSettings["Allie"].Scope, string.Empty}
+                            }
+                        }
+                    }
+                });
+
+                options.OperationFilter<AuthorizeCheckOperationFilter>();
+            });
 
             return services;
         }

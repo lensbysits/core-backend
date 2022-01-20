@@ -8,9 +8,5 @@
   <ItemGroup>
     <ProjectReference Include="..\App\Core.App.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
   
 </Project>
