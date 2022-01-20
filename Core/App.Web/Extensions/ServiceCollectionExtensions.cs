@@ -98,11 +98,11 @@ namespace Lens.Core.App.Web
                     {
                         AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri($"{oAuthClientSettings["Allie"].Authority}connect/authorize"),
-                            TokenUrl = new Uri($"{oAuthClientSettings["Allie"].Authority}connect/token"),
+                            AuthorizationUrl = new Uri($"{oAuthClientSettings["Swagger"].Authority}connect/authorize"),
+                            TokenUrl = new Uri($"{oAuthClientSettings["Swagger"].Authority}connect/token"),
                             Scopes = new Dictionary<string, string>
                             {
-                                {oAuthClientSettings["Allie"].Scope, string.Empty}
+                                {oAuthClientSettings["Swagger"].Scope, string.Empty}
                             }
                         }
                     }
