@@ -15,12 +15,12 @@ namespace Lens.Core.Data.EF.Services
             // Created/Updated On/By
             builder
                 .Property<DateTime>(ShadowProperties.CreatedOn)
-                .HasDefaultValueSql("GETDATE()")
+                .HasDefaultValueSql("GETUTCDATE()")
                 .ValueGeneratedOnAdd();
 
             builder
                 .Property<DateTime>(ShadowProperties.UpdatedOn)
-                .HasDefaultValueSql("GETDATE()")
+                .HasDefaultValueSql("GETUTCDATE()")
                 .ValueGeneratedOnAdd();
 
             builder

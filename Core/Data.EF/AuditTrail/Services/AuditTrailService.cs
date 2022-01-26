@@ -40,7 +40,7 @@ namespace Lens.Core.Data.EF.AuditTrail.Services
             foreach (var item in changeList)
             {
                 var dbItem = ApplicationService.Mapper.Map<EntityChange>(item);
-                await _dbContext.EntityChanges.AddAsync(dbItem);
+                _dbContext.EntityChanges.Add(dbItem);
             }
 
             try
