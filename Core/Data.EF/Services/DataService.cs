@@ -1,6 +1,8 @@
 ﻿using Lens.Core.Data.EF.Entities;
+using Lens.Core.Lib;
 using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +56,7 @@ namespace Lens.Core.Data.EF.Services
             var trackedEntity = ApplicationDbContext.Set<TEntity>().Add(entity).Entity;
             
             await ApplicationDbContext.SaveChangesAsync();
+            ApplicationService.Logger.LogInformation(LoggingEvents.InsertItem, $"Added {typeof(TEntity).Name} with id '{trackedEntity.Id}'");
 
             return await Get<TModel>(trackedEntity.Id);
         }
@@ -65,6 +68,7 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext.Set<TEntity>().Update(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
+            ApplicationService.Logger.LogDebug(LoggingEvents.UpdateItem, $"Updated {typeof(TEntity).Name} with id '{id}'");
 
             return await Get<TModel>(id);
         }
@@ -77,6 +81,7 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext.Set<TEntity>().Update(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
+            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Soft deleted {typeof(TEntity).Name} with id '{id}'");
         }
 
         protected async Task HardDelete(Guid id)
@@ -85,12 +90,15 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext.Set<TEntity>().Remove(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
+            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted {typeof(TEntity).Name} with id '{id}'");
         }
 
         protected async Task HardDelete(Expression<Func<TEntity, bool>> filterPredicate)
         {
             ApplicationDbContext.Set<TEntity>().DeleteWhere(filterPredicate);
+            
             await ApplicationDbContext.SaveChangesAsync();
+            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted multipe entities of type {typeof(TEntity).Name}");
         }
     }
 }
