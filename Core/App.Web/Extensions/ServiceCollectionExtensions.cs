@@ -85,11 +85,15 @@ namespace Lens.Core.App.Web
 
         public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
         {
-            var oAuthClientSettings = configuration.GetSection(nameof(OAuthClientSettings)).Get<OAuthClientSettings>();
+            var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Protected API", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo 
+                { 
+                    Title = swaggerSettings.AppName ?? "Protected API", 
+                    Version = "v1" 
+                });
 
                 options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
@@ -98,11 +102,11 @@ namespace Lens.Core.App.Web
                     {
                         AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri($"{oAuthClientSettings["Swagger"].Authority}connect/authorize"),
-                            TokenUrl = new Uri($"{oAuthClientSettings["Swagger"].Authority}connect/token"),
+                            AuthorizationUrl = new Uri($"{swaggerSettings.Authority}connect/authorize"),
+                            TokenUrl = new Uri($"{swaggerSettings.Authority}connect/token"),
                             Scopes = new Dictionary<string, string>
                             {
-                                {oAuthClientSettings["Swagger"].Scope, string.Empty}
+                                {swaggerSettings.Scope, swaggerSettings.ScopeName}
                             }
                         }
                     }

@@ -67,7 +67,7 @@ namespace Lens.Core.App.Web
 
             app
                 .UseSwagger()
-                .AddSwaggerUI(Configuration);
+                .UseSwaggerUI(Configuration);
 
             app.UseAuthentication();
 

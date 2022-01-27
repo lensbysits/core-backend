@@ -1,5 +1,4 @@
-﻿using Lens.Core.Lib.Services;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 
 namespace Lens.Core.App.Web
@@ -12,17 +11,17 @@ namespace Lens.Core.App.Web
             return appBuilder;
         }
 
-        public static IApplicationBuilder AddSwaggerUI(this IApplicationBuilder appBuilder, IConfiguration configuration)
+        public static IApplicationBuilder UseSwaggerUI(this IApplicationBuilder appBuilder, IConfiguration configuration)
         {
-            var oAuthClientSettings = configuration.GetSection(nameof(OAuthClientSettings)).Get<OAuthClientSettings>();
+            var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
 
             appBuilder.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("swagger/v1/swagger.json", "API V1");
+                options.SwaggerEndpoint("swagger/v1/swagger.json", swaggerSettings?.AppName ?? "API V1");
                 options.RoutePrefix = string.Empty;
 
-                options.OAuthClientId(oAuthClientSettings["Swagger"].ClientId);
-                options.OAuthClientSecret(oAuthClientSettings["Swagger"].ClientSecret);
+                options.OAuthClientId(swaggerSettings.ClientId);
+                options.OAuthClientSecret(swaggerSettings.ClientSecret);
                 options.OAuthUsePkce();
             });
             return appBuilder;
