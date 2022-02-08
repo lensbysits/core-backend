@@ -24,7 +24,10 @@ namespace Lens.Core.App.Services
 
         private IMediator mediator;
         public IMediator Mediator { get => mediator ??= _serviceProvider.GetRequiredService<IMediator>(); }
-    }
+
+        private IUserContext userContext;
+        public IUserContext UserContext { get => userContext ??= _serviceProvider.GetRequiredService<IUserContext>(); }
+}
 
     public class ApplicationService<TLogger, TSettings> : ApplicationService<TLogger>, IApplicationService<TLogger, TSettings> where TSettings : class
     {

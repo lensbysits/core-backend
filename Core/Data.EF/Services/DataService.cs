@@ -56,7 +56,7 @@ namespace Lens.Core.Data.EF.Services
             var trackedEntity = ApplicationDbContext.Set<TEntity>().Add(entity).Entity;
             
             await ApplicationDbContext.SaveChangesAsync();
-            ApplicationService.Logger.LogInformation(LoggingEvents.InsertItem, $"Added {typeof(TEntity).Name} with id '{trackedEntity.Id}'");
+            ApplicationService.Logger.LogInformation(LoggingEvents.InsertItem, $"Added {typeof(TEntity).Name} with id '{trackedEntity.Id}' by user '{ApplicationService.UserContext.Username}'");
 
             return await Get<TModel>(trackedEntity.Id);
         }
@@ -68,7 +68,7 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext.Set<TEntity>().Update(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
-            ApplicationService.Logger.LogDebug(LoggingEvents.UpdateItem, $"Updated {typeof(TEntity).Name} with id '{id}'");
+            ApplicationService.Logger.LogDebug(LoggingEvents.UpdateItem, $"Updated {typeof(TEntity).Name} with id '{id}' by user '{ApplicationService.UserContext.Username}'");
 
             return await Get<TModel>(id);
         }
@@ -81,7 +81,7 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext.Set<TEntity>().Update(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
-            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Soft deleted {typeof(TEntity).Name} with id '{id}'");
+            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Soft deleted {typeof(TEntity).Name} with id '{id}' by user '{ApplicationService.UserContext.Username}'");
         }
 
         protected async Task HardDelete(Guid id)
@@ -90,7 +90,7 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext.Set<TEntity>().Remove(entity);
 
             await ApplicationDbContext.SaveChangesAsync();
-            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted {typeof(TEntity).Name} with id '{id}'");
+            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted {typeof(TEntity).Name} with id '{id}' by user '{ApplicationService.UserContext.Username}'");
         }
 
         protected async Task HardDelete(Expression<Func<TEntity, bool>> filterPredicate)
@@ -98,7 +98,7 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext.Set<TEntity>().DeleteWhere(filterPredicate);
             
             await ApplicationDbContext.SaveChangesAsync();
-            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted multipe entities of type {typeof(TEntity).Name}");
+            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted multipe entities of type {typeof(TEntity).Name} by user '{ApplicationService.UserContext.Username}'");
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Lens.Core.Lib.Services
         ILogger<TLogger> Logger { get; }
         IMapper Mapper { get; }
         IMediator Mediator { get; }
+        IUserContext UserContext { get; }
     }
 
     public interface IApplicationService<TLogger, TSettings> : IApplicationService<TLogger> where TSettings : class
