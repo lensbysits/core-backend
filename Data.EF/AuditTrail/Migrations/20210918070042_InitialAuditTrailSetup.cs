@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace CoreApp.Data.AuditTrail.Migrations
+namespace Lens.Core.Data.EF.AuditTrail.Migrations
 {
     public partial class InitialAuditTrailSetup : Migration
     {

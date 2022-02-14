@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 
-namespace CoreLib.Services
+namespace Lens.Core.Lib.Services
 {
     public abstract class BaseBackgroundService<TLogger> : BackgroundService
     {

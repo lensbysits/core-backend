@@ -1,9 +1,9 @@
-﻿using CoreApp.Data.Entities;
+﻿using Lens.Core.Data.EF.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 
-namespace CoreApp.Data.Services
+namespace Lens.Core.Data.EF.Services
 {
     public class CreateUpdateModelBuilderService : IModelBuilderService
     {
@@ -15,12 +15,12 @@ namespace CoreApp.Data.Services
             // Created/Updated On/By
             builder
                 .Property<DateTime>(ShadowProperties.CreatedOn)
-                .HasDefaultValueSql("GETDATE()")
+                .HasDefaultValueSql("GETUTCDATE()")
                 .ValueGeneratedOnAdd();
 
             builder
                 .Property<DateTime>(ShadowProperties.UpdatedOn)
-                .HasDefaultValueSql("GETDATE()")
+                .HasDefaultValueSql("GETUTCDATE()")
                 .ValueGeneratedOnAdd();
 
             builder

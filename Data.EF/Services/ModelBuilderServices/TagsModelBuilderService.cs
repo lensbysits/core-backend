@@ -1,8 +1,8 @@
-﻿using CoreApp.Data.Entities;
+﻿using Lens.Core.Data.EF.Entities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 
-namespace CoreApp.Data.Services
+namespace Lens.Core.Data.EF.Services
 {
     public class TagsModelBuilderService : IModelBuilderService
     {

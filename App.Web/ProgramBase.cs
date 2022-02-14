@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 
-namespace CoreApp.Web
+namespace Lens.Core.App.Web
 {
-    public abstract class ProgramBase<TStartup> : Program.ProgramBase where TStartup: class
+    public abstract class ProgramBase<TStartup> : ProgramBase where TStartup: class
     {
         public static async Task<int> Start(string[] args) =>
             await Start(args, CreateWebHostBuilder);

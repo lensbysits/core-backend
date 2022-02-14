@@ -1,18 +1,13 @@
-﻿using CoreLib.Builders;
+﻿using Lens.Core.Lib.Builders;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading.Tasks;
 
-namespace CoreApp.Console
+namespace Lens.Core.App.Console
 {
-    public abstract class ProgramBase : Program.ProgramBase
+    public abstract class ProgramBase : App.ProgramBase
     {
-        private static Action<HostBuilderContext, IApplicationSetupBuilder> _applicationSetup;
-        protected static Action<HostBuilderContext, IApplicationSetupBuilder> ApplicationSetup
-        {
-            get => _applicationSetup;
-            set => _applicationSetup = value;
-        }
+        protected static Action<HostBuilderContext, IApplicationSetupBuilder> ApplicationSetup { get; set; }
 
         public static async Task<int> Start(string[] args) =>
             await Start(args, CreateHostBuilder);

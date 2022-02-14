@@ -1,16 +1,18 @@
-﻿using CoreApp.Data.AuditTrail;
-using CoreApp.Data.Entities;
-using CoreApp.Data.Services;
-using CoreLib.Services;
-using Microsoft.EntityFrameworkCore;
+﻿using Lens.Core.Data.EF.Entities;
+using Lens.Core.Data.EF.Services;
+using Lens.Core.Data.Services;
+using Lens.Core.Lib.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using EFCore = Microsoft.EntityFrameworkCore.EF;
+using Lens.Core.Data.EF.AuditTrail;
 
-namespace CoreApp.Data
+namespace Lens.Core.Data.EF
 {
     public class ApplicationDbContext : DbContext
     {   
@@ -18,6 +20,9 @@ namespace CoreApp.Data
         private readonly IUserContext _userContext;
         private readonly IAuditTrailService _auditTrailService;
         private readonly IEnumerable<IModelBuilderService> _modelBuilders;
+        private static readonly MethodInfo SetGlobalQueryForTenantMethodInfo = 
+            typeof(ApplicationDbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Single(t => t.IsGenericMethod && t.Name == "SetGlobalQueryForTenant");
 
         public ApplicationDbContext(DbContextOptions options,
             IUserContext userContext,
@@ -34,6 +39,7 @@ namespace CoreApp.Data
             _modelBuilders = modelBuilders;
         }
 
+        #region Protected methods
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -58,8 +64,18 @@ namespace CoreApp.Data
                 SetGlobalQueryFilters(modelBuilder);
             });
         }
+        #endregion Protected methods
 
-        #region Save logic
+        #region Public methods
+        /// TODO: an elegant and safe solution is to combine the base query filter with the tenant filter
+        public void SetGlobalQueryForTenant<T>(ModelBuilder builder) where T : class, ITenantEntity
+        {
+            //the HasQueryFilter applies only the last query; so, in this case overrides the check for deleted records from the base package.
+            builder.Entity<T>().HasQueryFilter(item =>
+                EFCore.Property<RecordStateEnum>(item, ShadowProperties.RecordState) != RecordStateEnum.Deleted
+                && EFCore.Property<Guid>(item, ShadowProperties.TenantId) == _tenantId);
+        }
+
         public override int SaveChanges()
         {
             throw new Exception("Please use async save method");
@@ -74,20 +90,12 @@ namespace CoreApp.Data
         // Only need AuditTrailing in here.
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
-            List<EntityState> trackedEntityStates = new() { EntityState.Added, EntityState.Deleted, EntityState.Modified };
-            ChangeTracker.Entries()
-                .Where(e => trackedEntityStates.Contains(e.State) && e.Entity is ICreatedUpdatedEntity)
-                .ToList()
-                .ForEach(entry =>
-                {
-                    entry.Property(ShadowProperties.UpdatedOn).CurrentValue = DateTime.Now;
-                    entry.Property(ShadowProperties.UpdatedBy).CurrentValue = _userContext.Username;
-                });
+            SetCreatedUpdatedFields();
 
             var changes = this.CaptureChanges(_userContext).ToList();
 
-
             var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+
             changes
                 .Where(c => c.ChangeType == EntityState.Added.ToString())
                 .ToList()
@@ -96,8 +104,32 @@ namespace CoreApp.Data
             await _auditTrailService.LogChanges(() => changes);
             return result;
         }
+        #endregion Public methods
 
-        #endregion Save logic
+        #region Private methods
+        private void SetCreatedUpdatedFields()
+        {
+            List<EntityState> trackedEntityStates = new() { EntityState.Added, EntityState.Deleted, EntityState.Modified };
+            
+            // setup Updated fields
+            ChangeTracker.Entries()
+                .Where(e => trackedEntityStates.Contains(e.State) && e.Entity is ICreatedUpdatedEntity)
+                .ToList()
+                .ForEach(entry =>
+                {
+                    entry.Property(ShadowProperties.UpdatedOn).CurrentValue = DateTime.UtcNow;
+                    entry.Property(ShadowProperties.UpdatedBy).CurrentValue = _userContext.Username;
+                });
+
+            // setup Created fields
+            ChangeTracker.Entries()
+               .Where(e => e.State == EntityState.Added && e.Entity is ICreatedUpdatedEntity)
+               .ToList()
+               .ForEach(entry =>
+               {
+                   entry.Property(ShadowProperties.CreatedBy).CurrentValue = _userContext.Username;
+               });
+        }
 
         private void SetGlobalQueryFilters(ModelBuilder modelBuilder)
         {
@@ -115,18 +147,6 @@ namespace CoreApp.Data
                 }
             }
         }
-
-        private static readonly MethodInfo SetGlobalQueryForTenantMethodInfo = typeof(ApplicationDbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance)
-           .Single(t => t.IsGenericMethod && t.Name == "SetGlobalQueryForTenant");
-
-
-        /// TODO: an elegant and safe solution is to combine the base query filter with the tenant filter
-        public void SetGlobalQueryForTenant<T>(ModelBuilder builder) where T : class, ITenantEntity
-        {
-            //the HasQueryFilter applies only the last query; so, in this case overrides the check for deleted records from the base package.
-            builder.Entity<T>().HasQueryFilter(item =>
-                EF.Property<RecordStateEnum>(item, ShadowProperties.RecordState) != RecordStateEnum.Deleted
-                && EF.Property<Guid>(item, ShadowProperties.TenantId) == _tenantId);
-        }
+        #endregion
     }
 }

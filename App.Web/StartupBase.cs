@@ -1,4 +1,4 @@
-﻿using CoreLib.Builders;
+﻿using Lens.Core.Lib.Builders;
 using Lamar;
 using Lamar.Scanning.Conventions;
 using Microsoft.AspNetCore.Builder;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace CoreApp.Web
+namespace Lens.Core.App.Web
 {
     public class StartupBase
     {
@@ -43,9 +43,8 @@ namespace CoreApp.Web
 
             services
                 .AddAuthentication(Configuration)
-                .AddCors(Configuration);
-
-            services.AddSwaggerGen();
+                .AddCors(Configuration)
+                .AddSwagger(Configuration);
 
             services.AddControllers(config =>
             {
@@ -68,11 +67,7 @@ namespace CoreApp.Web
 
             app
                 .UseSwagger()
-                .UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("swagger/v1/swagger.json", "API V1");
-                    c.RoutePrefix = string.Empty;
-                });
+                .UseSwaggerUI(Configuration);
 
             app.UseAuthentication();
 

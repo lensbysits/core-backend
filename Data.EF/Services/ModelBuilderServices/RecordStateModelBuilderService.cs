@@ -1,23 +1,24 @@
-﻿using CoreApp.Data.Entities;
+﻿using Lens.Core.Data.EF.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using EFCore = Microsoft.EntityFrameworkCore.EF;
 using System;
 
-namespace CoreApp.Data.Services
+namespace Lens.Core.Data.EF.Services
 {
     public class RecordStateModelBuilderService : IModelBuilderService
     {
         public void ConfigureBaseProperties(Type entityType, EntityTypeBuilder builder)
         {
             // RecordState
-            if (!typeof(IRecordState).IsAssignableFrom(entityType)) return;
+            if (!typeof(IRecordStateEntity).IsAssignableFrom(entityType)) return;
             
             builder
                 .Property<RecordStateEnum>(ShadowProperties.RecordState)
                 .HasDefaultValue(RecordStateEnum.NotDefined);
 
             builder
-                .AppendQueryFilter<IRecordState>(e => EF.Property<RecordStateEnum>(e, ShadowProperties.RecordState) != RecordStateEnum.Deleted);
+                .AppendQueryFilter<IRecordStateEntity>(e => EFCore.Property<RecordStateEnum>(e, ShadowProperties.RecordState) != RecordStateEnum.Deleted);
         }
     }
 }

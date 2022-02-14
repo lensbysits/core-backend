@@ -1,0 +1,144 @@
+﻿using Lens.Core.Data.EF.Entities;
+using Lens.Core.Lib.Exceptions;
+using Lens.Core.Lib.Models;
+using LinqKit;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using EFCore = Microsoft.EntityFrameworkCore.EF;
+
+namespace Lens.Core.Data.EF
+{
+    public static class EntityExtensions
+    {
+        public static async Task<TEntity> GetById<TEntity>(this IQueryable<TEntity> entities, Guid id)
+            where TEntity : class, IIdEntity
+        {
+            TEntity result = await entities.FirstOrDefaultAsync(entity => entity.Id == id);
+            if (result == null)
+            {
+                throw new NotFoundException($"{typeof(TEntity).Name} with id {id} not found");
+            }
+            return result;
+        }
+
+        public static IQueryable<TEntity> GetByQueryModel<TEntity>(this IQueryable<TEntity> entities, QueryModel queryModel, Expression<Func<TEntity, bool>> searchPredicate = null)
+           where TEntity : class, IIdEntity
+        {
+            // apply default filters
+            if (typeof(ITagsEntity).IsAssignableFrom(typeof(TEntity)) && !string.IsNullOrEmpty(queryModel.Tag))
+            {
+                entities = entities
+                    .Where(entity => EFCore.Property<string>(entity, ShadowProperties.Tag).Contains($"\"{queryModel.Tag}\""));
+            }
+
+            if (typeof(ICreatedUpdatedEntity).IsAssignableFrom(typeof(TEntity)))
+            {
+                if (!string.IsNullOrEmpty(queryModel.CreatedBy))
+                {
+                    entities = entities
+                        .Where(entity => EFCore.Property<string>(entity, ShadowProperties.CreatedBy) == queryModel.CreatedBy);
+                }
+
+                if (!string.IsNullOrEmpty(queryModel.UpdatedBy))
+                {
+                    entities = entities
+                        .Where(entity => EFCore.Property<string>(entity, ShadowProperties.UpdatedBy) == queryModel.UpdatedBy);
+                }
+
+                if (queryModel.CreatedSince.HasValue)
+                {
+                    entities = entities
+                        .Where(entity => EFCore.Property<DateTime>(entity, ShadowProperties.CreatedOn) >= queryModel.CreatedSince);
+                }
+
+                if (queryModel.UpdatedSince.HasValue)
+                {
+                    entities = entities
+                        .Where(entity => EFCore.Property<DateTime>(entity, ShadowProperties.UpdatedOn) >= queryModel.UpdatedSince);
+                }
+            }
+
+            // search by term
+            if (searchPredicate != null && !string.IsNullOrWhiteSpace(queryModel.SearchTerm))
+            {
+                entities = entities.Where(searchPredicate);
+            }
+
+            // apply sorting
+            entities = ApplySort(entities, queryModel);
+
+            return entities;
+        }
+
+        public static void DeleteWhere<TEntity>(this DbSet<TEntity> entities, Expression<Func<TEntity, bool>> predicate)
+            where TEntity : class, IIdEntity
+        {
+            var entitiesToDelete = entities.Where(predicate);
+            entities.DeleteRange(entitiesToDelete);
+        }
+
+        public static void DeleteRange<TEntity>(this DbSet<TEntity> entities, IQueryable<TEntity> entitiesToDelete)
+            where TEntity : class, IIdEntity
+        {
+            entities.AttachRange(entitiesToDelete);
+            entities.RemoveRange(entitiesToDelete);
+        }
+
+        public static Expression<Func<TEntity, bool>> ToCompositePredicate<TEntity>(this IEnumerable<Expression<Func<TEntity, bool>>> expressions)
+            where TEntity : class, IIdEntity
+        {
+            ExpressionStarter<TEntity> predicate = null;
+            foreach (var expression in expressions)
+            {
+                predicate = (predicate == null) ? PredicateBuilder.New(expression) : predicate.And(expression);
+            }
+
+            return predicate;
+        }
+
+        #region Private static methods
+
+        private static IQueryable<TEntity> ApplySort<TEntity>(IQueryable<TEntity> entities, QueryModel queryModel)
+        {
+            if (!entities.Any()) return entities;
+
+            // default sorting when 'order by' query param is missing.
+            if (string.IsNullOrWhiteSpace(queryModel.OrderBy) && typeof(ICreatedUpdatedEntity).IsAssignableFrom(typeof(TEntity)))
+            {
+                entities.OrderByDescending(entity => EFCore.Property<DateTime>(entity, ShadowProperties.UpdatedOn));
+                return entities;
+            }
+
+            var orderParams = queryModel.OrderBy.Split(',', StringSplitOptions.TrimEntries);
+            var propertyInfos = typeof(TEntity).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var orderQueryBuilder = new StringBuilder();
+
+            foreach (var param in orderParams)
+            {
+                if (string.IsNullOrWhiteSpace(param)) continue;
+
+                var propertyFromQueryName = param.Split(" ")[0];
+                var objectProperty = propertyInfos
+                    .FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (objectProperty == null) continue;
+
+                var sortingOrder = param.EndsWith(" desc") ? "descending" : "ascending";
+                orderQueryBuilder.Append($"{objectProperty.Name} {sortingOrder}, ");
+            }
+
+            var orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
+
+            return string.IsNullOrWhiteSpace(orderQuery) ? entities : entities.OrderBy(orderQuery);
+        }
+
+        #endregion Private static methods
+    }
+}

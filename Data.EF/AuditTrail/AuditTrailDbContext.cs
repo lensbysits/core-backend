@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Lens.Core.Data.EF.AuditTrail.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace CoreApp.Data.AuditTrail
+namespace Lens.Core.Data.EF.AuditTrail
 {
     public class AuditTrailDbContext : DbContext
     {

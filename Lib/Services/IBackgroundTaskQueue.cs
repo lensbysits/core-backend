@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CoreLib.Services
+namespace Lens.Core.Lib.Services
 {
     public interface IBackgroundTaskQueue
     {
