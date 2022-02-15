@@ -2,9 +2,9 @@
 <Project>
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.1.0-beta001</Version>
+    <Version>0.2.0-beta001</Version>
     <Company>Lens BV</Company>
     <Authors>Lens Dev Team</Authors>
     <RootNamespace>Lens.$(MSBuildProjectName)</RootNamespace>
