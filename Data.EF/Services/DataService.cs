@@ -50,22 +50,30 @@ namespace Lens.Core.Data.EF.Services
                 .ToModel<TEntity, TModel>(ApplicationService.Mapper, filterPredicate);
         }
 
-        protected async Task<TModel> Add<TModel, VModel>(VModel value)
+        protected async Task<TModel> Add<TModel, VModel>(VModel value, Func<TEntity, Task> callback = null)
         {
             var entity = ApplicationService.Mapper.Map<TEntity>(value);
             var trackedEntity = ApplicationDbContext.Set<TEntity>().Add(entity).Entity;
-            
+            if (callback != null)
+            {
+                await callback.Invoke(trackedEntity);
+            }
+
             await ApplicationDbContext.SaveChangesAsync();
             ApplicationService.Logger.LogInformation(LoggingEvents.InsertItem, $"Added {typeof(TEntity).Name} with id '{trackedEntity.Id}' by user '{ApplicationService.UserContext.Username}'");
 
             return await Get<TModel>(trackedEntity.Id);
         }
 
-        protected async Task<TModel> Update<TModel, VModel>(Guid id, VModel value)
+        protected async Task<TModel> Update<TModel, VModel>(Guid id, VModel value, Func<TEntity, Task> callback = null)
         {
             var entity = await ApplicationDbContext.Set<TEntity>().GetById(id);
             ApplicationService.Mapper.Map(value, entity);
             ApplicationDbContext.Set<TEntity>().Update(entity);
+            if (callback != null)
+            {
+                await callback.Invoke(entity);
+            }
 
             await ApplicationDbContext.SaveChangesAsync();
             ApplicationService.Logger.LogDebug(LoggingEvents.UpdateItem, $"Updated {typeof(TEntity).Name} with id '{id}' by user '{ApplicationService.UserContext.Username}'");
