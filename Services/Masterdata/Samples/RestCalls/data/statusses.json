@@ -1,0 +1,61 @@
+{
+  "code": "status",
+  "name": "statusses",
+  "description": "Statusses to indicate the status of an entity",
+  "masterdatas": [
+    {
+      "key": "1",
+      "value": "Concept",
+      "name": "Concept",
+      "weight": 50
+    },
+    {
+      "key": "2",
+      "value": "Ter Controle",
+      "name": "Ter Controle",
+      "weight": 100
+    },
+    {
+      "key": "3",
+      "value": "Definitief",
+      "name": "Definitief",
+      "weight": 150
+    },
+    {
+      "key": "4",
+      "value": "Actief",
+      "name": "Actief",
+      "weight": 200
+    },
+    {
+      "key": "5",
+      "value": "Inactief",
+      "name": "Inactief",
+      "weight": 250
+    },
+    {
+      "key": "6",
+      "value": "Nieuw",
+      "name": "Nieuw",
+      "weight": 300
+    },
+    {
+      "key": "7",
+      "value": "Verwijderd",
+      "name": "Verwijderd",
+      "weight": 350
+    }
+  ],
+  "metadata": {
+    "defaults": [
+      {
+        "role": "employee",
+        "key": "2"
+      },
+      {
+        "role": "admin",
+        "key": "3"
+      }
+    ]
+  }
+}
