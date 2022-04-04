@@ -105,20 +105,18 @@ namespace Lens.Core.App
         /// </summary>
         private static async Task Initialize(IHost host)
         {
-            using (var scope = host.Services.CreateScope())
+            using var scope = host.Services.CreateScope();
+            var initializers = scope.ServiceProvider.GetServices<IProgramInitializer>();
+            var logger = scope.ServiceProvider.GetService<ILogger<ProgramBase>>();
+            foreach (var initializer in initializers)
             {
-                var initializers = scope.ServiceProvider.GetServices<IProgramInitializer>();
-                var logger = scope.ServiceProvider.GetService<ILogger<ProgramBase>>();
-                foreach (var initializer in initializers)
+                try
                 {
-                    try
-                    {
-                        await initializer.Initialize();
-                    }
-                    catch (Exception e)
-                    {
-                        logger.LogError(e, "Error running initializer {initializer}", initializer.GetType().Name);
-                    }
+                    await initializer.Initialize();
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error running initializer {initializer}", initializer.GetType().Name);
                 }
             }
         }
