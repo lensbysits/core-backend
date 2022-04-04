@@ -10,6 +10,7 @@ namespace Lens.Core.Blob.Data
         {
             CreateMap<BlobInfo, BlobInfoModel>();
             CreateMap<BlobInfoMergeModel, BlobInfo>();
+            CreateMap<BlobMetadataModel, BlobInfo>();
         }
     }
 }
