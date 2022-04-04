@@ -1,4 +1,4 @@
-﻿namespace Lens.App.Blob
+﻿namespace Lens.Core.Blob
 {
     public enum BlobImplementationType
     {

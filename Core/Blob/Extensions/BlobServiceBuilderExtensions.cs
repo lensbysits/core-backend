@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Lens.Core.Lib.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lens.App.Blob
+namespace Lens.Core.Blob
 {
     public static class BlobServiceBuilderExtensions
     {

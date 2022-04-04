@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Lens.App.Blob
+namespace Lens.Core.Blob
 {
     public class AzureStorageBlobService : BaseService<AzureStorageBlobService>, IBlobService
     {
@@ -37,7 +37,7 @@ namespace Lens.App.Blob
             throw new NotImplementedException();
         }
 
-        public Task<BlobMetadata> Upload(string blobInfoId, string relativePathAndName, Stream stream)
+        public Task<BlobMetadata> Upload(string relativePathAndName, Stream stream)
         {
             throw new NotImplementedException();
         }

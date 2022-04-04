@@ -1,11 +1,11 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace Lens.App.Blob
+namespace Lens.Core.Blob
 {
     public interface IBlobService
     {
-        Task<BlobMetadata> Upload(string blobInfoId, string relativePathAndName, Stream stream);
+        Task<BlobMetadata> Upload(string relativePathAndName, Stream stream);
         Task<Stream> Download(string relativePathAndName);
         Task<string[]> GetBlobs();
         Task<string> GetBlobUrl(string relativePathAndName);

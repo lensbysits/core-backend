@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Lens.App.Blob
+namespace Lens.Core.Blob
 {
     public class FilesystemBlobService : BaseService<FilesystemBlobService>, IBlobService
     {
@@ -53,7 +53,7 @@ namespace Lens.App.Blob
                 : await Task.FromResult(string.Empty);
         }
 
-        public async Task<BlobMetadata> Upload(string blobInfoId, string relativePathAndName, Stream stream)
+        public async Task<BlobMetadata> Upload(string relativePathAndName, Stream stream)
         {
             var extension = Path.GetExtension(relativePathAndName);
             var newFileName = $"{Guid.NewGuid()}{extension}";
