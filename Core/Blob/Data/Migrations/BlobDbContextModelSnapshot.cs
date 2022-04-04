@@ -30,8 +30,8 @@ namespace Lens.Core.Blob.Data.Migrations
                         .HasDefaultValueSql("newsequentialid()");
 
                     b.Property<string>("ContentType")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<Guid?>("EntityId")
                         .HasColumnType("uniqueidentifier");
@@ -51,14 +51,6 @@ namespace Lens.Core.Blob.Data.Migrations
                     b.Property<string>("FullPathAndName")
                         .HasMaxLength(2048)
                         .HasColumnType("nvarchar(2048)");
-
-                    b.Property<byte[]>("Image")
-                        .HasMaxLength(1048576)
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("ImageType")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("RelativePathAndName")
                         .HasMaxLength(2048)

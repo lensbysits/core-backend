@@ -18,16 +18,14 @@ namespace Lens.Core.Blob.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newsequentialid()"),
-                    ContentType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ContentType = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
                     EntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     FileExtension = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     FilenameWithExtension = table.Column<string>(type: "nvarchar(532)", maxLength: 532, nullable: true),
                     FilenameWithoutExtension = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     FullPathAndName = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     RelativePathAndName = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
-                    Size = table.Column<int>(type: "int", nullable: false),
-                    Image = table.Column<byte[]>(type: "varbinary(max)", maxLength: 1048576, nullable: true),
-                    ImageType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                    Size = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

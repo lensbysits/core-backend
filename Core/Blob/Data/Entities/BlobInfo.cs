@@ -7,9 +7,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Lens.Core.Blob.Data.Entities
 {
     [Table("BlobInfo", Schema = "blob")]
-    public class BlobInfo : BaseEntityWithImage, IAuditTrailEntity
+    public class BlobInfo : BaseEntity, IAuditTrailEntity
     {
-        [StringLength(20)]
+        [StringLength(128)]
         public string ContentType { get; set; }
         public Guid? EntityId { get; set; }
 
