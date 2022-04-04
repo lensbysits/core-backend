@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using Lens.Core.Blob.Models;
+using System.IO;
 using System.Threading.Tasks;
 
-namespace Lens.Core.Blob
+namespace Lens.Core.Blob.Services
 {
     public interface IBlobService
     {
-        Task<BlobMetadata> Upload(string relativePathAndName, Stream stream);
+        Task<BlobMetadataModel> Upload(string relativePathAndName, Stream stream);
         Task<Stream> Download(string relativePathAndName);
         Task<string[]> GetBlobs();
         Task<string> GetBlobUrl(string relativePathAndName);

@@ -1,10 +1,11 @@
-﻿using Lens.Core.Lib.Services;
+﻿using Lens.Core.Blob.Models;
+using Lens.Core.Lib.Services;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Lens.Core.Blob
+namespace Lens.Core.Blob.Services
 {
     public class AzureStorageBlobService : BaseService<AzureStorageBlobService>, IBlobService
     {
@@ -37,7 +38,7 @@ namespace Lens.Core.Blob
             throw new NotImplementedException();
         }
 
-        public Task<BlobMetadata> Upload(string relativePathAndName, Stream stream)
+        public Task<BlobMetadataModel> Upload(string relativePathAndName, Stream stream)
         {
             throw new NotImplementedException();
         }
