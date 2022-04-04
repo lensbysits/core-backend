@@ -45,5 +45,30 @@ namespace Lens.Core.Data.EF
             }
             return builder;
         }
+
+        public static MigrationBuilder RunFiles(this MigrationBuilder builder, string dirName)
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            string data = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppContext.BaseDirectory;
+            string path = Path.Combine(data,dirName);
+
+            var sqlFiles = Directory.GetFiles(path, "*.sql", SearchOption.AllDirectories);
+            if (!(sqlFiles?.Any() ?? false))
+            {
+                // TODO: I usually replace this generic exception with `AppMigrationException`.
+                throw new Exception($"No sql files found in '{path}'. Please add files or update directory name");
+            }
+
+            foreach(var file in sqlFiles)
+            {
+                builder.Sql(File.ReadAllText(file));
+            }
+
+            return builder;
+        }
     }
 }
