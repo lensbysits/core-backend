@@ -1,4 +1,5 @@
-﻿using Lens.Core.Data.EF.Services;
+﻿using Lens.Core.Data.EF.Repositories;
+using Lens.Core.Data.EF.Services;
 using Lens.Core.Lib.Builders;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,9 @@ namespace Lens.Core.Data.EF
             builder.Services.AddTransient<IModelBuilderService, RecordStateModelBuilderService>();
             builder.Services.AddTransient<IModelBuilderService, TagsModelBuilderService>();
             builder.Services.AddTransient<IModelBuilderService, TenantModelBuilderService>();
+
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
             return builder;
         }
