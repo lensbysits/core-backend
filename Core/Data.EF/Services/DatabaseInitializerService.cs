@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lens.Core.Data.EF.Services
 {
-    public class DatabaseInitializerService : BaseService<DatabaseInitializerService>, IProgramInitializer
+    public abstract class DatabaseInitializerService : BaseService<DatabaseInitializerService>, IProgramInitializer
     {
         private readonly DbContext _dbContext;
 
