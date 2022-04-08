@@ -86,7 +86,7 @@ namespace Lens.Core.Data.EF
                 var firstLine = reader.ReadLine();
                 if (!firstLine.Equals(SqlFileHeaderMigrationDown))
                 {
-                    throw new Exception("Headers missing for bulk file run. Please add the 2 required headers: --efcore.migration.down and --efcore.migration.up");
+                    throw new Exception($"Headers missing for bulk file run. Please add the 2 required headers: --efcore.migration.down and --efcore.migration.up. For file: {file}");
                 }
 
                 var line = string.Empty;
