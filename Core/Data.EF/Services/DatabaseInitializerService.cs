@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Lens.Core.Data.EF.Services
 {
-    public class DatabaseInitializerService : BaseService<DatabaseInitializerService>, IProgramInitializer
+    public abstract class DatabaseInitializerService : BaseService<DatabaseInitializerService>, IProgramInitializer
     {
         private readonly DbContext _dbContext;
 
         public DatabaseInitializerService(IApplicationService<DatabaseInitializerService> applicationService,
-            DbContext dbContext) 
+            DbContext dbContext)
             : base(applicationService)
         {
             _dbContext = dbContext;
@@ -35,6 +35,13 @@ namespace Lens.Core.Data.EF.Services
         public async virtual Task Seed()
         {
             await Task.FromResult(0);
+        }
+    }
+
+    public class DatabaseInitializerService<TDbContext> : DatabaseInitializerService where TDbContext: DbContext
+    {
+        public DatabaseInitializerService(IApplicationService<DatabaseInitializerService> applicationService, TDbContext dbContext) : base(applicationService, dbContext)
+        {
         }
     }
 }

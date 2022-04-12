@@ -62,7 +62,7 @@ namespace Lens.Core.App
                 // Use Lamar as the depencency injection framework
                 .UseLamar()
                 // Use Serilog as the logging framework
-                .ConfigureLogging(logBuilder => logBuilder.AddSerilog())
+                //.ConfigureLogging(logBuilder => logBuilder.AddSerilog(Log.Logger))
                 // Allow the deriving class to add extra configuration sources as early as possible while the program is starting up.
                 .ConfigureHostConfiguration(config =>
                 {
@@ -74,7 +74,8 @@ namespace Lens.Core.App
                 {
                     config.AddJsonFile("appsettings.ProgramInitialize.json", optional: true);
                     AppConfigurationSetup?.Invoke(config);
-                });
+                })
+                .UseSerilog();
 
         /// <summary>
         /// Setup static Serilog logging from configuration.
@@ -105,20 +106,18 @@ namespace Lens.Core.App
         /// </summary>
         private static async Task Initialize(IHost host)
         {
-            using (var scope = host.Services.CreateScope())
+            using var scope = host.Services.CreateScope();
+            var initializers = scope.ServiceProvider.GetServices<IProgramInitializer>();
+            var logger = scope.ServiceProvider.GetService<ILogger<ProgramBase>>();
+            foreach (var initializer in initializers)
             {
-                var initializers = scope.ServiceProvider.GetServices<IProgramInitializer>();
-                var logger = scope.ServiceProvider.GetService<ILogger<ProgramBase>>();
-                foreach (var initializer in initializers)
+                try
                 {
-                    try
-                    {
-                        await initializer.Initialize();
-                    }
-                    catch (Exception e)
-                    {
-                        logger.LogError(e, "Error running initializer {initializer}", initializer.GetType().Name);
-                    }
+                    await initializer.Initialize();
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error running initializer {initializer}", initializer.GetType().Name);
                 }
             }
         }
