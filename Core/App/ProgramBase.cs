@@ -19,6 +19,12 @@ namespace Lens.Core.App
         protected static Action<IConfigurationBuilder> LoggingConfigurationSetup { get; set; }
 
         /// <summary>
+        /// Allows to add configuration to serilogger, while it's being built. 
+        /// The bool is if the logger configuration is about the bootstrapped logger, or the real application logger.
+        /// </summary>
+        protected static Action<LoggerConfiguration, bool> SeriloggerConfigurationSetup { get; set; }
+
+        /// <summary>
         /// Allows the overriding class to add additional configuration sources while settting up the Host Configuration
         /// </summary>
         protected static Action<IConfigurationBuilder> HostConfigurationSetup { get; set; }
@@ -73,12 +79,22 @@ namespace Lens.Core.App
                 .ConfigureAppConfiguration(config =>
                 {
                     config.AddJsonFile("appsettings.ProgramInitialize.json", optional: true);
+
                     AppConfigurationSetup?.Invoke(config);
                 })
-                .UseSerilog();
+                .UseSerilog((context, services, configuration) =>
+                {
+                    configuration
+                        .ReadFrom.Configuration(context.Configuration)
+                        .ReadFrom.Services(services);
+
+
+                    SeriloggerConfigurationSetup?.Invoke(configuration, false);
+
+                });
 
         /// <summary>
-        /// Setup static Serilog logging from configuration.
+        /// Setup static Serilog logging from configuration, on startup.
         /// </summary>
         private static void SetupStaticLogging()
         {
@@ -94,9 +110,15 @@ namespace Lens.Core.App
 
             var configuration = configurationBuilder.Build();
 
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
+            //See: https://nblumhardt.com/2020/10/bootstrap-logger/
+            var logConfig = new LoggerConfiguration()
+                .WriteTo.Console() // for the bootstrapped logger
+                .ReadFrom.Configuration(configuration);
+
+
+            SeriloggerConfigurationSetup?.Invoke(logConfig, true);
+
+            Log.Logger = logConfig.CreateBootstrapLogger();
         }
 
         /// <summary>
