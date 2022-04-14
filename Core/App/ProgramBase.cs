@@ -67,8 +67,6 @@ namespace Lens.Core.App
             Host.CreateDefaultBuilder(args)
                 // Use Lamar as the depencency injection framework
                 .UseLamar()
-                // Use Serilog as the logging framework
-                //.ConfigureLogging(logBuilder => logBuilder.AddSerilog(Log.Logger))
                 // Allow the deriving class to add extra configuration sources as early as possible while the program is starting up.
                 .ConfigureHostConfiguration(config =>
                 {
@@ -83,6 +81,7 @@ namespace Lens.Core.App
                     AppConfigurationSetup?.Invoke(config);
                 })
 
+                // Use Serilog as the logging framework
                 .UseSerilog((context, services, configuration) =>
                 {
                     configuration
