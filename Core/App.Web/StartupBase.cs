@@ -66,7 +66,7 @@ namespace Lens.Core.App.Web
             app.UseCors();
 
             app
-                .UseSwagger()
+                .UseSwagger(Configuration)
                 .UseSwaggerUI(Configuration);
 
             app.UseAuthentication();

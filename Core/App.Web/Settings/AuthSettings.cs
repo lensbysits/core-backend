@@ -7,5 +7,8 @@
         public bool RequireHttps { get; set; } = true;
         public bool ValidateAudience { get; set; } = false;
         public string MetadataAddress { get; set; }
+        public string AuthenticationType { get; set; } = "oauth2";
+        public string ApiKeyHeader { get; set; } = "X-Api-Key";
+        public string ApiKey { get; set; }
     }
 }

@@ -1,8 +1,10 @@
-﻿using Lens.Core.App.Web.Services;
+﻿using Lens.Core.App.Web.Middleware;
+using Lens.Core.App.Web.Services;
 using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
@@ -53,31 +55,40 @@ namespace Lens.Core.App.Web
 
             var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
 
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    if (authSettings != null)
+            if (string.IsNullOrEmpty(authSettings.AuthenticationType))
+            {
+                authSettings.AuthenticationType = "oauth2";
+            }
+
+            if (authSettings.AuthenticationType?.ToLowerInvariant() != "apikey")
+            {
+
+                services
+                    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
                     {
-                        options.Audience = authSettings.Audience;
-                        options.Authority = authSettings.Authority;
+                        if (authSettings != null)
+                        {
+                            options.Audience = authSettings.Audience;
+                            options.Authority = authSettings.Authority;
 
-                        if (!string.IsNullOrEmpty(authSettings.MetadataAddress))
-                            options.MetadataAddress = authSettings.MetadataAddress;
+                            if (!string.IsNullOrEmpty(authSettings.MetadataAddress))
+                                options.MetadataAddress = authSettings.MetadataAddress;
 
-                        options.RequireHttpsMetadata = authSettings.RequireHttps;
-                        options.TokenValidationParameters.ValidateAudience = authSettings.ValidateAudience;
-                        options.TokenValidationParameters.NameClaimType = "name";
-                    }
+                            options.RequireHttpsMetadata = authSettings.RequireHttps;
+                            options.TokenValidationParameters.ValidateAudience = authSettings.ValidateAudience;
+                            options.TokenValidationParameters.NameClaimType = "name";
+                        }
 
-                    jwtBearerOptions?.Invoke(options);
-                });
+                        jwtBearerOptions?.Invoke(options);
+                    });
 
-            authorizationOptions ??= options => { options.DefaultPolicy = DefaultPolicy; };
-            services.AddAuthorization(authorizationOptions);
+                authorizationOptions ??= options => { options.DefaultPolicy = DefaultPolicy; };
+                services.AddAuthorization(authorizationOptions);
 
-            services.AddHttpContextAccessor();
-            services.AddScoped<IUserContext, UserContext>();
+                services.AddHttpContextAccessor();
+                services.AddScoped<IUserContext, UserContext>();
+            }
 
             return services;
         }
@@ -86,6 +97,12 @@ namespace Lens.Core.App.Web
         public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
         {
             var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
+            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
+
+            if (string.IsNullOrEmpty(authSettings.AuthenticationType))
+            {
+                authSettings.AuthenticationType = "oauth2";
+            }
 
             services.AddSwaggerGen(options =>
             {
@@ -95,24 +112,63 @@ namespace Lens.Core.App.Web
                     Version = "v1" 
                 });
 
-                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                options.IgnoreObsoleteActions();
+                options.IgnoreObsoleteProperties();
+
+                // In contrast to WebApi, Swagger 2.0 does not include the query string component when mapping a URL
+                // to an action. As a result, Swashbuckle will raise an exception if it encounters multiple actions
+                // with the same path (sans query string) and HTTP method. You can workaround this by providing a
+                // custom strategy to pick a winner or merge the descriptions for the purposes of the Swagger docs
+                options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+
+                options.MapType<FileResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
+                options.MapType<FileStreamResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
+                options.MapType<FileContentResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
+
+                if (authSettings?.AuthenticationType?.ToLowerInvariant() == "oauth2")
                 {
-                    Type = SecuritySchemeType.OAuth2,
-                    Flows = new OpenApiOAuthFlows
+                    //https://www.c-sharpcorner.com/article/enable-oauth-2-authorization-using-azure-ad-and-swagger-in-net-5-0/
+                    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                     {
-                        AuthorizationCode = new OpenApiOAuthFlow
+                        Type = SecuritySchemeType.OAuth2,
+                        Flows = new OpenApiOAuthFlows
                         {
-                            AuthorizationUrl = new Uri($"{swaggerSettings.Authority}connect/authorize"),
-                            TokenUrl = new Uri($"{swaggerSettings.Authority}connect/token"),
-                            Scopes = new Dictionary<string, string>
+                            AuthorizationCode = new OpenApiOAuthFlow
                             {
-                                {swaggerSettings.Scope, swaggerSettings.ScopeName}
+                                AuthorizationUrl = new Uri($"{swaggerSettings.Authority}connect/authorize"),
+                                TokenUrl = new Uri($"{swaggerSettings.Authority}connect/token"),
+                                Scopes = new Dictionary<string, string>
+                                {
+                                    {swaggerSettings.Scope, swaggerSettings.ScopeName}
+                                }
                             }
                         }
-                    }
-                });
+                    });
 
-                options.OperationFilter<AuthorizeCheckOperationFilter>();
+                    options.OperationFilter<AuthorizeCheckOperationFilter>();
+                    
+                }
+                else if (authSettings?.AuthenticationType?.ToLowerInvariant() == "apikey")
+                {
+                    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme()
+                    {
+                        Type = SecuritySchemeType.ApiKey,
+                        In = ParameterLocation.Header,
+                        Name = authSettings.ApiKeyHeader,
+                        Description = "API Key Authentication",
+                    });
+
+                    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
+                            },
+                            new string[] { }
+                        }
+                    });
+                }
             });
 
             return services;

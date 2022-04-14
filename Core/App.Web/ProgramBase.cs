@@ -6,8 +6,7 @@ namespace Lens.Core.App.Web
 {
     public abstract class ProgramBase<TStartup> : ProgramBase where TStartup: class
     {
-        public static async Task<int> Start(string[] args) =>
-            await Start(args, CreateWebHostBuilder);
+        public static Task<int> Start(string[] args) => Start(args, CreateWebHostBuilder);
 
         protected static IHostBuilder CreateWebHostBuilder(string[] args) =>
             CreateBaseHostBuilder(args)
