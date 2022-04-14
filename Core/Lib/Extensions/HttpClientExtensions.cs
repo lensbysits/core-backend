@@ -25,12 +25,12 @@ namespace Lens.Core.Lib
 			return httpClient.SendAsync(request);
 		}
 
-		public static async Task<HttpResponseMessage> PostAsync(this HttpClient httpClient, string url, HttpContent content, Action<HttpRequestHeaders> beforeRequest)
+		public static Task<HttpResponseMessage> PostAsync(this HttpClient httpClient, string url, HttpContent content, Action<HttpRequestHeaders> beforeRequest)
 		{
 			var request = new HttpRequestMessage(HttpMethod.Post, url);
 			beforeRequest(request.Headers);
 			request.Content = content;
-			return await httpClient.SendAsync(request);
+			return httpClient.SendAsync(request);
 		}
 	}
 }
