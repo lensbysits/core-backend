@@ -24,7 +24,6 @@ namespace Lens.Core.Lib.Utilities
         private static string PASSWORD_CHARS_NUMERIC = "123456789";
         private static string PASSWORD_CHARS_SPECIAL = "_-!*:;\\/|~";
 
-        
         /// <summary>
         /// Generates a random password.
         /// </summary>

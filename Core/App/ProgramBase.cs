@@ -82,6 +82,7 @@ namespace Lens.Core.App
 
                     AppConfigurationSetup?.Invoke(config);
                 })
+
                 .UseSerilog((context, services, configuration) =>
                 {
                     configuration

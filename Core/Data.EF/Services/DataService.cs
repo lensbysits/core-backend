@@ -106,7 +106,7 @@ namespace Lens.Core.Data.EF.Services
             ApplicationDbContext.Set<TEntity>().DeleteWhere(filterPredicate);
             
             await ApplicationDbContext.SaveChangesAsync();
-            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted multipe entities of type {typeof(TEntity).Name} by user '{ApplicationService.UserContext.Username}'");
+            ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted multiple entities of type {typeof(TEntity).Name} by user '{ApplicationService.UserContext.Username}'");
         }
     }
 }
