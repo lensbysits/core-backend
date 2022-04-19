@@ -16,7 +16,11 @@ namespace Lens.Core.App.Web.Authentication
     internal sealed class AnonymousAuthentication : IAuthententicationMethod
     {
         public void ApplyMvcFilters(FilterCollection filters) { }
-        public void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions, Action<JwtBearerOptions> jwtBearerOptions) { }
+        public void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions, Action<JwtBearerOptions> jwtBearerOptions)
+        {
+            services.AddHttpContextAccessor();
+        }
+
         public void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings) { }
         public void UseMiddleware(IApplicationBuilder applicationBuilder) { }
         public void UseSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings) { }

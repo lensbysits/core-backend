@@ -9,35 +9,36 @@ namespace Lens.Core.App.Web.Authentication
         private static readonly Dictionary<string, IAuthententicationMethod> methods = new Dictionary<string, IAuthententicationMethod>();
         public static IAuthententicationMethod GetAuthenticationMethod(IConfiguration configuration)
         {
-            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
-            if (authSettings != null && string.IsNullOrEmpty(authSettings.AuthenticationType))
-            {
-                authSettings.AuthenticationType = "oauth2";
-            }
-
-            return GetAuthenticationMethodByType(authSettings, configuration);
+            var authSection = configuration.GetSection(nameof(AuthSettings));
+            return GetAuthenticationMethodByType(authSection, configuration);
         }
 
-        private static IAuthententicationMethod GetAuthenticationMethodByType(AuthSettings authSettings, IConfiguration configuration)
+        private static IAuthententicationMethod GetAuthenticationMethodByType(IConfigurationSection authSection, IConfiguration configuration)
         {
-            if (authSettings == null)
+            if (!authSection?.Exists() ?? false)
             {
                 return InitializeAuthenticationMethod(AuthenticationMethod.Anonymous, () => new AnonymousAuthentication());
             }
 
-            switch (authSettings.AuthenticationType.ToLowerInvariant())
+            var type = authSection.GetValue<string>("AuthenticationType").ToLowerInvariant();
+
+
+            switch (type)
             {
                 case AuthenticationMethod.OAuth2:
-                    return InitializeAuthenticationMethod(authSettings.AuthenticationType, () => new OAuth2Authentication(authSettings));
+                    return InitializeAuthenticationMethod(type, 
+                        () => new OAuth2Authentication<OAuthSettings>(authSection.Get<OAuthSettings>()));
 
                 case AuthenticationMethod.ApiKey:
-                    return InitializeAuthenticationMethod(authSettings.AuthenticationType, () => new ApiKeyAuthentication(authSettings));
+                    return InitializeAuthenticationMethod(type,
+                        () => new ApiKeyAuthentication<ApiKeyAuthSettings>(authSection.Get<ApiKeyAuthSettings>()));
 
                 case AuthenticationMethod.AzureAd:
-                    return InitializeAuthenticationMethod(authSettings.AuthenticationType, () => new AzureAuthentication(authSettings, configuration));
+                    return InitializeAuthenticationMethod(type, 
+                        () => new AzureAuthentication<AzureAuthSettings>(authSection.Get<AzureAuthSettings>(), configuration));
 
                 default:
-                    throw new Exception($"No implementation found for auth method '{authSettings.AuthenticationType.ToLowerInvariant()}'. " +
+                    throw new Exception($"No implementation found for auth method '{type}'. " +
                                             "Update authentication type or add a new implementation");
             }
         }

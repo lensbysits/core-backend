@@ -17,14 +17,13 @@ using System.Linq;
 
 namespace Lens.Core.App.Web.Authentication
 {
-    internal class AzureAuthentication : OAuth2Authentication
+    internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureAuthSettings
     {
         private const string ScopePolicyName = "ApiScopePolicy";
         private const string RolePolicyName = "ApiRolePolicy";
-
         private readonly IConfiguration configuration;
 
-        public AzureAuthentication(AuthSettings authSettings, IConfiguration configuration) : base(authSettings)
+        public AzureAuthentication(T authSettings, IConfiguration configuration) : base(authSettings)
         {
             this.configuration = configuration;
         }

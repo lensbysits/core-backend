@@ -9,14 +9,14 @@ using System;
 
 namespace Lens.Core.App.Web.Authentication
 {
-    internal abstract class AuthenticationBase : IAuthententicationMethod
+    internal abstract class AuthenticationBase<T> : IAuthententicationMethod where T : AuthSettings
     {
-        public AuthenticationBase(AuthSettings authSettings)
+        public AuthenticationBase(T authSettings)
         {
             AuthSettings = authSettings ?? throw new ArgumentNullException(nameof(authSettings));
         }
 
-        protected AuthSettings AuthSettings { get; }
+        protected T AuthSettings { get; }
 
         public virtual void UseMiddleware(IApplicationBuilder applicationBuilder) { }
         

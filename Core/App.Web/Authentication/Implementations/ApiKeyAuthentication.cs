@@ -9,9 +9,9 @@ using System;
 
 namespace Lens.Core.App.Web.Authentication
 {
-    internal class ApiKeyAuthentication : AuthenticationBase
+    internal class ApiKeyAuthentication<T> : AuthenticationBase<T> where T : ApiKeyAuthSettings
     {
-        public ApiKeyAuthentication(AuthSettings authSettings) : base(authSettings)
+        public ApiKeyAuthentication(T authSettings) : base(authSettings)
         {
         }
 

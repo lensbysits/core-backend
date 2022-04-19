@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace Lens.Core.App.Web.Authentication
 {
-    internal class OAuth2Authentication : AuthenticationBase
+    internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSettings
     {
         protected static AuthorizationPolicy DefaultPolicy
         {
@@ -22,7 +22,7 @@ namespace Lens.Core.App.Web.Authentication
                     .Build();
         }
 
-        public OAuth2Authentication(AuthSettings authSettings) : base(authSettings)
+        public OAuth2Authentication(T authSettings) : base(authSettings)
         {
         }
 
