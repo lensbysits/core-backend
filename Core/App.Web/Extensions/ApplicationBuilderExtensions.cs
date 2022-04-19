@@ -47,9 +47,6 @@ namespace Lens.Core.App.Web
             var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
             var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
 
-
-            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
-
             if (swaggerSettings is null)
             {
                 return appBuilder.UseSwaggerUI();
