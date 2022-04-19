@@ -80,9 +80,9 @@ namespace Lens.Core.App.Web.Authentication
             options.OperationFilter<AuthorizeCheckOperationFilter>();
         }
 
-        public override void UserSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings)
+        public override void UseSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings)
         {
-            base.UserSwaggerUI(options, swaggerSettings);
+            base.UseSwaggerUI(options, swaggerSettings);
 
             //https://lurumad.github.io/swagger-ui-with-pkce-using-swashbuckle-asp-net-core
             options.OAuthClientId(swaggerSettings.ClientId);

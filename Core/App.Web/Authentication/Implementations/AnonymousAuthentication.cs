@@ -19,6 +19,6 @@ namespace Lens.Core.App.Web.Authentication
         public void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions, Action<JwtBearerOptions> jwtBearerOptions) { }
         public void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings) { }
         public void UseMiddleware(IApplicationBuilder applicationBuilder) { }
-        public void UserSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings) { }
+        public void UseSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings) { }
     }
 }

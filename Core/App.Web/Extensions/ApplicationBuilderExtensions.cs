@@ -57,7 +57,7 @@ namespace Lens.Core.App.Web
                 options.SwaggerEndpoint("swagger/v1/swagger.json", swaggerSettings?.AppName ?? "API V1");
                 options.RoutePrefix = string.Empty;
 
-                authMethod.UserSwaggerUI(options, swaggerSettings);
+                authMethod.UseSwaggerUI(options, swaggerSettings);
             });
             return appBuilder;
         }

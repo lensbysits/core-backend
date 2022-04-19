@@ -26,7 +26,7 @@ namespace Lens.Core.App.Web.Authentication
 
         public virtual void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings) { }
 
-        public virtual void UserSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings) { }
+        public virtual void UseSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings) { }
 
     }
 }
