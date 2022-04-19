@@ -1,4 +1,5 @@
-﻿using Lens.Core.App.Web.Middleware;
+﻿using Lens.Core.App.Web.Authentication;
+using Lens.Core.App.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 
@@ -14,17 +15,8 @@ namespace Lens.Core.App.Web
 
         public static IApplicationBuilder UseAuthentication(this IApplicationBuilder applicationBuilder, IConfiguration configuration)
         {
-            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
-
-            if (string.IsNullOrEmpty(authSettings.AuthenticationType))
-            {
-                authSettings.AuthenticationType = "oauth2";
-            }
-
-            if (authSettings?.AuthenticationType?.ToLowerInvariant() == "apikey")
-            {
-                applicationBuilder.UseMiddleware<ApiKeyMiddleware>();
-            }
+            var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
+            authMethod.UseMiddleware(applicationBuilder);
 
             return applicationBuilder;
         }
@@ -53,6 +45,9 @@ namespace Lens.Core.App.Web
         public static IApplicationBuilder UseSwaggerUI(this IApplicationBuilder appBuilder, IConfiguration configuration)
         {
             var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
+            var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
+
+
             var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
 
             if (swaggerSettings is null)
@@ -65,17 +60,7 @@ namespace Lens.Core.App.Web
                 options.SwaggerEndpoint("swagger/v1/swagger.json", swaggerSettings?.AppName ?? "API V1");
                 options.RoutePrefix = string.Empty;
 
-                if (string.IsNullOrEmpty(authSettings?.AuthenticationType) || authSettings?.AuthenticationType?.ToLowerInvariant() == "oauth2")
-                {
-                    //https://lurumad.github.io/swagger-ui-with-pkce-using-swashbuckle-asp-net-core
-                    options.OAuthClientId(swaggerSettings.ClientId);
-                    options.OAuthClientSecret(swaggerSettings.ClientSecret);
-                    options.OAuthUsePkce();
-                }
-                else if (authSettings?.AuthenticationType?.ToLowerInvariant() == "apikey")
-                {
-                    // nothing here
-                }
+                authMethod.UserSwaggerUI(options, swaggerSettings);
             });
             return appBuilder;
         }
