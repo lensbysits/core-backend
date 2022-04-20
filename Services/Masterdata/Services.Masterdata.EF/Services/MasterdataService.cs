@@ -1,73 +1,71 @@
 ﻿using AutoMapper.QueryableExtensions;
 using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Services;
+using Lens.Core.Lib.Models;
 using Lens.Services.Masterdata.EF.Entities;
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-
+using Lens.Core.Data.EF.Services;
 namespace Lens.Services.Masterdata.EF.Services;
 
-public class MasterdataService : BaseService<MasterdataService>, IMasterdataService
+public class MasterdataService : DataService<MasterdataService, Entities.Masterdata, MasterdataDbContext>, IMasterdataService
 {
-    private readonly MasterdataDbContext _masterdataDbContext;
-
-    public MasterdataService(MasterdataDbContext masterdataDbContext, IApplicationService<MasterdataService> applicationService) : base(applicationService)
+    public MasterdataService(MasterdataDbContext masterdataDbContext, IApplicationService<MasterdataService> applicationService) : base(applicationService, masterdataDbContext)
     {
-        _masterdataDbContext = masterdataDbContext;
     }
 
-    public async Task<ResultListModel<MasterdataTypeListBM>> GetMasterdataTypes()
+    public async Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes()
     {
-        var resultList = await _masterdataDbContext.MasterdataTypes
-            .ProjectTo<MasterdataTypeListBM>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
+        var result = await ApplicationDbContext.MasterdataTypes
+            .ProjectTo<MasterdataTypeListModel>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
 
-        return new ResultListModel<MasterdataTypeListBM>
+        return new ResultListModel<MasterdataTypeListModel>
         {
             Value = result,
-            Size = result.Length
+            Size = result.Count
         };
     }
 
-    public async Task<MasterdataTypeBM?> GetMasterdataType(Guid id)
+    public async Task<MasterdataTypeModel?> GetMasterdataType(Guid id)
     {
-        var result = await _masterdataDbContext.MasterdataTypes
-            .ProjectTo<MasterdataTypeBM>(ApplicationService.Mapper.ConfigurationProvider, m => m.Masterdatas).FirstOrDefaultAsync(m => m.Id == id);
+        var result = await ApplicationDbContext.MasterdataTypes
+            .ProjectTo<MasterdataTypeModel>(ApplicationService.Mapper.ConfigurationProvider, m => m.Masterdatas).FirstOrDefaultAsync(m => m.Id == id);
 
         return result;
     }
 
-    public async Task<MasterdataTypeBM?> GetMasterdataType(string code)
+    public async Task<MasterdataTypeModel?> GetMasterdataType(string code)
     {
-        var result = await _masterdataDbContext.MasterdataTypes
-            .ProjectTo<MasterdataTypeBM>(ApplicationService.Mapper.ConfigurationProvider, m => m.Masterdatas).FirstOrDefaultAsync(m => m.Code == code);
+        var result = await ApplicationDbContext.MasterdataTypes
+            .ProjectTo<MasterdataTypeModel>(ApplicationService.Mapper.ConfigurationProvider, m => m.Masterdatas).FirstOrDefaultAsync(m => m.Code == code);
 
         return result;
     }
 
-    public async Task<MasterdataTypeListBM> AddMasterdataType(MasterdataTypeCreateBM model)
+    public async Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model)
     {
-        var entry = _masterdataDbContext.MasterdataTypes.Add(ApplicationService.Mapper.Map<MasterdataType>(model));
-        await _masterdataDbContext.SaveChangesAsync();
-        return ApplicationService.Mapper.Map<MasterdataTypeListBM>(entry.Entity);
+        var entry = ApplicationDbContext.MasterdataTypes.Add(ApplicationService.Mapper.Map<MasterdataType>(model));
+        await ApplicationDbContext.SaveChangesAsync();
+        return ApplicationService.Mapper.Map<MasterdataTypeListModel>(entry.Entity);
     }
 
-    public async Task<MasterdataTypeListBM> UpdateMasterdataType(Guid masterdataTypeId, MasterdataTypeUpdateBM model)
+    public async Task<MasterdataTypeListModel> UpdateMasterdataType(Guid masterdataTypeId, MasterdataTypeUpdateModel model)
     {
-        var dbEntity = await _masterdataDbContext.MasterdataTypes.FindAsync(masterdataTypeId);
+        var dbEntity = await ApplicationDbContext.MasterdataTypes.FindAsync(masterdataTypeId);
         if (dbEntity == default)
         {
             throw new NotFoundException($"MasterdataType with id '{masterdataTypeId}' not found.");
         }
 
         ApplicationService.Mapper.Map(model, dbEntity);
-        await _masterdataDbContext.SaveChangesAsync();
-        return ApplicationService.Mapper.Map<MasterdataTypeListBM>(dbEntity);
+        await ApplicationDbContext.SaveChangesAsync();
+        return ApplicationService.Mapper.Map<MasterdataTypeListModel>(dbEntity);
     }
 
 
-    public async Task<IEnumerable<MasterdataBM>> GetMasterdata(string masterdataType)
+    public async Task<IEnumerable<MasterdataModel>> GetMasterdata(string masterdataType)
     {
         Expression<Func<Entities.Masterdata, bool>> where = null!;
         if (Guid.TryParse(masterdataType, out var masterdataTypeId))
@@ -75,14 +73,15 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
         else
             where = m => m.MasterdataType!.Code == masterdataType;
 
-        var result = await _masterdataDbContext.Masterdatas
-            .ProjectTo<MasterdataBM>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
+        var result = await ApplicationDbContext.Masterdatas
+            .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
 
         return result;
     }
 
-    public async Task<MasterdataBM?> GetMasterdata(string masterdataType, string value)
+    public async Task<MasterdataModel?> GetMasterdata(string masterdataType, string value)
     {
+
         Expression<Func<Entities.Masterdata, bool>> whereMasterdataType = null!;
         if (Guid.TryParse(masterdataType, out var masterdataTypeId))
             whereMasterdataType = m => m.MasterdataTypeId == masterdataTypeId;
@@ -95,37 +94,32 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
         else
             whereValue = m => m.Key == value;
 
-        var result = await _masterdataDbContext.Masterdatas
+
+        // var result = await base.Get<MasterdataModel>(new QueryModel(), null, Expression.AndAlso(whereMasterdataType, whereValue)); 
+        
+        var result = await ApplicationDbContext.Masterdatas
             .Where(whereMasterdataType)
             .Where(whereValue)
-            .ProjectTo<MasterdataBM>(ApplicationService.Mapper.ConfigurationProvider).FirstOrDefaultAsync();
+            .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider).FirstOrDefaultAsync();
 
         return result;
     }
 
-    public async Task<MasterdataBM> AddMasterdata(MasterdataCreateBM model)
+    public async Task<MasterdataModel> AddMasterdata(MasterdataCreateModel model)
     {
-        var entry = _masterdataDbContext.Masterdatas.Add(ApplicationService.Mapper.Map<Entities.Masterdata>(model));
-        await _masterdataDbContext.SaveChangesAsync();
-        return ApplicationService.Mapper.Map<MasterdataBM>(entry.Entity);
+        var result = await base.Add<MasterdataModel, MasterdataCreateModel>(model);
+        return result;
     }
 
-    public async Task<MasterdataBM> UpdateMasterdata(Guid masterdataId, MasterdataUpdateBM model)
+    public async Task<MasterdataModel> UpdateMasterdata(Guid masterdataId, MasterdataUpdateModel model)
     {
-        var dbEntity = await _masterdataDbContext.Masterdatas.FindAsync(masterdataId);
-        if (dbEntity == default)
-        {
-            throw new NotFoundException($"Masterdata with id '{masterdataId}' not found.");
-        }
-
-        ApplicationService.Mapper.Map(model, dbEntity);
-        await _masterdataDbContext.SaveChangesAsync();
-        return ApplicationService.Mapper.Map<MasterdataBM>(dbEntity);
+        var result = await base.Update<MasterdataModel, MasterdataUpdateModel>(masterdataId, model);
+        return result;
     }
 
-    public async Task<MasterdataTypeBM?> ImportMasterdata(MasterdataImportBM model)
+    public async Task<MasterdataTypeModel?> ImportMasterdata(MasterdataImportModel model)
     {
-        var newType = new MasterdataTypeCreateBM
+        var newType = new MasterdataTypeCreateModel
         {
             Name = model.Name,
             Description = model.Description,
@@ -133,7 +127,7 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
             Metadata = model.Metadata
         };
 
-        var entry = _masterdataDbContext.MasterdataTypes.Add(ApplicationService.Mapper.Map<MasterdataType>(newType));
+        var entry = ApplicationDbContext.MasterdataTypes.Add(ApplicationService.Mapper.Map<MasterdataType>(newType));
 
 
         foreach (var masterdataModel in model.Masterdatas)
@@ -141,28 +135,23 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
             entry.Entity.Masterdatas.Add(ApplicationService.Mapper.Map<Entities.Masterdata>(masterdataModel));
         }
 
-        await _masterdataDbContext.SaveChangesAsync();
+        await ApplicationDbContext.SaveChangesAsync();
 
         return await GetMasterdataType(entry.Entity.Id);
     }
 
     public async Task DeleteMasterdataType(Guid id)
     {
-        var entity = await _masterdataDbContext.MasterdataTypes.FindAsync(id);
+        var entity = await ApplicationDbContext.MasterdataTypes.FindAsync(id);
         if (entity == default)
             return;
 
-        _masterdataDbContext.Remove(entity);
-        await _masterdataDbContext.SaveChangesAsync();
+        ApplicationDbContext.Remove(entity);
+        await ApplicationDbContext.SaveChangesAsync();
     }
 
     public async Task DeleteMasterdata(Guid id)
     {
-        var entity = await _masterdataDbContext.Masterdatas.FindAsync(id);
-        if (entity == default)
-            return;
-
-        _masterdataDbContext.Remove(entity);
-        await _masterdataDbContext.SaveChangesAsync();
+        await base.SoftDelete(id);
     }
 }

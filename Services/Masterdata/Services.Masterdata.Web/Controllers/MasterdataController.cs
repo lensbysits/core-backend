@@ -1,5 +1,6 @@
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Services;
+using Lens.Core.Lib.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,56 +20,56 @@ public class MasterdataController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> Get()
+    public async Task<ResultListModel<MasterdataTypeListModel>> Get()
     {
         var result = await _masterdataService.GetMasterdataTypes();
-        return Ok(result);
+        return result;
     }
 
     [HttpGet("{masterdataType}")]
-    public async Task<ActionResult> Get(string masterdataType)
+    public async Task<IEnumerable<MasterdataModel>> Get(string masterdataType)
     {
         var result = await _masterdataService.GetMasterdata(masterdataType);
-        return Ok(result);
+        return result;
     }
 
     [HttpGet("type/{id}")]
-    public async Task<ActionResult> GetMasterdataType(Guid id)
+    public async Task<MasterdataTypeModel> GetMasterdataType(Guid id)
     {
         var result = await _masterdataService.GetMasterdataType(id);
-        return Ok(result);
+        return result;
     }
 
     [HttpPost("type")]
-    public async Task<ActionResult> Post(MasterdataTypeCreateBM model)
+    public async Task<ActionResult<MasterdataTypeModel>> Post(MasterdataTypeCreateModel model)
     {
         var result = await _masterdataService.AddMasterdataType(model);
-        return Ok(result);
+        return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
     }
 
     [HttpPost]
-    public async Task<ActionResult> Post(MasterdataCreateBM model)
+    public async Task<ActionResult<MasterdataModel>> Post(MasterdataCreateModel model)
     {
         var result = await _masterdataService.AddMasterdata(model);
-        return Ok(result);
+        return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
     }
 
     [HttpPut("type/{id}")]
-    public async Task<ActionResult> Put(Guid id, MasterdataTypeUpdateBM model)
+    public async Task<MasterdataTypeListModel> Put(Guid id, MasterdataTypeUpdateModel model)
     {
         var result = await _masterdataService.UpdateMasterdataType(id, model);
-        return Ok(result);
+        return result;
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Put(Guid id, MasterdataUpdateBM model)
+    public async Task<ActionResult<MasterdataModel>> Put(Guid id, MasterdataUpdateModel model)
     {
         var result = await _masterdataService.UpdateMasterdata(id, model);
-        return Ok(result);
+        return AcceptedAtAction(nameof(Get), new { id = result.Id }, result); 
     }
 
     [HttpPost("import")]
-    public async Task<ActionResult> Import(MasterdataImportBM model)
+    public async Task<ActionResult<MasterdataTypeModel>> Import(MasterdataImportModel model)
     {
         var result = await _masterdataService.ImportMasterdata(model);
         return AcceptedAtAction(nameof(Get), new { id = result.Id }, result);

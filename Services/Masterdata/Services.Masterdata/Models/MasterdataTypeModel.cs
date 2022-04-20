@@ -10,7 +10,7 @@ public class MasterdataTypeModel
     public string? Code { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
-    public IEnumerable<MasterdataBM>? Masterdatas { get; set; }
+    public IEnumerable<MasterdataModel>? Masterdatas { get; set; }
     public int? MasterdatasCount { get; set; }
 
     private string? metadataJson;

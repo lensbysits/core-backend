@@ -10,7 +10,7 @@ public class MasterdataImportModel
     public string? Description { get; set; }
     [StringLength(50), Required]
     public string? Code { get; set; }
-    public IEnumerable<MasterdataCreateBM> Masterdatas { get; set; } = Enumerable.Empty<MasterdataCreateBM>();
+    public IEnumerable<MasterdataCreateModel> Masterdatas { get; set; } = Enumerable.Empty<MasterdataCreateModel>();
 
     [JsonIgnore]
     public string MetadataJson
