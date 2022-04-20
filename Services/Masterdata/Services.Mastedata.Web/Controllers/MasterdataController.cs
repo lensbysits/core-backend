@@ -71,7 +71,7 @@ public class MasterdataController : ControllerBase
     public async Task<ActionResult> Import(MasterdataImportBM model)
     {
         var result = await _masterdataService.ImportMasterdata(model);
-        return Ok(result);
+        return AcceptedAtAction(nameof(Get), new { id = result.Id }, result);
     }
 
     [HttpDelete("type/{id}")]

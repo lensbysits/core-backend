@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Lens.Services.Masterdata.Models;
 
-public class MasterdataTypeBM
+public class MasterdataTypeModel
 {
     public Guid Id { get; set; }
     public string? Code { get; set; }

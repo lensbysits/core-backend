@@ -27,16 +27,9 @@ namespace Lens.Core.Data.EF
         public ApplicationDbContext(DbContextOptions options,
             IUserContext userContext,
             IAuditTrailService auditTrailService,
-            IEnumerable<IModelBuilderService> modelBuilders) : base(options)
+            IEnumerable<IModelBuilderService> modelBuilders) : this(options, userContext, modelBuilders)
         {
-            if (userContext != null && userContext.HasClaim("TenantId"))
-            {
-                _tenantId = userContext.ClaimValue<Guid>("TenantId");
-            }
-
-            _userContext = userContext;
             _auditTrailService = auditTrailService;
-            _modelBuilders = modelBuilders;
         }
 
         public ApplicationDbContext(DbContextOptions options,

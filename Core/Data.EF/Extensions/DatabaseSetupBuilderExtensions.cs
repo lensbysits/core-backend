@@ -1,6 +1,4 @@
-﻿using Lens.Core.Data.EF.Repositories;
-using Lens.Core.Data.EF.Services;
-using Lens.Core.Data.Repositories;
+﻿using Lens.Core.Data.EF.Services;
 using Lens.Core.Lib.Builders;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;

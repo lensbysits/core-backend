@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Lens.Services.Masterdata.Models;
 
-public class MasterdataBM
+public class MasterdataModel
 {
     public Guid Id { get; set; }
     public Guid MasterdataTypeId { get; set; }

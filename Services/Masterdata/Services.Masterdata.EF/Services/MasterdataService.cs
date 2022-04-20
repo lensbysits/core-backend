@@ -18,12 +18,16 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
         _masterdataDbContext = masterdataDbContext;
     }
 
-    public async Task<IEnumerable<MasterdataTypeListBM>> GetMasterdataTypes()
+    public async Task<ResultListModel<MasterdataTypeListBM>> GetMasterdataTypes()
     {
-        var result = await _masterdataDbContext.MasterdataTypes
+        var resultList = await _masterdataDbContext.MasterdataTypes
             .ProjectTo<MasterdataTypeListBM>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
 
-        return result;
+        return new ResultListModel<MasterdataTypeListBM>
+        {
+            Value = result,
+            Size = result.Length
+        };
     }
 
     public async Task<MasterdataTypeBM?> GetMasterdataType(Guid id)
