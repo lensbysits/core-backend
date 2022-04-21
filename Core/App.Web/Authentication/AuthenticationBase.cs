@@ -22,7 +22,7 @@ namespace Lens.Core.App.Web.Authentication
         
         public virtual void ApplyMvcFilters(FilterCollection filters) { }
 
-        public virtual void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions, Action<JwtBearerOptions> jwtBearerOptions) { }
+        public virtual void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions) { }
 
         public virtual void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings) { }
 

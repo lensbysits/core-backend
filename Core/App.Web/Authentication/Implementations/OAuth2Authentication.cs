@@ -28,8 +28,7 @@ namespace Lens.Core.App.Web.Authentication
 
         public override void Configure(
             IServiceCollection services,
-            Action<AuthorizationOptions> authorizationOptions,
-            Action<JwtBearerOptions> jwtBearerOptions)
+            Action<AuthorizationOptions> authorizationOptions)
         {
             services
                     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -45,7 +44,7 @@ namespace Lens.Core.App.Web.Authentication
                         options.TokenValidationParameters.ValidateAudience = this.AuthSettings.ValidateAudience;
                         options.TokenValidationParameters.NameClaimType = "name";
 
-                        jwtBearerOptions?.Invoke(options);
+                        this.RegisterAuthenticationInterceptorEventHandlers(options);
                     });
 
             authorizationOptions ??= options => { options.DefaultPolicy = DefaultPolicy; };
@@ -88,6 +87,54 @@ namespace Lens.Core.App.Web.Authentication
             options.OAuthClientId(swaggerSettings.ClientId);
             options.OAuthClientSecret(swaggerSettings.ClientSecret);
             options.OAuthUsePkce();
+        }
+
+        protected void RegisterAuthenticationInterceptorEventHandlers(JwtBearerOptions options)
+        {
+            options.Events.OnMessageReceived = async context =>
+            {
+                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
+                foreach (var interceptor in interceptors)
+                {
+                    await interceptor.OnMessageReceived(context);
+                }
+            };
+
+            options.Events.OnTokenValidated = async context =>
+            {
+                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
+                foreach (var interceptor in interceptors)
+                {
+                    await interceptor.OnTokenValidated(context);
+                }
+            };
+
+            options.Events.OnChallenge = async context =>
+            {
+                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
+                foreach (var interceptor in interceptors)
+                {
+                    await interceptor.OnChallenge(context);
+                }
+            };
+
+            options.Events.OnForbidden = async context =>
+            {
+                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
+                foreach (var interceptor in interceptors)
+                {
+                    await interceptor.OnForbidden(context);
+                }
+            };
+
+            options.Events.OnAuthenticationFailed = async context =>
+            {
+                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
+                foreach (var interceptor in interceptors)
+                {
+                    await interceptor.OnAuthenticationFailed(context);
+                }
+            };
         }
     }
 }

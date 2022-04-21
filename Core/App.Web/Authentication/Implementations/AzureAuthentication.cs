@@ -2,16 +2,13 @@
 using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -44,9 +41,8 @@ namespace Lens.Core.App.Web.Authentication
         }
 
         public override void Configure(
-            IServiceCollection services, 
-            Action<AuthorizationOptions> authorizationOptions, 
-            Action<JwtBearerOptions> jwtBearerOptions)
+            IServiceCollection services,
+            Action<AuthorizationOptions> authorizationOptions)
         {
             services.AddMicrosoftIdentityWebApiAuthentication(this.configuration, "AuthSettings");
 
@@ -60,9 +56,10 @@ namespace Lens.Core.App.Web.Authentication
                     options.TokenValidationParameters.ValidIssuers = this.AuthSettings.AllowedIssuers;
                     options.TokenValidationParameters.ValidateIssuer = true;
                 }
-                
-                jwtBearerOptions?.Invoke(options);
-            });
+
+                base.RegisterAuthenticationInterceptorEventHandlers(options);
+
+            }));
 
             services.AddAuthorization(
                 options =>
@@ -76,7 +73,7 @@ namespace Lens.Core.App.Web.Authentication
 
             services.AddScoped<IUserContext, UserContext>();
         }
-
+        
         private Action<AuthorizationPolicyBuilder> ScopePolicy()
         {
             return policy => policy.RequireAssertion(

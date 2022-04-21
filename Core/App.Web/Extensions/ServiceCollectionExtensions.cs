@@ -46,8 +46,7 @@ namespace Lens.Core.App.Web
         }
 
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration
-                , Action<AuthorizationOptions> authorizationOptions = null
-                , Action<JwtBearerOptions> jwtBearerOptions = null)
+                , Action<AuthorizationOptions> authorizationOptions = null)
         {
             if (configuration["ASPNETCORE_ENVIRONMENT"] == Microsoft.Extensions.Hosting.Environments.Development)
             {
@@ -56,7 +55,7 @@ namespace Lens.Core.App.Web
             }
 
             var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
-            authMethod.Configure(services, authorizationOptions, jwtBearerOptions);
+            authMethod.Configure(services, authorizationOptions);
 
             return services;
         }

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +10,7 @@ namespace Lens.Core.App.Web.Authentication
 {
     internal interface IAuthententicationMethod
     {
-        void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions, Action<JwtBearerOptions> jwtBearerOptions);
+        void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions);
         void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings);
         void UseMiddleware(IApplicationBuilder applicationBuilder);
         void UseSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings);
