@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Lens.Core.App.Web
@@ -111,6 +112,29 @@ namespace Lens.Core.App.Web
                     Title = swaggerSettings.AppName ?? "Protected API", 
                     Version = "v1" 
                 });
+
+                if (!string.IsNullOrEmpty(swaggerSettings.ApiHostname))
+                {
+                    options.AddServer(new OpenApiServer
+                    {
+                        Url = swaggerSettings.ApiHostname
+                    });
+                }
+
+
+                ////var xmlFile = "bin\\" + $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                //var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+
+                if (!string.IsNullOrEmpty(swaggerSettings.XMLCommentsPath))
+                {
+                    if (File.Exists(swaggerSettings.XMLCommentsPath))
+                    {
+                        options.IncludeXmlComments(swaggerSettings.XMLCommentsPath);
+                    } else if (File.Exists(Path.Combine(AppContext.BaseDirectory, swaggerSettings.XMLCommentsPath)))
+                    {
+                        options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, swaggerSettings.XMLCommentsPath));
+                    }
+                }
 
                 options.IgnoreObsoleteActions();
                 options.IgnoreObsoleteProperties();
