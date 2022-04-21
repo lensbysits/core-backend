@@ -24,7 +24,7 @@ namespace Lens.Core.App.Web.Middleware
 
         public async Task Invoke(HttpContext context, IConfiguration configuration)
         {
-            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
+            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<ApiKeyAuthSettings>();
 
             if (!string.IsNullOrEmpty(authSettings.AuthenticationType) && authSettings.AuthenticationType.Equals("apikey", StringComparison.OrdinalIgnoreCase))
             {

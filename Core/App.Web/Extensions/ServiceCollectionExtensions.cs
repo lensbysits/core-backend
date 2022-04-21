@@ -1,4 +1,5 @@
-﻿using Lens.Core.App.Web.Middleware;
+﻿using Lens.Core.App.Web.Authentication;
+using Lens.Core.App.Web.Middleware;
 using Lens.Core.App.Web.Services;
 using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -53,42 +54,8 @@ namespace Lens.Core.App.Web
                 IdentityModelEventSource.ShowPII = true;
             }
 
-            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
-
-            if (string.IsNullOrEmpty(authSettings.AuthenticationType))
-            {
-                authSettings.AuthenticationType = "oauth2";
-            }
-
-            if (authSettings.AuthenticationType?.ToLowerInvariant() != "apikey")
-            {
-
-                services
-                    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
-                    {
-                        if (authSettings != null)
-                        {
-                            options.Audience = authSettings.Audience;
-                            options.Authority = authSettings.Authority;
-
-                            if (!string.IsNullOrEmpty(authSettings.MetadataAddress))
-                                options.MetadataAddress = authSettings.MetadataAddress;
-
-                            options.RequireHttpsMetadata = authSettings.RequireHttps;
-                            options.TokenValidationParameters.ValidateAudience = authSettings.ValidateAudience;
-                            options.TokenValidationParameters.NameClaimType = "name";
-                        }
-
-                        jwtBearerOptions?.Invoke(options);
-                    });
-
-                authorizationOptions ??= options => { options.DefaultPolicy = DefaultPolicy; };
-                services.AddAuthorization(authorizationOptions);
-
-                services.AddHttpContextAccessor();
-                services.AddScoped<IUserContext, UserContext>();
-            }
+            var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
+            authMethod.Configure(services, authorizationOptions, jwtBearerOptions);
 
             return services;
         }
@@ -97,12 +64,7 @@ namespace Lens.Core.App.Web
         public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
         {
             var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
-            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
-
-            if (string.IsNullOrEmpty(authSettings.AuthenticationType))
-            {
-                authSettings.AuthenticationType = "oauth2";
-            }
+            var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
 
             services.AddSwaggerGen(options =>
             {
@@ -125,61 +87,10 @@ namespace Lens.Core.App.Web
                 options.MapType<FileStreamResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
                 options.MapType<FileContentResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
 
-                if (authSettings?.AuthenticationType?.ToLowerInvariant() == "oauth2")
-                {
-                    //https://www.c-sharpcorner.com/article/enable-oauth-2-authorization-using-azure-ad-and-swagger-in-net-5-0/
-                    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-                    {
-                        Type = SecuritySchemeType.OAuth2,
-                        Flows = new OpenApiOAuthFlows
-                        {
-                            AuthorizationCode = new OpenApiOAuthFlow
-                            {
-                                AuthorizationUrl = new Uri($"{swaggerSettings.Authority}connect/authorize"),
-                                TokenUrl = new Uri($"{swaggerSettings.Authority}connect/token"),
-                                Scopes = new Dictionary<string, string>
-                                {
-                                    {swaggerSettings.Scope, swaggerSettings.ScopeName}
-                                }
-                            }
-                        }
-                    });
-
-                    options.OperationFilter<AuthorizeCheckOperationFilter>();
-                    
-                }
-                else if (authSettings?.AuthenticationType?.ToLowerInvariant() == "apikey")
-                {
-                    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme()
-                    {
-                        Type = SecuritySchemeType.ApiKey,
-                        In = ParameterLocation.Header,
-                        Name = authSettings.ApiKeyHeader,
-                        Description = "API Key Authentication",
-                    });
-
-                    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
-                            },
-                            new string[] { }
-                        }
-                    });
-                }
+                authMethod.ConfigureSwaggerAuth(options, swaggerSettings);
             });
 
             return services;
-        }
-
-        private static AuthorizationPolicy DefaultPolicy
-        {
-            get =>
-                new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser()
-                    .Build();
         }
 
         private static string[] GetCorsOrigins(IConfiguration configuration)
