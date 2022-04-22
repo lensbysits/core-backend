@@ -66,8 +66,8 @@ namespace Lens.Core.App.Web.Authentication
                 {
                     AuthorizationCode = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new Uri($"{swaggerSettings.Authority}connect/authorize"),
-                        TokenUrl = new Uri($"{swaggerSettings.Authority}connect/token"),
+                        AuthorizationUrl = new Uri($"{swaggerSettings.Authority}authorize"),
+                        TokenUrl = new Uri($"{swaggerSettings.Authority}token"),
                         Scopes = new Dictionary<string, string>
                                 {
                                     {swaggerSettings.Scope, swaggerSettings.ScopeName}
