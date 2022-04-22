@@ -17,7 +17,7 @@ namespace Lens.Core.Data.EF.AuditTrail
                 .AddAssemblies(typeof(AutoMapperProfile).Assembly)
                 .AddDatabase<AuditTrailDbContext>(connectionStringName, connectionStringPassword)
                 .Services
-                .AddScoped<IAuditTrailService, AuditTrailService>();
+                    .AddScoped<IAuditTrailService, AuditTrailService>();
 
             return builder;
         }

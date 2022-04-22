@@ -27,6 +27,13 @@ namespace Lens.Core.Data.EF
         public ApplicationDbContext(DbContextOptions options,
             IUserContext userContext,
             IAuditTrailService auditTrailService,
+            IEnumerable<IModelBuilderService> modelBuilders) : this(options, userContext, modelBuilders)
+        {
+            _auditTrailService = auditTrailService;
+        }
+
+        public ApplicationDbContext(DbContextOptions options,
+            IUserContext userContext,
             IEnumerable<IModelBuilderService> modelBuilders) : base(options)
         {
             if (userContext != null && userContext.HasClaim("TenantId"))
@@ -35,7 +42,6 @@ namespace Lens.Core.Data.EF
             }
 
             _userContext = userContext;
-            _auditTrailService = auditTrailService;
             _modelBuilders = modelBuilders;
         }
 
@@ -101,7 +107,9 @@ namespace Lens.Core.Data.EF
                 .ToList()
                 .ForEach(c => c.ResolveId(c));
 
-            await _auditTrailService.LogChanges(() => changes);
+            if(_auditTrailService != null)
+                await _auditTrailService?.LogChanges(() => changes);
+
             return result;
         }
         #endregion Public methods
