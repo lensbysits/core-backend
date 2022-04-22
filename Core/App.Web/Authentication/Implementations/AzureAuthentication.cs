@@ -59,7 +59,7 @@ namespace Lens.Core.App.Web.Authentication
 
                 base.RegisterAuthenticationInterceptorEventHandlers(options);
 
-            }));
+            });
 
             services.AddAuthorization(
                 options =>
