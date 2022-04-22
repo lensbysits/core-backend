@@ -76,6 +76,17 @@ namespace Lens.Core.App.Web.Authentication
                 }
             });
 
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
+                    },
+                    new[] { swaggerSettings.Scope }
+                }
+            });
+
             options.OperationFilter<AuthorizeCheckOperationFilter>();
         }
 
