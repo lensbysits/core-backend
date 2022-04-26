@@ -59,7 +59,7 @@ namespace Lens.Core.App.Web
 
         public virtual void OnSetupApplication(IApplicationSetupBuilder applicationSetup) { }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
