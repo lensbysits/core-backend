@@ -261,7 +261,6 @@ namespace Lens.Core.Lib.Utilities
             }
 
             // Generate 4 random bytes.
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             rng.GetBytes(randomBytes);
 
             // Convert 4 bytes into a 32-bit integer value.
