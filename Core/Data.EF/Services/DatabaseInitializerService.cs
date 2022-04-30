@@ -19,15 +19,15 @@ namespace Lens.Core.Data.EF.Services
 
         public async Task Initialize()
         {
-            try
-            {
                 await _dbContext.Database.MigrateAsync();
-            }
-            catch (Exception ex)
-            {
-                ApplicationService.Logger.LogError(ex, "An error had occured when applying db migrations.");
-                return;
-            }
+            //try
+            //{
+            //}
+            //catch (Exception ex)
+            //{
+            //    ApplicationService.Logger.LogError(ex, "An error had occured when applying db migrations.");
+            //    return;
+            //}
 
             await Seed();
         }
