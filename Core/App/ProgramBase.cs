@@ -1,5 +1,6 @@
-﻿using Lens.Core.Lib.Services;
-using Lamar.Microsoft.DependencyInjection;
+﻿using Lamar.Microsoft.DependencyInjection;
+using Lens.Core.Lib.Services;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -108,11 +109,22 @@ namespace Lens.Core.App
 
             LoggingConfigurationSetup?.Invoke(configurationBuilder);
 
+            var telemetryConfiguration = TelemetryConfiguration
+           .CreateDefault();
+
             var configuration = configurationBuilder.Build();
+            var key = configuration["ApplicationInsights:InstrumentationKey"];
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                throw new Exception("No instrumentation key found");
+            }
+
+            telemetryConfiguration.InstrumentationKey = key;
 
             //See: https://nblumhardt.com/2020/10/bootstrap-logger/
             var logConfig = new LoggerConfiguration()
                 .WriteTo.Console() // for the bootstrapped logger
+                .WriteTo.ApplicationInsights(telemetryConfiguration, TelemetryConverter.Traces)
                 .ReadFrom.Configuration(configuration);
 
 
