@@ -109,24 +109,20 @@ namespace Lens.Core.App
 
             LoggingConfigurationSetup?.Invoke(configurationBuilder);
 
-            var telemetryConfiguration = TelemetryConfiguration
-           .CreateDefault();
-
             var configuration = configurationBuilder.Build();
-            var key = configuration["ApplicationInsights:InstrumentationKey"];
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                throw new Exception("No instrumentation key found");
-            }
-
-            telemetryConfiguration.InstrumentationKey = key;
 
             //See: https://nblumhardt.com/2020/10/bootstrap-logger/
             var logConfig = new LoggerConfiguration()
                 .WriteTo.Console() // for the bootstrapped logger
-                .WriteTo.ApplicationInsights(telemetryConfiguration, TelemetryConverter.Traces)
                 .ReadFrom.Configuration(configuration);
 
+            var key = configuration["ApplicationInsights:InstrumentationKey"];
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+                telemetryConfiguration.InstrumentationKey = key;
+                logConfig.WriteTo.ApplicationInsights(telemetryConfiguration, TelemetryConverter.Traces);
+            }
 
             SeriloggerConfigurationSetup?.Invoke(logConfig, true);
 
