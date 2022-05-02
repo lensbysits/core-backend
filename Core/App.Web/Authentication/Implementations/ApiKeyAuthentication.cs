@@ -1,11 +1,16 @@
 ﻿using Lens.Core.App.Web.Middleware;
+using Lens.Core.Lib.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Lens.Core.App.Web.Authentication
 {
@@ -17,8 +22,7 @@ namespace Lens.Core.App.Web.Authentication
 
         public override void UseMiddleware(IApplicationBuilder applicationBuilder)
         {
-            base.UseMiddleware(applicationBuilder);
-
+            // don't use the base one
             applicationBuilder.UseMiddleware<ApiKeyMiddleware>();
         }
 
@@ -44,6 +48,20 @@ namespace Lens.Core.App.Web.Authentication
                     Array.Empty<string>()
                 }
             });
+        }
+
+        public override void ApplyMvcFilters(FilterCollection filters)
+        {
+            base.ApplyMvcFilters(filters);
+
+
+            foreach (var filter in filters.OrEmpty().ToArray())
+            {
+                if (filter is AuthorizeFilter)
+                {
+                    filters.Remove(filter);
+                }
+            }
         }
     }
 }

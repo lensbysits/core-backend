@@ -18,7 +18,10 @@ namespace Lens.Core.App.Web.Authentication
 
         protected T AuthSettings { get; }
 
-        public virtual void UseMiddleware(IApplicationBuilder applicationBuilder) { }
+        public virtual void UseMiddleware(IApplicationBuilder applicationBuilder) {
+            // default use authentication middleware (otherwise override it)
+            applicationBuilder.UseAuthentication();
+        }
         
         public virtual void ApplyMvcFilters(FilterCollection filters) { }
 

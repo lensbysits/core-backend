@@ -14,17 +14,17 @@ namespace Lens.Core.App.Web.Middleware
     public class ApiKeyMiddleware
     {
         private readonly RequestDelegate _next;
-        private string? apiKey;
-        private string? ApiKeyHeaderName = "X-Api-Key";
+        private readonly ApiKeyAuthSettings authSettings;
 
-        public ApiKeyMiddleware(RequestDelegate next)
+        public ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
+            authSettings = configuration.GetSection(nameof(AuthSettings)).Get<ApiKeyAuthSettings>();
         }
 
         public async Task Invoke(HttpContext context, IConfiguration configuration)
         {
-            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<ApiKeyAuthSettings>();
+            //var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<ApiKeyAuthSettings>();
 
             if (!string.IsNullOrEmpty(authSettings.AuthenticationType) && authSettings.AuthenticationType.Equals("apikey", StringComparison.OrdinalIgnoreCase))
             {
@@ -42,7 +42,7 @@ namespace Lens.Core.App.Web.Middleware
                     return;
                 }
 
-                if (!apiKey.Equals(context.Request.Headers[authSettings.ApiKeyHeader]))
+                if (!authSettings.ApiKey.Equals(context.Request.Headers[authSettings.ApiKeyHeader]))
                 {
                     context.Response.StatusCode = 401; //UnAuthorized
                     await context.Response.WriteAsync("Invalid API Key");
