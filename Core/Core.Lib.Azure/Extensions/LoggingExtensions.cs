@@ -49,7 +49,7 @@ namespace Lens.Core.Lib.Azure.Extensions
         {
             var parts = appInsightsConnectionstring.Split(';');
             var part = parts.FirstOrDefault(p => p.StartsWith("InstrumentationKey="));
-            var key = part?.Split('=')[0];
+            var key = part?.Split('=')[1];
 
             return key ?? string.Empty;
         }
