@@ -1,12 +1,9 @@
 ﻿using Lens.Core.Lib.Azure.Logging;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lens.Core.Lib.Azure.Extensions
 {
@@ -19,13 +16,24 @@ namespace Lens.Core.Lib.Azure.Extensions
             return enrichConfiguration.With<OperationIdEnricher>();
         }
 
-        public static LoggerConfiguration AddAzureAppLogging(this LoggerConfiguration loggerConfiguration, bool isBootstrap = false)
+        public static LoggerConfiguration AddAzureAppLogging(this LoggerConfiguration loggerConfiguration, IConfiguration configuration, bool isBootstrap = false)
         {
-            return loggerConfiguration
-                .Enrich.FromLogContext()
-                .Enrich.WithOperationId()
-                .WriteTo.AzureApp()
-                .WriteTo.ApplicationInsights(new OperationTelemetryConverter(), LogEventLevel.Information); //https://oleh-zheleznyak.blogspot.com/2019/08/serilog-with-application-insights.html
+            var appInsightsConnectionstring = configuration.GetValue<string>("ApplicationInsights:ConnectionString");
+            
+            if (!string.IsNullOrWhiteSpace(appInsightsConnectionstring))
+            {
+                var config = TelemetryConfiguration.CreateFromConfiguration(appInsightsConnectionstring);
+                return loggerConfiguration
+                    .Enrich.FromLogContext()
+                    .Enrich.WithOperationId()
+                    .WriteTo.AzureApp()
+                    .WriteTo.ApplicationInsights(
+                                config, 
+                                new OperationTelemetryConverter(), 
+                                LogEventLevel.Information); //https://oleh-zheleznyak.blogspot.com/2019/08/serilog-with-application-insights.html
+            }
+
+            return loggerConfiguration;
         }
     }
 }

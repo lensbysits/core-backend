@@ -22,7 +22,7 @@ namespace Lens.Core.App
         /// Allows to add configuration to serilogger, while it's being built. 
         /// The bool is if the logger configuration is about the bootstrapped logger, or the real application logger.
         /// </summary>
-        protected static Action<LoggerConfiguration, bool> SeriloggerConfigurationSetup { get; set; }
+        protected static Action<LoggerConfiguration, bool, IConfiguration> SeriloggerConfigurationSetup { get; set; }
 
         /// <summary>
         /// Allows the overriding class to add additional configuration sources while settting up the Host Configuration
@@ -89,7 +89,7 @@ namespace Lens.Core.App
                         .ReadFrom.Services(services);
 
 
-                    SeriloggerConfigurationSetup?.Invoke(configuration, false);
+                    SeriloggerConfigurationSetup?.Invoke(configuration, false, context.Configuration);
 
                 });
 
@@ -116,7 +116,7 @@ namespace Lens.Core.App
                 .ReadFrom.Configuration(configuration);
 
 
-            SeriloggerConfigurationSetup?.Invoke(logConfig, true);
+            SeriloggerConfigurationSetup?.Invoke(logConfig, true, configuration);
 
             Log.Logger = logConfig.CreateBootstrapLogger();
         }
