@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Lens.Core.App.Web
 {
@@ -82,9 +83,8 @@ namespace Lens.Core.App.Web
                     });
                 }
 
-
-                ////var xmlFile = "bin\\" + $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                //var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+                
+                options.EnableAnnotations();
 
                 if (!string.IsNullOrEmpty(swaggerSettings.XMLCommentsPath))
                 {
