@@ -32,5 +32,13 @@ namespace Lens.Core.Lib
 			request.Content = content;
 			return await httpClient.SendAsync(request);
 		}
+
+		public static async Task<HttpResponseMessage> PutAsync(this HttpClient httpClient, string url, HttpContent content, Action<HttpRequestHeaders> beforeRequest)
+		{
+			var request = new HttpRequestMessage(HttpMethod.Put, url);
+			beforeRequest(request.Headers);
+			request.Content = content;
+			return await httpClient.SendAsync(request);
+		}
 	}
 }
