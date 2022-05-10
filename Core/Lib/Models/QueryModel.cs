@@ -9,19 +9,22 @@ namespace Lens.Core.Lib.Models
     {
         public int Offset { get; set; } = 0;
         public int Limit { get; set; } = 50;
+        /// <summary>
+        /// The parameter doesn't take into account the set or default offset or limit
+        /// </summary>
         public bool NoLimit { get;set; } = false;
         
-        // Filter by
+        // Filter by fields:
         public string Tag { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? CreatedSince { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedSince { get; set; }
 
-        // Search by
+        // Search by fields:
         public string SearchTerm { get; set; }
 
-        // Sort by
+        // Sort by fields:
         public string OrderBy { get; set; }
 
         public virtual string QueryString
