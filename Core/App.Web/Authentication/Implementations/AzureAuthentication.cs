@@ -11,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Lens.Core.App.Web.Authentication
 {
@@ -48,6 +49,21 @@ namespace Lens.Core.App.Web.Authentication
 
             services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
+                if (this.AuthSettings.IncludeConfigInBearerHeader)
+                {
+                    var buildHeader = new StringBuilder("Bearer");
+                    if (!string.IsNullOrEmpty(this.AuthSettings.Authority))
+                    {
+                        buildHeader.AppendFormat(" authorization_uri=\"{0}authorize\"", this.AuthSettings.Authority);
+                    }
+
+                    if (!string.IsNullOrEmpty(this.AuthSettings.Resource))
+                    {
+                        buildHeader.AppendFormat(", resource=\"{0}\"", this.AuthSettings.Resource);
+                    }
+
+                    options.Challenge = buildHeader.ToString().Trim();
+                }
                 if (this.AuthSettings.AllowedIssuers.Any())
                 {
                     // we need to override the default issuer validation in order to restrict access only for pre-configured allowed issuers

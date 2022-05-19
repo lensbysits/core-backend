@@ -10,5 +10,7 @@ namespace Lens.Core.App.Web
         public string[] AllowedIssuers { get; set; } = Array.Empty<string>();
         public string[] RequiredScopes { get; set; } = Array.Empty<string>();
         public string[] RequiredAppRoles { get; set; } = Array.Empty<string>();
+
+        public bool IncludeConfigInBearerHeader { get; set; }
     }
 }
