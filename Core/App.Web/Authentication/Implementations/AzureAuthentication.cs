@@ -95,9 +95,19 @@ namespace Lens.Core.App.Web.Authentication
             return policy => policy.RequireAssertion(
                                         context =>
                                         {
+                                            
                                             var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
                                             if (scopeClaim == null)
                                             {
+                                                /// For a confidential client, the value is 1 when a shared secret (a password) is used as a client secret (app authentication) and 
+                                                /// 2 when a certificate is used as a client secret (app authentication). 
+                                                /// The value 0 indicates a public client, which does not provide a client secret (user authentication)
+                                                var authType = context.User.FindFirst(ClaimConstants.Acr) ?? context.User.FindFirst("appidacr");
+
+                                                if (authType != null && (authType.Value == "1" || authType.Value == "2"))
+                                                {
+                                                    return true;
+                                                }
                                                 return false;
                                             }
 
@@ -116,6 +126,15 @@ namespace Lens.Core.App.Web.Authentication
                                             var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
                                             if (roleClaim == null)
                                             {
+                                                /// For a confidential client, the value is 1 when a shared secret (a password) is used as a client secret (app authentication) and 
+                                                /// 2 when a certificate is used as a client secret (app authentication). 
+                                                /// The value 0 indicates a public client, which does not provide a client secret (user authentication)
+                                                var authType = context.User.FindFirst(ClaimConstants.Acr) ?? context.User.FindFirst("appidacr");
+
+                                                if (this.AuthSettings.RolesForApplicationsOnly && authType != null && (authType.Value == "0"))
+                                                {
+                                                    return true;
+                                                }
                                                 return false;
                                             }
 

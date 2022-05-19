@@ -12,5 +12,7 @@ namespace Lens.Core.App.Web
         public string[] RequiredAppRoles { get; set; } = Array.Empty<string>();
 
         public bool IncludeConfigInBearerHeader { get; set; }
+
+        public bool RolesForApplicationsOnly { get; set; }
     }
 }
