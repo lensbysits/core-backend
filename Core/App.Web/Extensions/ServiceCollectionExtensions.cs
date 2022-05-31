@@ -1,15 +1,20 @@
-﻿using Lens.Core.App.Web.Services;
+﻿using Lens.Core.App.Web.Authentication;
+using Lens.Core.App.Web.Middleware;
+using Lens.Core.App.Web.Services;
 using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Lens.Core.App.Web
 {
@@ -42,8 +47,7 @@ namespace Lens.Core.App.Web
         }
 
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration
-                , Action<AuthorizationOptions> authorizationOptions = null
-                , Action<JwtBearerOptions> jwtBearerOptions = null)
+                , Action<AuthorizationOptions> authorizationOptions = null)
         {
             if (configuration["ASPNETCORE_ENVIRONMENT"] == Microsoft.Extensions.Hosting.Environments.Development)
             {
@@ -51,33 +55,8 @@ namespace Lens.Core.App.Web
                 IdentityModelEventSource.ShowPII = true;
             }
 
-            var authSettings = configuration.GetSection(nameof(AuthSettings)).Get<AuthSettings>();
-
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    if (authSettings != null)
-                    {
-                        options.Audience = authSettings.Audience;
-                        options.Authority = authSettings.Authority;
-
-                        if (!string.IsNullOrEmpty(authSettings.MetadataAddress))
-                            options.MetadataAddress = authSettings.MetadataAddress;
-
-                        options.RequireHttpsMetadata = authSettings.RequireHttps;
-                        options.TokenValidationParameters.ValidateAudience = authSettings.ValidateAudience;
-                        options.TokenValidationParameters.NameClaimType = "name";
-                    }
-
-                    jwtBearerOptions?.Invoke(options);
-                });
-
-            authorizationOptions ??= options => { options.DefaultPolicy = DefaultPolicy; };
-            services.AddAuthorization(authorizationOptions);
-
-            services.AddHttpContextAccessor();
-            services.AddScoped<IUserContext, UserContext>();
+            var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
+            authMethod.Configure(services, authorizationOptions);
 
             return services;
         }
@@ -86,6 +65,7 @@ namespace Lens.Core.App.Web
         public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
         {
             var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
+            var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
 
             services.AddSwaggerGen(options =>
             {
@@ -95,35 +75,45 @@ namespace Lens.Core.App.Web
                     Version = "v1" 
                 });
 
-                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                if (!string.IsNullOrEmpty(swaggerSettings.ApiHostname))
                 {
-                    Type = SecuritySchemeType.OAuth2,
-                    Flows = new OpenApiOAuthFlows
+                    options.AddServer(new OpenApiServer
                     {
-                        AuthorizationCode = new OpenApiOAuthFlow
-                        {
-                            AuthorizationUrl = new Uri($"{swaggerSettings.Authority}connect/authorize"),
-                            TokenUrl = new Uri($"{swaggerSettings.Authority}connect/token"),
-                            Scopes = new Dictionary<string, string>
-                            {
-                                {swaggerSettings.Scope, swaggerSettings.ScopeName}
-                            }
-                        }
-                    }
-                });
+                        Url = swaggerSettings.ApiHostname
+                    });
+                }
 
-                options.OperationFilter<AuthorizeCheckOperationFilter>();
+                
+                options.EnableAnnotations();
+
+                if (!string.IsNullOrEmpty(swaggerSettings.XMLCommentsPath))
+                {
+                    if (File.Exists(swaggerSettings.XMLCommentsPath))
+                    {
+                        options.IncludeXmlComments(swaggerSettings.XMLCommentsPath);
+                    } else if (File.Exists(Path.Combine(AppContext.BaseDirectory, swaggerSettings.XMLCommentsPath)))
+                    {
+                        options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, swaggerSettings.XMLCommentsPath));
+                    }
+                }
+
+                options.IgnoreObsoleteActions();
+                options.IgnoreObsoleteProperties();
+
+                // In contrast to WebApi, Swagger 2.0 does not include the query string component when mapping a URL
+                // to an action. As a result, Swashbuckle will raise an exception if it encounters multiple actions
+                // with the same path (sans query string) and HTTP method. You can workaround this by providing a
+                // custom strategy to pick a winner or merge the descriptions for the purposes of the Swagger docs
+                options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+
+                options.MapType<FileResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
+                options.MapType<FileStreamResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
+                options.MapType<FileContentResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
+
+                authMethod.ConfigureSwaggerAuth(options, swaggerSettings);
             });
 
             return services;
-        }
-
-        private static AuthorizationPolicy DefaultPolicy
-        {
-            get =>
-                new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser()
-                    .Build();
         }
 
         private static string[] GetCorsOrigins(IConfiguration configuration)

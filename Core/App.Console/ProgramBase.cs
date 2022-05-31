@@ -9,8 +9,7 @@ namespace Lens.Core.App.Console
     {
         protected static Action<HostBuilderContext, IApplicationSetupBuilder> ApplicationSetup { get; set; }
 
-        public static async Task<int> Start(string[] args) =>
-            await Start(args, CreateHostBuilder);
+        public static Task<int> Start(string[] args) => Start(args, CreateHostBuilder);
 
         protected static IHostBuilder CreateHostBuilder(string[] args) =>
                 CreateBaseHostBuilder(args)

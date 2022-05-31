@@ -7,7 +7,7 @@ namespace Lens.Core.Lib
 {
 	public static class HttpClientExtensions
 	{
-        public static Task<HttpResponseMessage> GetAsync(this HttpClient httpClient, string url, Action<HttpRequestHeaders> beforeRequest, HttpContent content = null)
+    public static Task<HttpResponseMessage> GetAsync(this HttpClient httpClient, string url, Action<HttpRequestHeaders> beforeRequest, HttpContent content = null)
 		{
 			var request = new HttpRequestMessage(HttpMethod.Get, url);
 
@@ -38,6 +38,7 @@ namespace Lens.Core.Lib
 		private static Task<HttpResponseMessage> SendRequest(HttpClient httpClient, Action<HttpRequestHeaders> beforeRequest, HttpContent content, HttpRequestMessage request)
 		{
 			beforeRequest(request.Headers);
+
 			if (content != null)
 			{
 				request.Content = content;
