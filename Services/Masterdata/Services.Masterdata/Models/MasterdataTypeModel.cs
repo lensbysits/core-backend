@@ -4,13 +4,13 @@ using System.Text.Json.Serialization;
 
 namespace Lens.Services.Masterdata.Models;
 
-public class MasterdataTypeBM
+public class MasterdataTypeModel
 {
     public Guid Id { get; set; }
     public string? Code { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
-    public IEnumerable<MasterdataBM>? Masterdatas { get; set; }
+    public IEnumerable<MasterdataModel>? Masterdatas { get; set; }
     public int? MasterdatasCount { get; set; }
 
     private string? metadataJson;

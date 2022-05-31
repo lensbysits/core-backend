@@ -1,21 +1,22 @@
 ﻿using Lens.Services.Masterdata.Models;
+using Lens.Core.Lib.Models;
 
 namespace Lens.Services.Masterdata.Services;
 
 public interface IMasterdataService
 {
-    Task<IEnumerable<MasterdataTypeListBM>> GetMasterdataTypes();
-    Task<MasterdataTypeBM?> GetMasterdataType(Guid id);
-    Task<MasterdataTypeListBM> AddMasterdataType(MasterdataTypeCreateBM model);
-    Task<MasterdataTypeListBM> UpdateMasterdataType(Guid masterdataTypeId, MasterdataTypeUpdateBM model);
+    Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes();
+    Task<MasterdataTypeModel?> GetMasterdataType(Guid id);
+    Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model);
+    Task<MasterdataTypeListModel> UpdateMasterdataType(Guid masterdataTypeId, MasterdataTypeUpdateModel model);
 
-    Task<IEnumerable<MasterdataBM>> GetMasterdata(string masterdataType);
-    Task<MasterdataBM?> GetMasterdata(string masterdataType, string value);
-    Task<MasterdataBM> AddMasterdata(MasterdataCreateBM model);
-    Task<MasterdataBM> UpdateMasterdata(Guid masterdataId, MasterdataUpdateBM model);
+    Task<IEnumerable<MasterdataModel>> GetMasterdata(string masterdataType);
+    Task<MasterdataModel?> GetMasterdata(string masterdataType, string value);
+    Task<MasterdataModel> AddMasterdata(MasterdataCreateModel model);
+    Task<MasterdataModel> UpdateMasterdata(Guid masterdataId, MasterdataUpdateModel model);
 
-    Task<MasterdataTypeBM?> ImportMasterdata(MasterdataImportBM model);
+    Task<MasterdataTypeModel?> ImportMasterdata(MasterdataImportModel model);
     Task DeleteMasterdataType(Guid id);
     Task DeleteMasterdata(Guid id);
-    Task<MasterdataTypeBM?> GetMasterdataType(string code);
+    Task<MasterdataTypeModel?> GetMasterdataType(string code);
 }

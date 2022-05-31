@@ -9,13 +9,13 @@ internal class AutomapperProfile : Profile
     public AutomapperProfile()
     {
         // Masterdata
-        CreateMap<MasterdataType, MasterdataTypeListBM>();
-        CreateMap<MasterdataType, MasterdataTypeBM>();
-        CreateMap<MasterdataTypeCreateBM, MasterdataType>();
-        CreateMap<MasterdataTypeUpdateBM, MasterdataType>();
+        CreateMap<MasterdataType, MasterdataTypeListModel>();
+        CreateMap<MasterdataType, MasterdataTypeModel>();
+        CreateMap<MasterdataTypeCreateModel, MasterdataType>();
+        CreateMap<MasterdataTypeUpdateModel, MasterdataType>();
 
-        CreateMap<Entities.Masterdata, MasterdataBM>();
-        CreateMap<MasterdataCreateBM, Entities.Masterdata>();
-        CreateMap<MasterdataUpdateBM, Entities.Masterdata>();
+        CreateMap<Entities.Masterdata, MasterdataModel>();
+        CreateMap<MasterdataCreateModel, Entities.Masterdata>();
+        CreateMap<MasterdataUpdateModel, Entities.Masterdata>();
     }
 }

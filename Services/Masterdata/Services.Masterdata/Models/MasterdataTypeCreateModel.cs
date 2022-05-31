@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Lens.Services.Masterdata.Models;
 
-public  class MasterdataTypeCreateBM
+public  class MasterdataTypeCreateModel
 {
     [StringLength(50), Required]
     public string? Code { get; set; }

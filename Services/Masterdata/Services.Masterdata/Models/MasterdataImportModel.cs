@@ -4,14 +4,13 @@ using System.Text.Json.Serialization;
 
 namespace Lens.Services.Masterdata.Models;
 
-public class MasterdataUpdateBM
+public class MasterdataImportModel
 {
-    [StringLength(50)]
-    public string? Value { get; set; }
-    [StringLength(50)]
     public string? Name { get; set; }
-    [StringLength(1024)]
     public string? Description { get; set; }
+    [StringLength(50), Required]
+    public string? Code { get; set; }
+    public IEnumerable<MasterdataCreateModel> Masterdatas { get; set; } = Enumerable.Empty<MasterdataCreateModel>();
 
     [JsonIgnore]
     public string MetadataJson

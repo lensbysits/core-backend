@@ -12,8 +12,6 @@ namespace Lens.Core.Lib.Extensions
         /// <summary>
         /// Gets the quarter of the year
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
         public static int? GetQuarter(this DateTime value)
         {
             return ((value.Month - 3) % 12) / 4;

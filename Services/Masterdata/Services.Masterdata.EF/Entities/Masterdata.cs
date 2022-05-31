@@ -3,9 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Lens.Services.Masterdata.EF.Entities
 {
-    public class Masterdata : IIdEntity, ICreatedUpdatedEntity
+    public class Masterdata : BaseEntity
     {
-        public Guid Id { get; set; }
         public Guid MasterdataTypeId { get; set; }
         public virtual MasterdataType? MasterdataType { get; set; }
 
