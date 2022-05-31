@@ -19,9 +19,20 @@ namespace Lens.Core.App.Web.Services
 
         //TODO: Move to business specific extension methods
         public Guid EmployeeId => ClaimValue<Guid>("employeeId");
-        
-        public string Username => UserClaims?.Identity?.Name ?? "anonymous";
-        
+
+        public string Username
+        {
+            get
+            {
+                var name = UserClaims?.Identity?.Name;
+                if (name == null)
+                {
+                    name = UserClaims?.FindFirst(ClaimTypes.Name)?.Value;
+                }
+                return name ?? "anonymous";
+            }
+        }
+
         public string Email => ClaimValue<string>("email");
         
         public T ClaimValue<T>(string claim)
