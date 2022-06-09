@@ -49,6 +49,8 @@ namespace Lens.Core.App.Web.Authentication
 
             services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
+                options.TokenValidationParameters.NameClaimType = "name";
+
                 if (this.AuthSettings.IncludeConfigInBearerHeader)
                 {
                     var buildHeader = new StringBuilder("Bearer");
