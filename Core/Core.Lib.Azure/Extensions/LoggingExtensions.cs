@@ -19,20 +19,17 @@ namespace Lens.Core.Lib.Azure.Extensions
         public static LoggerConfiguration AddAzureAppLogging(this LoggerConfiguration loggerConfiguration, IConfiguration configuration, bool isBootstrap = false)
         {
             var appInsightsConnectionstring = configuration.GetValue<string>("APPLICATIONINSIGHTS_CONNECTION_STRING");
-
             if (!string.IsNullOrWhiteSpace(appInsightsConnectionstring))
             {
                 var config = TelemetryConfiguration.CreateFromConfiguration(appInsightsConnectionstring);
                 config.InstrumentationKey = ParseFromConnectionString(appInsightsConnectionstring);
-
                 return loggerConfiguration
                     .Enrich.FromLogContext()
                     .Enrich.WithOperationId()
                     .WriteTo.AzureApp()
                     .WriteTo.ApplicationInsights(
                                 config,
-                                new OperationTelemetryConverter(),
-                                LogEventLevel.Information); //https://oleh-zheleznyak.blogspot.com/2019/08/serilog-with-application-insights.html
+                                new OperationTelemetryConverter()); //https://oleh-zheleznyak.blogspot.com/2019/08/serilog-with-application-insights.html
             }
 
             return loggerConfiguration;
