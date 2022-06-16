@@ -24,5 +24,7 @@ namespace Lens.Core.Blob.Data.Entities
         [StringLength(2048)]
         public string RelativePathAndName { get; set; }
         public int Size { get; set; }
+        [StringLength(2048)]
+        public string Tag { get; set; }
     }
 }

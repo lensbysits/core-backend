@@ -14,6 +14,7 @@ namespace Lens.Core.Blob.Services
 {
     public class BlobManagementService : BaseService<BlobManagementService>, IBlobManagementService
     {
+        private const string DefaultRelativeSubfolder = @"uploads/";
         private readonly IBlobService _blobService;
         private readonly BlobDbContext _blobDbContext;
 
@@ -59,38 +60,21 @@ namespace Lens.Core.Blob.Services
                 EntityId = entityId
             };
 
-            // add blob info
-            var blobInfo = _blobDbContext.BlobInfos.Add(ApplicationService.Mapper.Map<BlobInfo>(value)).Entity;
+            return await AddBlob(value, file, relativeSubfolder);
+        }
 
-            var fileInfo = new FileInfo(blobInfo.FilenameWithExtension);
-            blobInfo.FilenameWithoutExtension = fileInfo.Name.Substring(0, fileInfo.Name.Length - fileInfo.Extension.Length);
-            blobInfo.FileExtension = fileInfo.Extension;
-            if (string.IsNullOrEmpty(relativeSubfolder))
+        public async Task<BlobInfoModel> AddBlobWithTags(Guid entityId, IFormFile file, string[] tags, string relativeSubfolder = null)
+        {
+            var value = new BlobInfoMergeModel
             {
-                relativeSubfolder = $"uploads/";
-            }
-            blobInfo.RelativePathAndName = Path.Combine(relativeSubfolder, blobInfo.FilenameWithExtension);
+                FilenameWithExtension = file.FileName,
+                Size = (int)file.Length,
+                ContentType = file.ContentType,
+                EntityId = entityId,
+                Tags = tags
+            };
 
-            await _blobDbContext.SaveChangesAsync();
-
-            // upload blob info
-            try
-            {
-                BlobMetadataModel blobMetadata = await _blobService.Upload(blobInfo.RelativePathAndName, file.OpenReadStream());
-                ApplicationService.Mapper.Map(blobMetadata, blobInfo);
-                
-                await _blobDbContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                // rollback blob info entity if something went wrong when uploading the blob
-                _blobDbContext.BlobInfos.Remove(blobInfo);
-                await _blobDbContext.SaveChangesAsync();
-
-                throw;
-            }
-
-            return ApplicationService.Mapper.Map<BlobInfoModel>(blobInfo);
+            return await AddBlob(value, file, relativeSubfolder);
         }
 
         public async Task DeleteBlob(Guid blobInfoId)
@@ -105,5 +89,43 @@ namespace Lens.Core.Blob.Services
         }
 
         #endregion IBlobManagementService implementation
+
+        #region Private Methods
+        private async Task<BlobInfoModel> AddBlob(BlobInfoMergeModel value, IFormFile file, string relativeSubfolder)
+        {
+            // add blob info
+            var blobInfo = _blobDbContext.BlobInfos.Add(ApplicationService.Mapper.Map<BlobInfo>(value)).Entity;
+
+            var fileInfo = new FileInfo(blobInfo.FilenameWithExtension);
+            blobInfo.FilenameWithoutExtension = fileInfo.Name.Substring(0, fileInfo.Name.Length - fileInfo.Extension.Length);
+            blobInfo.FileExtension = fileInfo.Extension;
+            if (string.IsNullOrEmpty(relativeSubfolder))
+            {
+                relativeSubfolder = DefaultRelativeSubfolder;
+            }
+            blobInfo.RelativePathAndName = Path.Combine(relativeSubfolder, blobInfo.FilenameWithExtension);
+
+            await _blobDbContext.SaveChangesAsync();
+
+            // upload blob
+            try
+            {
+                BlobMetadataModel blobMetadata = await _blobService.Upload(blobInfo.RelativePathAndName, file.OpenReadStream());
+                ApplicationService.Mapper.Map(blobMetadata, blobInfo);
+
+                await _blobDbContext.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                // rollback blob info entity if something went wrong when uploading the blob
+                _blobDbContext.BlobInfos.Remove(blobInfo);
+                await _blobDbContext.SaveChangesAsync();
+
+                throw;
+            }
+
+            return ApplicationService.Mapper.Map<BlobInfoModel>(blobInfo);
+        }
+        #endregion
     }
 }
