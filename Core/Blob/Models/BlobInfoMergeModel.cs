@@ -12,5 +12,6 @@ namespace Lens.Core.Blob.Models
         [StringLength(532)]
         public string FilenameWithExtension { get; set; }
         public int Size { get; set; }
+        public string Tag { get; set; }
     }
 }

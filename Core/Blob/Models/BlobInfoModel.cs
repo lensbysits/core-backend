@@ -13,5 +13,6 @@ namespace Lens.Core.Blob.Models
         public string FullPathAndName { get; set; }
         public string RelativePathAndName { get; set; }
         public int Size { get; set; }
+        public string Tag { get; set; }
 	}
 }

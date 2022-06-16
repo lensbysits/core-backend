@@ -34,13 +34,19 @@ namespace Lens.Core.Blob.Services
             return (blob, ApplicationService.Mapper.Map<BlobInfoModel>(blobInfo));
         }
 
-        public async Task<ResultListModel<BlobInfoModel>> GetBlobList(Guid id)
+        public async Task<ResultListModel<BlobInfoModel>> GetBlobList(Guid entityId, QueryModel queryModel = null)
         {
             var blobInfos = _blobDbContext.BlobInfos
-                .Where(bi => bi.EntityId == id);
+                .Where(bi => bi.EntityId == entityId);
+
+            if (queryModel == null)
+            {
+                queryModel = new QueryModel { NoLimit = true };
+            }
 
             return await blobInfos
-                .ToResultList<BlobInfo, BlobInfoModel>(new QueryModel { NoLimit = true }, ApplicationService.Mapper);
+                .GetByQueryModel(queryModel)
+                .ToResultList<BlobInfo, BlobInfoModel>(queryModel, ApplicationService.Mapper);
         }
 
         public async Task<BlobInfoModel> AddBlob(Guid entityId, IFormFile file, string relativeSubfolder = null)
