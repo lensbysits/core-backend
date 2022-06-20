@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using System;
 using System.Collections;
@@ -45,6 +46,8 @@ namespace Lens.Core.App.Web.Authentication
             IServiceCollection services,
             Action<AuthorizationOptions> authorizationOptions)
         {
+            var logger = services.BuildServiceProvider().GetService<ILogger<AzureAuthentication<AzureAuthSettings>>>();
+
             services.AddMicrosoftIdentityWebApiAuthentication(this.configuration, "AuthSettings");
 
             services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -78,12 +81,12 @@ namespace Lens.Core.App.Web.Authentication
                 base.RegisterAuthenticationInterceptorEventHandlers(options);
 
             });
-
+            
             services.AddAuthorization(
                 options =>
                 {
-                    options.AddPolicy(ScopePolicyName, ScopePolicy());
-                    options.AddPolicy(RolePolicyName, RolePolicy());
+                    options.AddPolicy(ScopePolicyName, ScopePolicy(logger));
+                    options.AddPolicy(RolePolicyName, RolePolicy(logger));
                     options.FallbackPolicy = DefaultPolicy;
 
                     authorizationOptions?.Invoke(options);
@@ -92,57 +95,84 @@ namespace Lens.Core.App.Web.Authentication
             services.AddScoped<IUserContext, UserContext>();
         }
         
-        private Action<AuthorizationPolicyBuilder> ScopePolicy()
+        private Action<AuthorizationPolicyBuilder> ScopePolicy(ILogger logger = null)
         {
             return policy => policy.RequireAssertion(
                                         context =>
                                         {
                                             
                                             var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
+
+                                            var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} Found scopes: {scopeClaim?.Value} ";
+
                                             if (scopeClaim == null)
                                             {
                                                 /// For a confidential client, the value is 1 when a shared secret (a password) is used as a client secret (app authentication) and 
                                                 /// 2 when a certificate is used as a client secret (app authentication). 
                                                 /// The value 0 indicates a public client, which does not provide a client secret (user authentication)
                                                 var authType = context.User.FindFirst(ClaimConstants.Acr) ?? context.User.FindFirst("appidacr");
+                                                var hasClientSecret = (authType != null && (authType.Value == "1" || authType.Value == "2"));
 
-                                                if (authType != null && (authType.Value == "1" || authType.Value == "2"))
+                                                logStr += $"Has Client Secret: {hasClientSecret.ToString()} ";
+
+                                                if (logger != null)
                                                 {
-                                                    return true;
+                                                    logger.LogInformation(logStr);
                                                 }
-                                                return false;
-                                            }
 
+                                                return hasClientSecret;
+                                            }
+                                            
                                             var incommingScopes = scopeClaim.Value.Split(' ');
                                             var accessAllowed = this.AuthSettings.RequiredScopes.All(
                                                 s => incommingScopes.Contains(s));
+
+                                            if (logger != null)
+                                            {
+                                                logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
+                                                logger.LogInformation(logStr);
+                                            }
                                             return accessAllowed;
                                         });
         }
 
-        private Action<AuthorizationPolicyBuilder> RolePolicy()
+        private Action<AuthorizationPolicyBuilder> RolePolicy(ILogger logger = null)
         {
             return policy => policy.RequireAssertion(
                                         context =>
                                         {
                                             var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
+
+                                            var logStr = $"Authz:RolePolicy: User object id: {context.User?.GetObjectId()} Found roles: {roleClaim?.Value} ";
+
                                             if (roleClaim == null)
                                             {
                                                 /// For a confidential client, the value is 1 when a shared secret (a password) is used as a client secret (app authentication) and 
                                                 /// 2 when a certificate is used as a client secret (app authentication). 
                                                 /// The value 0 indicates a public client, which does not provide a client secret (user authentication)
                                                 var authType = context.User.FindFirst(ClaimConstants.Acr) ?? context.User.FindFirst("appidacr");
+                                                var isPublicClient = this.AuthSettings.RolesForApplicationsOnly && authType != null && (authType.Value == "0");
 
-                                                if (this.AuthSettings.RolesForApplicationsOnly && authType != null && (authType.Value == "0"))
+                                                logStr += $"Is Public Client: {isPublicClient.ToString()} ";
+
+                                                if (logger != null)
                                                 {
-                                                    return true;
+                                                    logger.LogInformation(logStr);
                                                 }
-                                                return false;
+
+                                                return isPublicClient;
                                             }
 
                                             var incommingScopes = roleClaim.Value.Split(' ');
                                             var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
                                                 s => incommingScopes.Contains(s));
+
+                                            if (logger != null)
+                                            {
+                                                logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
+                                                logger.LogInformation(logStr);
+                                            }
+
                                             return accessAllowed;
                                         });
         }
