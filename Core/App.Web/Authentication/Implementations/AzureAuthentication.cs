@@ -46,7 +46,6 @@ namespace Lens.Core.App.Web.Authentication
             IServiceCollection services,
             Action<AuthorizationOptions> authorizationOptions)
         {
-            var logger = services.BuildServiceProvider().GetService<ILogger<AzureAuthentication<AzureAuthSettings>>>();
 
             services.AddMicrosoftIdentityWebApiAuthentication(this.configuration, "AuthSettings");
 
