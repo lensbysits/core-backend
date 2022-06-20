@@ -20,6 +20,7 @@ namespace Lens.Core.App.Web.Authentication
     {
         private const string ScopePolicyName = "ApiScopePolicy";
         private const string RolePolicyName = "ApiRolePolicy";
+        private const string ScopeOrRolePolicyName = "ApiScopeOrRolePolicy";
         private readonly IConfiguration configuration;
 
         public AzureAuthentication(T authSettings, IConfiguration configuration) : base(authSettings)
@@ -31,14 +32,19 @@ namespace Lens.Core.App.Web.Authentication
         {
             base.ApplyMvcFilters(filters);
 
-            if (this.AuthSettings.RequiredScopes.Any())
-            {
-                filters.Add(new AuthorizeFilter(ScopePolicyName));
-            }
+            //if (this.AuthSettings.RequiredScopes.Any())
+            //{
+            //    filters.Add(new AuthorizeFilter(ScopePolicyName));
+            //}
 
-            if (this.AuthSettings.RequiredAppRoles.Any())
+            //if (this.AuthSettings.RequiredAppRoles.Any())
+            //{
+            //    filters.Add(new AuthorizeFilter(RolePolicyName));
+            //}
+
+            if (this.AuthSettings.RequiredScopes.Any() || this.AuthSettings.RequiredAppRoles.Any())
             {
-                filters.Add(new AuthorizeFilter(RolePolicyName));
+                filters.Add(new AuthorizeFilter(ScopeOrRolePolicyName));
             }
         }
 
@@ -86,7 +92,7 @@ namespace Lens.Core.App.Web.Authentication
                 {
                     //options.AddPolicy(ScopePolicyName, ScopePolicy(Serilog.Log.Logger));
                     //options.AddPolicy(RolePolicyName, RolePolicy(Serilog.Log.Logger));
-                    options.AddPolicy(RolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger));
+                    options.AddPolicy(ScopeOrRolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger));
                     options.FallbackPolicy = DefaultPolicy;
 
                     authorizationOptions?.Invoke(options);
