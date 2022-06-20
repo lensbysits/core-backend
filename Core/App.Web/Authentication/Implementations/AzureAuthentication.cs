@@ -84,8 +84,8 @@ namespace Lens.Core.App.Web.Authentication
             services.AddAuthorization(
                 options =>
                 {
-                    options.AddPolicy(ScopePolicyName, ScopePolicy());
-                    options.AddPolicy(RolePolicyName, RolePolicy());
+                    options.AddPolicy(ScopePolicyName, ScopePolicy(Serilog.Log.Logger));
+                    options.AddPolicy(RolePolicyName, RolePolicy(Serilog.Log.Logger));
                     options.FallbackPolicy = DefaultPolicy;
 
                     authorizationOptions?.Invoke(options);
@@ -94,7 +94,7 @@ namespace Lens.Core.App.Web.Authentication
             services.AddScoped<IUserContext, UserContext>();
         }
         
-        private Action<AuthorizationPolicyBuilder> ScopePolicy(ILogger logger = null)
+        private Action<AuthorizationPolicyBuilder> ScopePolicy(Serilog.ILogger logger = null)
         {
             return policy => policy.RequireAssertion(
                                         context =>
@@ -116,7 +116,7 @@ namespace Lens.Core.App.Web.Authentication
 
                                                 if (logger != null)
                                                 {
-                                                    logger.LogInformation(logStr);
+                                                    logger.Information(logStr);
                                                 }
 
                                                 return hasClientSecret;
@@ -129,13 +129,13 @@ namespace Lens.Core.App.Web.Authentication
                                             if (logger != null)
                                             {
                                                 logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
-                                                logger.LogInformation(logStr);
+                                                logger.Information(logStr);
                                             }
                                             return accessAllowed;
                                         });
         }
 
-        private Action<AuthorizationPolicyBuilder> RolePolicy(ILogger logger = null)
+        private Action<AuthorizationPolicyBuilder> RolePolicy(Serilog.ILogger logger = null)
         {
             return policy => policy.RequireAssertion(
                                         context =>
@@ -156,7 +156,7 @@ namespace Lens.Core.App.Web.Authentication
 
                                                 if (logger != null)
                                                 {
-                                                    logger.LogInformation(logStr);
+                                                    logger.Information(logStr);
                                                 }
 
                                                 return isPublicClient;
@@ -169,7 +169,7 @@ namespace Lens.Core.App.Web.Authentication
                                             if (logger != null)
                                             {
                                                 logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
-                                                logger.LogInformation(logStr);
+                                                logger.Information(logStr);
                                             }
 
                                             return accessAllowed;
