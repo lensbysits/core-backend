@@ -84,8 +84,9 @@ namespace Lens.Core.App.Web.Authentication
             services.AddAuthorization(
                 options =>
                 {
-                    options.AddPolicy(ScopePolicyName, ScopePolicy(Serilog.Log.Logger));
-                    options.AddPolicy(RolePolicyName, RolePolicy(Serilog.Log.Logger));
+                    //options.AddPolicy(ScopePolicyName, ScopePolicy(Serilog.Log.Logger));
+                    //options.AddPolicy(RolePolicyName, RolePolicy(Serilog.Log.Logger));
+                    options.AddPolicy(RolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger));
                     options.FallbackPolicy = DefaultPolicy;
 
                     authorizationOptions?.Invoke(options);
@@ -93,7 +94,62 @@ namespace Lens.Core.App.Web.Authentication
 
             services.AddScoped<IUserContext, UserContext>();
         }
-        
+
+        /// <summary>
+        /// Don't use, but temporary fix
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <returns></returns>
+        private Action<AuthorizationPolicyBuilder> ScopeOrRolePolicy(Serilog.ILogger logger = null)
+        {
+            return policy => policy.RequireAssertion(
+                                        context =>
+                                        {
+
+                                            var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
+                                            var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
+
+                                            var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} Found roles: {roleClaim?.Value} ";
+
+                                            if (scopeClaim != null && !string.IsNullOrEmpty(scopeClaim.Value)){
+                                                var incommingScopes = scopeClaim.Value.Split(' ');
+                                                var accessAllowed = this.AuthSettings.RequiredScopes.All(
+                                                    s => incommingScopes.Contains(s));
+
+                                                if (logger != null)
+                                                {
+                                                    logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
+                                                    logger.Information(logStr);
+                                                }
+                                                
+                                                if (accessAllowed)
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                            
+                                            if (roleClaim != null && !string.IsNullOrEmpty(roleClaim.Value))
+                                            {
+                                                var incommingRoles = roleClaim.Value.Split(' ');
+                                                var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
+                                                    s => incommingRoles.Contains(s));
+
+                                                if (logger != null)
+                                                {
+                                                    logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
+                                                    logger.Information(logStr);
+                                                }
+
+                                                if (accessAllowed)
+                                                {
+                                                    return true;
+                                                }
+                                            }
+
+                                            return false;
+                                        });
+        }
+
         private Action<AuthorizationPolicyBuilder> ScopePolicy(Serilog.ILogger logger = null)
         {
             return policy => policy.RequireAssertion(
