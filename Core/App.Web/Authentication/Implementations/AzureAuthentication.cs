@@ -102,7 +102,7 @@ namespace Lens.Core.App.Web.Authentication
                                             
                                             var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
 
-                                            var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} Found scopes: {scopeClaim?.Value} ";
+                                            var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} ";
 
                                             if (scopeClaim == null)
                                             {
@@ -142,7 +142,7 @@ namespace Lens.Core.App.Web.Authentication
                                         {
                                             var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
 
-                                            var logStr = $"Authz:RolePolicy: User object id: {context.User?.GetObjectId()} Found roles: {roleClaim?.Value} ";
+                                            var logStr = $"Authz:RolePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found roles: {roleClaim?.Value} ";
 
                                             if (roleClaim == null)
                                             {
