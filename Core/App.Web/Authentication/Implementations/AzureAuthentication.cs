@@ -84,8 +84,8 @@ namespace Lens.Core.App.Web.Authentication
             services.AddAuthorization(
                 options =>
                 {
-                    options.AddPolicy(ScopePolicyName, ScopePolicy(logger));
-                    options.AddPolicy(RolePolicyName, RolePolicy(logger));
+                    options.AddPolicy(ScopePolicyName, ScopePolicy());
+                    options.AddPolicy(RolePolicyName, RolePolicy());
                     options.FallbackPolicy = DefaultPolicy;
 
                     authorizationOptions?.Invoke(options);
