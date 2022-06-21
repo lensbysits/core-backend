@@ -9,8 +9,11 @@ namespace Lens.Core.Blob.Data
         public AutoMapperProfile()
         {
             CreateMap<BlobInfo, BlobInfoModel>();
-            CreateMap<BlobInfoMergeModel, BlobInfo>();
+            CreateMap<BlobInfoBulkCreateModel, BlobInfo>();
+            CreateMap<BlobInfoCreateModel, BlobInfo>();
+            CreateMap<BlobInfoCreateModel, BlobInfoBulkCreateModel>();
             CreateMap<BlobMetadataModel, BlobInfo>();
+            CreateMap<FileInfoModel, BlobInfo>();
         }
     }
 }

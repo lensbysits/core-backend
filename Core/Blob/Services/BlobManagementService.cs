@@ -6,6 +6,7 @@ using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Lens.Core.Blob.Services
 {
     public class BlobManagementService : BaseService<BlobManagementService>, IBlobManagementService
     {
-        private const string DefaultRelativeSubfolder = @"uploads/";
+        private const string DefaultRelativePath = @"uploads/";
         private readonly IBlobService _blobService;
         private readonly BlobDbContext _blobDbContext;
 
@@ -50,31 +51,33 @@ namespace Lens.Core.Blob.Services
                 .ToResultList<BlobInfo, BlobInfoModel>(queryModel, ApplicationService.Mapper);
         }
 
-        public async Task<BlobInfoModel> AddBlob(Guid entityId, IFormFile file, string relativeSubfolder = null)
+        public async Task<BlobInfoModel> AddBlob(Guid entityId, IFormFile file, string relativePath = null)
         {
-            var value = new BlobInfoMergeModel
-            {
-                FilenameWithExtension = file.FileName,
-                Size = (int)file.Length,
-                ContentType = file.ContentType,
-                EntityId = entityId
-            };
-
-            return await AddBlob(value, file, relativeSubfolder);
+            return await AddBlobWithTags(entityId, file, null, relativePath);
         }
 
-        public async Task<BlobInfoModel> AddBlobWithTags(Guid entityId, IFormFile file, string[] tags, string relativeSubfolder = null)
+        public async Task<IEnumerable<BlobInfoModel>> AddBlob(IEnumerable<Guid> entityIds, IFormFile file, string relativePath = null)
         {
-            var value = new BlobInfoMergeModel
-            {
-                FilenameWithExtension = file.FileName,
-                Size = (int)file.Length,
-                ContentType = file.ContentType,
-                EntityId = entityId,
-                Tags = tags
-            };
+            return await AddBlobWithTags(entityIds, file, null, relativePath);
+        }
 
-            return await AddBlob(value, file, relativeSubfolder);
+        public async Task<BlobInfoModel> AddBlobWithTags(Guid entityId, IFormFile file, string[] tags, string relativePath = null)
+        {
+            var blobInfo = GetInitialBlobInfo(file);
+            blobInfo.EntityId = entityId;
+            blobInfo.Tags = tags;
+
+            return await AddBlob(blobInfo, file, relativePath);
+        }
+
+        public async Task<IEnumerable<BlobInfoModel>> AddBlobWithTags(IEnumerable<Guid> entityIds, IFormFile file, string[] tags, string relativePath = null)
+        {
+            var blobInfo = GetInitialBlobInfo(file);
+            var blobInfoForMultipleEntities = ApplicationService.Mapper.Map<BlobInfoBulkCreateModel>(blobInfo);
+            blobInfoForMultipleEntities.EntityIds = entityIds;
+            blobInfoForMultipleEntities.Tags = tags;
+
+            return await AddBlobForMultipleEntities(blobInfoForMultipleEntities, file, relativePath);
         }
 
         public async Task DeleteBlob(Guid blobInfoId)
@@ -91,41 +94,85 @@ namespace Lens.Core.Blob.Services
         #endregion IBlobManagementService implementation
 
         #region Private Methods
-        private async Task<BlobInfoModel> AddBlob(BlobInfoMergeModel value, IFormFile file, string relativeSubfolder)
+
+        private async Task<BlobInfoModel> AddBlob(BlobInfoCreateModel value, IFormFile file, string relativePath)
         {
-            // add blob info
+            var fileInfo = GetFileInfo(value.FilenameWithExtension, relativePath);
+
+            // create blob info entity
             var blobInfo = _blobDbContext.BlobInfos.Add(ApplicationService.Mapper.Map<BlobInfo>(value)).Entity;
-
-            var fileInfo = new FileInfo(blobInfo.FilenameWithExtension);
-            blobInfo.FilenameWithoutExtension = fileInfo.Name.Substring(0, fileInfo.Name.Length - fileInfo.Extension.Length);
-            blobInfo.FileExtension = fileInfo.Extension;
-            if (string.IsNullOrEmpty(relativeSubfolder))
-            {
-                relativeSubfolder = DefaultRelativeSubfolder;
-            }
-            blobInfo.RelativePathAndName = Path.Combine(relativeSubfolder, blobInfo.FilenameWithExtension);
-
-            await _blobDbContext.SaveChangesAsync();
+            ApplicationService.Mapper.Map(fileInfo, blobInfo);
 
             // upload blob
-            try
-            {
-                BlobMetadataModel blobMetadata = await _blobService.Upload(blobInfo.RelativePathAndName, file.OpenReadStream());
-                ApplicationService.Mapper.Map(blobMetadata, blobInfo);
+            BlobMetadataModel blobMetadata = await _blobService.Upload(blobInfo.RelativePathAndName, file.OpenReadStream());
+            ApplicationService.Mapper.Map(blobMetadata, blobInfo);
 
-                await _blobDbContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                // rollback blob info entity if something went wrong when uploading the blob
-                _blobDbContext.BlobInfos.Remove(blobInfo);
-                await _blobDbContext.SaveChangesAsync();
-
-                throw;
-            }
+            // save blob info entity
+            await _blobDbContext.SaveChangesAsync();
 
             return ApplicationService.Mapper.Map<BlobInfoModel>(blobInfo);
         }
-        #endregion
+
+        private async Task<IEnumerable<BlobInfoModel>> AddBlobForMultipleEntities(BlobInfoBulkCreateModel value, IFormFile file, string relativePath)
+        {
+            var fileInfo = GetFileInfo(value.FilenameWithExtension, relativePath);
+
+            // create blob info entities
+            var blobInfoList = new List<BlobInfo>();
+            foreach (var id in value.EntityIds)
+            {
+                var blobInfo = _blobDbContext.BlobInfos.Add(ApplicationService.Mapper.Map<BlobInfo>(value)).Entity;
+                ApplicationService.Mapper.Map(fileInfo, blobInfo);
+                blobInfo.EntityId = id;
+
+                blobInfoList.Add(blobInfo);
+            }
+
+            // upload blob
+            BlobMetadataModel blobMetadata = await _blobService.Upload(fileInfo.RelativePathAndName, file.OpenReadStream());
+            foreach (var blobInfo in blobInfoList)
+            {
+                ApplicationService.Mapper.Map(blobMetadata, blobInfo);
+            }
+
+            // save blob info entities
+            await _blobDbContext.SaveChangesAsync();
+
+            return blobInfoList.Select(bi =>
+            {
+                return ApplicationService.Mapper.Map<BlobInfoModel>(bi);
+            });
+        }
+
+        private static BlobInfoCreateModel GetInitialBlobInfo(IFormFile file)
+        {
+            return new BlobInfoCreateModel
+            {
+                FilenameWithExtension = file.FileName,
+                Size = (int)file.Length,
+                ContentType = file.ContentType
+            };
+        }
+
+        public static FileInfoModel GetFileInfo(string fileNameWithExtension, string relativePath)
+        {
+            var fileInfo = new FileInfo(fileNameWithExtension);
+            var filenameWithoutExtension = fileInfo.Name[..^fileInfo.Extension.Length];
+            var fileExtension = fileInfo.Extension;
+            if (string.IsNullOrEmpty(relativePath))
+            {
+                relativePath = DefaultRelativePath;
+            }
+            var relativePathAndName = Path.Combine(relativePath, fileNameWithExtension);
+
+            return new FileInfoModel
+            {
+                FileExtension = fileExtension,
+                FilenameWithoutExtension = filenameWithoutExtension,
+                RelativePathAndName = relativePathAndName
+            };
+        }
+
+        #endregion Private Methods
     }
 }
