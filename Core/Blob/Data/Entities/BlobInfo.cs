@@ -12,7 +12,6 @@ namespace Lens.Core.Blob.Data.Entities
         [StringLength(128)]
         public string ContentType { get; set; }
         public Guid? EntityId { get; set; }
-
         [StringLength(20)]
         public string FileExtension { get; set; }
         [StringLength(532)]
@@ -24,6 +23,7 @@ namespace Lens.Core.Blob.Data.Entities
         [StringLength(2048)]
         public string RelativePathAndName { get; set; }
         public int Size { get; set; }
+        public bool SkipFileDeletion { get; set; }
         [StringLength(2048)]
         public string Tag { get; set; }
     }

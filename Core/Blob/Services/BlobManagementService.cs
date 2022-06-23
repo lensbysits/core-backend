@@ -53,38 +53,38 @@ namespace Lens.Core.Blob.Services
 
         public async Task<BlobInfoModel> AddBlob(Guid entityId, IFormFile file, string relativePath = null)
         {
-            return await AddBlobWithTags(entityId, file, null, relativePath);
+            var blobInfoItem = new BlobInfoInputModel() { EntityId = entityId };
+            return await AddBlob(blobInfoItem, file, relativePath);
         }
 
-        public async Task<IEnumerable<BlobInfoModel>> AddBlob(IEnumerable<Guid> entityIds, IFormFile file, string relativePath = null)
+        public async Task<BlobInfoModel> AddBlob(BlobInfoInputModel blobInfoItem, IFormFile file, string relativePath = null)
         {
-            return await AddBlobWithTags(entityIds, file, null, relativePath);
+            var blobInfoCreateModel = GetInitialBlobInfo(file);
+            ApplicationService.Mapper.Map(blobInfoItem, blobInfoCreateModel);
+
+            return await AddBlob(blobInfoCreateModel, file, relativePath);
         }
 
-        public async Task<BlobInfoModel> AddBlobWithTags(Guid entityId, IFormFile file, string[] tags, string relativePath = null)
+        public async Task<IEnumerable<BlobInfoModel>> AddBlob(IEnumerable<BlobInfoInputModel> blobInfoItems, IFormFile file, string relativePath = null)
         {
-            var blobInfo = GetInitialBlobInfo(file);
-            blobInfo.EntityId = entityId;
-            blobInfo.Tags = tags;
+            var blobInfoCreateModel = GetInitialBlobInfo(file);
+            var blobInfoBulkCreateModel = ApplicationService.Mapper.Map<BlobInfoBulkCreateModel>(blobInfoCreateModel);
+            blobInfoBulkCreateModel.BlobInfoItems = blobInfoItems;
 
-            return await AddBlob(blobInfo, file, relativePath);
-        }
-
-        public async Task<IEnumerable<BlobInfoModel>> AddBlobWithTags(IEnumerable<Guid> entityIds, IFormFile file, string[] tags, string relativePath = null)
-        {
-            var blobInfo = GetInitialBlobInfo(file);
-            var blobInfoForMultipleEntities = ApplicationService.Mapper.Map<BlobInfoBulkCreateModel>(blobInfo);
-            blobInfoForMultipleEntities.EntityIds = entityIds;
-            blobInfoForMultipleEntities.Tags = tags;
-
-            return await AddBlobForMultipleEntities(blobInfoForMultipleEntities, file, relativePath);
+            return await AddBlobForMultipleEntities(blobInfoBulkCreateModel, file, relativePath);
         }
 
         public async Task DeleteBlob(Guid blobInfoId)
         {
             var blobEntity = await _blobDbContext.BlobInfos.GetById(blobInfoId);
-            bool deleteSucces = await _blobService.DeleteBlob(blobEntity.RelativePathAndName);
-            if (deleteSucces)
+            bool canDeleteBlobInfo = true;
+            
+            if (!blobEntity.SkipFileDeletion)
+            {
+                canDeleteBlobInfo = await _blobService.DeleteBlob(blobEntity.RelativePathAndName);
+            }
+            
+            if (canDeleteBlobInfo)
             {
                 _blobDbContext.BlobInfos.Remove(blobEntity);
                 await _blobDbContext.SaveChangesAsync();
@@ -119,11 +119,11 @@ namespace Lens.Core.Blob.Services
 
             // create blob info entities
             var blobInfoList = new List<BlobInfo>();
-            foreach (var id in value.EntityIds)
+            foreach (var blobInfoItem in value.BlobInfoItems)
             {
                 var blobInfo = _blobDbContext.BlobInfos.Add(ApplicationService.Mapper.Map<BlobInfo>(value)).Entity;
                 ApplicationService.Mapper.Map(fileInfo, blobInfo);
-                blobInfo.EntityId = id;
+                ApplicationService.Mapper.Map(blobInfoItem, blobInfo);
 
                 blobInfoList.Add(blobInfo);
             }

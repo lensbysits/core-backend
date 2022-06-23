@@ -12,6 +12,8 @@ namespace Lens.Core.Blob.Data
             CreateMap<BlobInfoBulkCreateModel, BlobInfo>();
             CreateMap<BlobInfoCreateModel, BlobInfo>();
             CreateMap<BlobInfoCreateModel, BlobInfoBulkCreateModel>();
+            CreateMap<BlobInfoInputModel, BlobInfoCreateModel>();
+            CreateMap<BlobInfoInputModel, BlobInfo>();
             CreateMap<BlobMetadataModel, BlobInfo>();
             CreateMap<FileInfoModel, BlobInfo>();
         }
