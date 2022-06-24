@@ -5,9 +5,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Lens.Core.Lib.Extensions;
+using CorrelationId.Abstractions;
 
 namespace Lens.Core.App.Web
 {
@@ -15,6 +18,7 @@ namespace Lens.Core.App.Web
     {
         private readonly RequestDelegate next;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ICorrelationContextAccessor correlationContext;
         private static readonly Dictionary<string, HttpStatusCode> _exceptionTypes = new()
         {
             {typeof(NotFoundException).Name, HttpStatusCode.NotFound},
@@ -25,13 +29,20 @@ namespace Lens.Core.App.Web
             {typeof(FormatException).Name, HttpStatusCode.BadRequest},
             {typeof(DivideByZeroException).Name, HttpStatusCode.BadRequest},
             {typeof(NullReferenceException).Name, HttpStatusCode.BadRequest},
+            {typeof(InvalidCastException).Name, HttpStatusCode.BadRequest},
+            {typeof(InvalidOperationException).Name, HttpStatusCode.BadRequest},
+            {typeof(ValidationException).Name, HttpStatusCode.UnprocessableEntity},
+            {typeof(ArgumentException).Name, HttpStatusCode.UnprocessableEntity},
+            {typeof(ArgumentNullException).Name, HttpStatusCode.UnprocessableEntity},
+            {typeof(InvalidDataException).Name, HttpStatusCode.UnprocessableEntity},
         };
         protected readonly ILogger _logger;
 
-        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger, IWebHostEnvironment webHostEnvironment)
+        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger, IWebHostEnvironment webHostEnvironment, ICorrelationContextAccessor correlationContext)
         {
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
+            this.correlationContext = correlationContext;
             this.next = next;
         }
 
@@ -51,32 +62,49 @@ namespace Lens.Core.App.Web
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var exceptionMessage = GetExceptionMessage(exception);
-            
-            var basicExceptionResult = JsonSerializer.Serialize(new 
-            { 
-                message = exceptionMessage, data = exception.Data 
-            });
-            var fullExceptionResult = JsonSerializer.Serialize(new 
-            { 
-                message = exceptionMessage, data = exception.Data, exception = exception.ToString() 
-            });
+            var exceptionType = exception.GetType().Name;
+            var serializedData = JsonSerializer.Serialize(exception.Data);
+            var correlationId = correlationContext.CorrelationContext.CorrelationId;
 
             if (_exceptionTypes.TryGetValue(exception.GetType().Name, out HttpStatusCode exceptionCode))
             {
                 // log as warning the expected exceptions
-                _logger.LogWarning($"Expected exception ({(int)exceptionCode})-{exceptionCode}: {basicExceptionResult}"); 
+                _logger.LogWarning(exception, $"Exception: {exceptionType} (expected): HTTP Status: {(int)exceptionCode} ({exceptionCode}): {exceptionMessage} (data: {serializedData})"); 
             }
             else
             {
                 // log as error the unexpected exceptions
                 exceptionCode = HttpStatusCode.InternalServerError; 
-                _logger.LogError(exception, $"Unexpected exception ({(int)exceptionCode})-{exceptionCode}");
+                _logger.LogError(exception, $"Exception: {exceptionType} (unexpected): HTTP Status: {(int)exceptionCode} ({exceptionCode}): {exceptionMessage} (data: {serializedData})");
             }
 
-            string result = _webHostEnvironment.IsDevelopment() ? fullExceptionResult : basicExceptionResult;
             
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)exceptionCode;
+            string result = string.Empty;
+
+            if (_webHostEnvironment.IsDevelopment())
+            {
+                result = JsonSerializer.Serialize(new ErrorResponse
+                {
+                    IsError = true,
+                    Message = exceptionMessage,
+                    ErrorType = exceptionType,
+                    ErrorDetails = exception.GetFullExceptionData(),
+                    Stacktrace = exception.StackTrace,
+                    CorrelationId = correlationId
+                });
+            }
+            else
+            {
+                result = JsonSerializer.Serialize(new ErrorResponse
+                {
+                    IsError = true,
+                    Message = exceptionMessage,
+                    ErrorType = exceptionType,
+                    CorrelationId = correlationId
+                });
+            }
             return context.Response.WriteAsync(result);
         }
 

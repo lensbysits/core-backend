@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Lens.Core.App.Web.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using CorrelationId.DependencyInjection;
+using CorrelationId;
 
 namespace Lens.Core.App.Web
 {
@@ -44,6 +46,11 @@ namespace Lens.Core.App.Web
             OnSetupApplication(applicationSetup);
 
             services
+                .AddDefaultCorrelationId(config =>
+                {
+                    config.AddToLoggingScope = true;
+                    config.UpdateTraceIdentifier = true;
+                })
                 .AddAuthentication(Configuration)
                 .AddCors(Configuration)
                 .AddSwagger(Configuration);
@@ -74,13 +81,17 @@ namespace Lens.Core.App.Web
                 .UseSwagger(Configuration)
                 .UseSwaggerUI(Configuration);
 
-            app.UseAuthentication(Configuration);
+            app.UseCorrelationId();
 
             app.UseErrorHandling();
+
+            app.UseAuthentication(Configuration);
+
 
             app.UseRouting();
 
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {
