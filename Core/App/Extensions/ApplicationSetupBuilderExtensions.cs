@@ -1,4 +1,5 @@
 ﻿using Lens.Core.App.Services;
+using Lens.Core.Lib;
 using Lens.Core.Lib.Builders;
 using Lens.Core.Lib.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,9 +13,10 @@ namespace Lens.Core.App
             applicationSetup
                 .AddAutoMapper()
                 .AddMediatR()
-            .Services
-                .AddScoped(typeof(IApplicationService<>), typeof(ApplicationService<>))
-                .AddScoped(typeof(IApplicationService<,>), typeof(ApplicationService<,>));
+                .AddBackgroundTaskQueue()
+                .Services
+                    .AddScoped(typeof(IApplicationService<>), typeof(ApplicationService<>))
+                    .AddScoped(typeof(IApplicationService<,>), typeof(ApplicationService<,>));
 
             return applicationSetup;
         }
