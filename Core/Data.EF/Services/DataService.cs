@@ -37,7 +37,7 @@ namespace Lens.Core.Data.EF.Services
 
             var result = await filteredEntitites
                 .ToResultList<TEntity, TModel>(queryModel, ApplicationService.Mapper);
-            ApplicationService.Logger.LogInformation($"Returned {result.Size} model items.");
+            ApplicationService.Logger.LogInformation($"Returned {result.Value.Count()} model items.");
             
             return result;
         }
