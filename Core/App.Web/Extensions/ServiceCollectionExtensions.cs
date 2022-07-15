@@ -71,11 +71,11 @@ namespace Lens.Core.App.Web
             {
                 options.SwaggerDoc("v1", new OpenApiInfo 
                 { 
-                    Title = swaggerSettings.AppName ?? "Protected API", 
+                    Title = swaggerSettings?.AppName ?? "Protected API", 
                     Version = "v1" 
                 });
 
-                if (!string.IsNullOrEmpty(swaggerSettings.ApiHostname))
+                if (!string.IsNullOrEmpty(swaggerSettings?.ApiHostname))
                 {
                     options.AddServer(new OpenApiServer
                     {
@@ -86,7 +86,7 @@ namespace Lens.Core.App.Web
                 
                 options.EnableAnnotations();
 
-                if (!string.IsNullOrEmpty(swaggerSettings.XMLCommentsPath))
+                if (!string.IsNullOrEmpty(swaggerSettings?.XMLCommentsPath))
                 {
                     if (File.Exists(swaggerSettings.XMLCommentsPath))
                     {
