@@ -1,6 +1,7 @@
 ﻿using Lens.Core.Blob.Models;
 using Lens.Core.Lib.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -22,10 +23,17 @@ namespace Lens.Core.Blob.Services
         {
             var root = _blobServiceSettings.ContainerPath;
             var path = Path.Combine(root, relativePathAndName);
+            
             if (File.Exists(path))
             {
                 File.Delete(path);
             }
+            else
+            {
+                // log, but don't throw error if a blob couldn't be find at the given path.
+                ApplicationService.Logger.LogWarning($"No file found at the given path '{relativePathAndName}'.");
+            }
+
             return await Task.FromResult(true);
         }
 
@@ -33,6 +41,7 @@ namespace Lens.Core.Blob.Services
         {
             var root = _blobServiceSettings.ContainerPath;
             var path = Path.Combine(root, relativePathAndName);
+            
             return await Task.FromResult(File.OpenRead(path));
         }
 
@@ -49,6 +58,7 @@ namespace Lens.Core.Blob.Services
         {
             var root = _blobServiceSettings.ContainerPath;
             var path = Path.Combine(root, relativePathAndName);
+            
             return File.Exists(path) 
                 ? await Task.FromResult(path.Replace(root, "~").Replace("\\", "/")) 
                 : await Task.FromResult(string.Empty);
