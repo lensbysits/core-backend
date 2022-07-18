@@ -24,33 +24,6 @@ namespace Lens.Core.Lib.Utilities
         private static string PASSWORD_CHARS_NUMERIC = "123456789";
         private static string PASSWORD_CHARS_SPECIAL = "_-!*:;\\/|~";
 
-        //private static Zxcvbn.Zxcvbn zx = null;
-
-        //public static Zxcvbn.Zxcvbn PasswordStrengthLib
-        //{
-        //    get
-        //    {
-        //        if (zx == null)
-        //        {
-        //            zx = new Zxcvbn.Zxcvbn();
-        //        }
-
-        //        return zx;
-        //    }
-        //}
-
-        /// <summary>
-        /// Measure the password strength, based on the DropBox Zxcvbn, which is a battle tested method.
-        /// You can use userInputs to check against other information of the user, if the password doesn't contain that information.
-        /// </summary>
-        /// <param name="password">the password to check</param>
-        /// <param name="userInputs">a list of strings which contain information you don't want in your password, so the library will check for it</param>
-        /// <returns></returns>
-        //public static Zxcvbn.Result PasswordStrength(string password, IEnumerable<string> userInputs = null)
-        //{
-        //    return PasswordStrengthLib.EvaluatePassword(password, userInputs);
-        //}
-
         /// <summary>
         /// Generates a random password.
         /// </summary>
@@ -288,7 +261,6 @@ namespace Lens.Core.Lib.Utilities
             }
 
             // Generate 4 random bytes.
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             rng.GetBytes(randomBytes);
 
             // Convert 4 bytes into a 32-bit integer value.

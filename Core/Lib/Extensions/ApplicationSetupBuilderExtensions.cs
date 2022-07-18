@@ -2,6 +2,7 @@
 using Lens.Core.Lib.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Net.Http;
 
 namespace Lens.Core.Lib
 {
@@ -33,7 +34,8 @@ namespace Lens.Core.Lib
             applicationSetup.Services
                 .AddHttpClient<TClient, TImplementation>()
                     .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUri))
-                    .AddHttpMessageHandler(services => {
+                    .AddHttpMessageHandler(services =>
+                    {
                         var handler = services.GetRequiredService<ApiBearerTokenHandler>();
                         handler.ClientName = clientName;
                         return handler;
@@ -53,6 +55,43 @@ namespace Lens.Core.Lib
             applicationSetup.Services
                 .AddHttpClient<TClient, TImplementation>()
                     .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUri));
+
+            return applicationSetup;
+        }
+
+        /// <summary>
+        /// Add a HttpClient Service that gets a bearer-token from the configured IdentityServer
+        /// </summary>
+        public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation>(this IApplicationSetupBuilder builder, Action<HttpClient> configureClient = null)
+            where TClient : class
+            where TImplementation : class, TClient
+        {
+            builder.AddHttpClientService<TClient, TImplementation, ApiBearerTokenHandler>(configureClient);
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Add a HttpClient Service that gets a bearer-token from the configured IdentityServer
+        /// </summary>
+        public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation, THttpMessageHandler>(this IApplicationSetupBuilder builder, Action<HttpClient> configureClient = null)
+            where TClient : class
+            where TImplementation : class, TClient
+            where THttpMessageHandler : DelegatingHandler
+        {
+            builder.Services
+                .AddHttpClient<TClient, TImplementation>()
+                    .ConfigureHttpClient(configureClient ?? (client => { }))
+                    .AddHttpMessageHandler<THttpMessageHandler>();
+
+            return builder;
+        }
+
+        public static IApplicationSetupBuilder AddBackgroundTaskQueue(this IApplicationSetupBuilder applicationSetup)
+        {
+            applicationSetup.Services
+                .AddHostedService<QueuedHostedService>()
+                .AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
             return applicationSetup;
         }

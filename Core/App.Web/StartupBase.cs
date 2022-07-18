@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Lens.Core.App.Web.Authentication;
+using Lens.Core.App.Web.Filters;
 
 namespace Lens.Core.App.Web
 {
@@ -46,9 +48,12 @@ namespace Lens.Core.App.Web
                 .AddCors(Configuration)
                 .AddSwagger(Configuration);
 
+            var authMethod = AuthenticationFactory.GetAuthenticationMethod(Configuration);
             services.AddControllers(config =>
             {
                 config.Filters.Add(new AuthorizeFilter());
+                config.Filters.Add(new ResultModelWrapperFilter());
+                authMethod.ApplyMvcFilters(config.Filters);
             });
 
             applicationSetup.AddApplicationServices();
@@ -56,7 +61,7 @@ namespace Lens.Core.App.Web
 
         public virtual void OnSetupApplication(IApplicationSetupBuilder applicationSetup) { }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -66,10 +71,10 @@ namespace Lens.Core.App.Web
             app.UseCors();
 
             app
-                .UseSwagger()
+                .UseSwagger(Configuration)
                 .UseSwaggerUI(Configuration);
 
-            app.UseAuthentication();
+            app.UseAuthentication(Configuration);
 
             app.UseErrorHandling();
 
