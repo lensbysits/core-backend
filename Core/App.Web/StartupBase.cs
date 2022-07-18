@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Lens.Core.App.Web.Authentication;
+using Lens.Core.App.Web.Filters;
 
 namespace Lens.Core.App.Web
 {
@@ -51,6 +52,7 @@ namespace Lens.Core.App.Web
             services.AddControllers(config =>
             {
                 config.Filters.Add(new AuthorizeFilter());
+                config.Filters.Add(new ResultModelWrapperFilter());
                 authMethod.ApplyMvcFilters(config.Filters);
             });
 

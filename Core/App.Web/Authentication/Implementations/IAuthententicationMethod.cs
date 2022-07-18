@@ -8,7 +8,7 @@ using System;
 
 namespace Lens.Core.App.Web.Authentication
 {
-    internal interface IAuthententicationMethod
+    internal interface IAuthenticationMethod
     {
         void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions);
         void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings);

@@ -15,8 +15,8 @@ namespace Lens.Core.App.Web.Authentication
     /// <summary>
     /// Used when there isn't configured any authentication configuration.
     /// </summary>
-    /// <seealso cref="Lens.Core.App.Web.Authentication.IAuthententicationMethod" />
-    internal sealed class AnonymousAuthentication : IAuthententicationMethod
+    /// <seealso cref="Lens.Core.App.Web.Authentication.IAuthenticationMethod" />
+    internal sealed class AnonymousAuthentication : IAuthenticationMethod
     {
         public void ApplyMvcFilters(FilterCollection filters)
         {
