@@ -1,10 +1,23 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Lens.Core.Lib.Models
 {
-    public class ResultListModel<TResult>
+    public class ResultListModel<TValue> : ResultModel<IEnumerable<TValue>>
     {
-        public IEnumerable<TResult> Value { get; set; }
-        public int Size { get; set; }
+        public ResultListModel()
+        {
+        }
+
+        public ResultListModel(IEnumerable<TValue> value)
+        {
+            Value = value;
+        }
+        public ResultListModel(TValue[] value)
+        {
+            Value = value;
+        }
+
+        public int Size { get => Value.Count(); }
     }
 }
