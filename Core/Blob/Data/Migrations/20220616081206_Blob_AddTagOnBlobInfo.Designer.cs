@@ -4,6 +4,7 @@ using Lens.Core.Blob.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lens.Core.Blob.Data.Migrations
 {
     [DbContext(typeof(BlobDbContext))]
-    partial class BlobDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220616081206_Blob_AddTagOnBlobInfo")]
+    partial class Blob_AddTagOnBlobInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,9 +74,6 @@ namespace Lens.Core.Blob.Data.Migrations
 
                     b.Property<int>("Size")
                         .HasColumnType("int");
-
-                    b.Property<bool>("SkipFileDeletion")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Tag")
                         .HasMaxLength(2048)

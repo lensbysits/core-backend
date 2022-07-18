@@ -1,5 +1,7 @@
 ﻿using Lens.Core.Lib.Models;
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Lens.Core.Blob.Models
 {
@@ -13,5 +15,12 @@ namespace Lens.Core.Blob.Models
         public string FullPathAndName { get; set; }
         public string RelativePathAndName { get; set; }
         public int Size { get; set; }
-	}
+        public bool SkipFileDeletion { get; set; }
+        [JsonIgnore]
+        public string Tag
+        {
+            set => Tags = JsonSerializer.Deserialize<string[]>(value ?? "[]");
+        }
+        public string[] Tags { get; set; }
+    }
 }

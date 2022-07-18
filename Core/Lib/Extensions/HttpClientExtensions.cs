@@ -38,8 +38,7 @@ namespace Lens.Core.Lib
 		private static Task<HttpResponseMessage> SendRequest(HttpClient httpClient, Action<HttpRequestHeaders> beforeRequest, HttpContent content, HttpRequestMessage request)
 		{
 			beforeRequest(request.Headers);
-
-			if (content != null)
+      if (content != null)
 			{
 				request.Content = content;
 			}
