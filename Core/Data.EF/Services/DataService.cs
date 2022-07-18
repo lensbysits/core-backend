@@ -32,10 +32,14 @@ namespace Lens.Core.Data.EF.Services
             {
                 entities = entities.Where(filterPredicate);
             }
+            var filteredEntitites = entities.GetByQueryModel(queryModel, searchPredicate);
+            ApplicationService.Logger.LogInformation($"Retrieved {filteredEntitites.Count()} db items.");
 
-            return await entities
-                   .GetByQueryModel(queryModel, searchPredicate)
-                   .ToResultList<TEntity, TModel>(queryModel, ApplicationService.Mapper);
+            var result = await filteredEntitites
+                .ToResultList<TEntity, TModel>(queryModel, ApplicationService.Mapper);
+            ApplicationService.Logger.LogInformation($"Returned {result.Value.Count()} model items.");
+            
+            return result;
         }
 
         protected async Task<TModel> Get<TModel>(Guid id)

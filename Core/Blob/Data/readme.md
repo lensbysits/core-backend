@@ -1,0 +1,1 @@
+﻿Add-Migration -Name Blob_<MigrationName> -OutputDir Data/Migrations -Project Core.Blob -Context BlobDbContext
