@@ -13,8 +13,25 @@ public static class ResultModel
     {
         return new ResultListModel<T>(value);
     }
+
+    public static IResultModel From<T>(IEnumerable<T> value, QueryModel queryModel)
+    {
+        var result = new ResultPagedListModel<T>(value)
+        {
+            OriginalQueryModel = queryModel
+        };
+        return result;
+    }
 }
+
 public class ResultModel<TValue> : IResultModel<TValue>
 {
+    public ResultModel()
+    {
+        ValueType = ResultModelType.@object;
+    }
+
+    public string ValueType { get; protected set; }
     public TValue Value { get; set; }
+
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Lens.Core.Lib.Models
@@ -7,19 +8,29 @@ namespace Lens.Core.Lib.Models
     {
         public ResultListModel()
         {
+            ValueType = ResultModelType.list;
         }
 
-        public ResultListModel(IEnumerable<TValue> value)
+        public ResultListModel(IEnumerable<TValue> value) : this()
         {
             Value = value;
             Size = value.Count();
+            ValueSize = value.Count();
         }
-        public ResultListModel(TValue[] value)
+        public ResultListModel(TValue[] value) : this()
         {
             Value = value;
             Size = value.Length;
+            ValueSize = value.Length;
         }
 
+        [Obsolete("Please use the ValueSize or the ResultPagedListModel<TValue> to be more specific on the intent of the property.")]
         public int Size { get; set; }
+
+        /// <summary>
+        /// Returns the number of items in the value.
+        /// </summary>
+        public int ValueSize { get; }
+
     }
 }

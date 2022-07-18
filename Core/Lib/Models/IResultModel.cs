@@ -4,6 +4,7 @@
 
     public interface IResultModel<TValue> : IResultModel
     {
+        string ValueType { get; }
         TValue Value { get; set; }
     }
 }
