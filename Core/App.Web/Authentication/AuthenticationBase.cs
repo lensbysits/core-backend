@@ -8,7 +8,7 @@ using System;
 
 namespace Lens.Core.App.Web.Authentication;
 
-internal abstract class AuthenticationBase<T> : IAuthententicationMethod where T : AuthSettings
+internal abstract class AuthenticationBase<T> : IAuthenticationMethod where T : AuthSettings
 {
     public AuthenticationBase(T authSettings)
     {

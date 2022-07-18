@@ -6,14 +6,14 @@ namespace Lens.Core.App.Web.Authentication;
 
 internal static class AuthenticationFactory
 {
-    private static readonly Dictionary<string, IAuthententicationMethod> methods = new Dictionary<string, IAuthententicationMethod>();
-    public static IAuthententicationMethod GetAuthenticationMethod(IConfiguration configuration)
+    private static readonly Dictionary<string, IAuthenticationMethod> methods = new Dictionary<string, IAuthenticationMethod>();
+    public static IAuthenticationMethod GetAuthenticationMethod(IConfiguration configuration)
     {
         var authSection = configuration.GetSection(nameof(AuthSettings));
         return GetAuthenticationMethodByType(authSection, configuration);
     }
 
-    private static IAuthententicationMethod GetAuthenticationMethodByType(IConfigurationSection authSection, IConfiguration configuration)
+    private static IAuthenticationMethod GetAuthenticationMethodByType(IConfigurationSection authSection, IConfiguration configuration)
     {
         if (!authSection?.Exists() ?? false)
         {
@@ -43,7 +43,7 @@ internal static class AuthenticationFactory
         }
     }
 
-    private static IAuthententicationMethod InitializeAuthenticationMethod(string authenticationType, Func<IAuthententicationMethod> initAuthMethod)
+    private static IAuthenticationMethod InitializeAuthenticationMethod(string authenticationType, Func<IAuthenticationMethod> initAuthMethod)
     {
         methods.TryGetValue(authenticationType ?? string.Empty, out var method);
         if (method == null)

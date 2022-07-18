@@ -12,12 +12,14 @@ namespace Lens.Core.Lib.Models
         public ResultListModel(IEnumerable<TValue> value)
         {
             Value = value;
+            Size = value.Count();
         }
         public ResultListModel(TValue[] value)
         {
             Value = value;
+            Size = value.Length;
         }
 
-        public int Size { get => Value.Count(); }
+        public int Size { get; set; }
     }
 }

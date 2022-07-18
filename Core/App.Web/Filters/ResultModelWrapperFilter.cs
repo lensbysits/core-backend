@@ -47,10 +47,9 @@ namespace Lens.Core.App.Web.Filters
                 if (valueType.IsArray)
                 {
                     var array = value as Array;
-                    if (array.Length > 0)
-                        resultType = (value as Array).GetValue(0).GetType();
-                    else
-                        resultType = typeof(object);
+                    resultType = array.Length > 0 ?
+                        (value as Array).GetValue(0).GetType() :
+                        typeof(object);
                 }
                 // Else get the type of the objects in the IEnumerable
                 else

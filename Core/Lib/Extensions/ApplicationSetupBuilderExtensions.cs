@@ -62,11 +62,6 @@ namespace Lens.Core.Lib
         /// <summary>
         /// Add a HttpClient Service that gets a bearer-token from the configured IdentityServer
         /// </summary>
-        /// <typeparam name="TClient"></typeparam>
-        /// <typeparam name="TImplementation"></typeparam>
-        /// <param name="builder"></param>
-        /// <param name="baseUri"></param>
-        /// <returns></returns>
         public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation>(this IApplicationSetupBuilder builder, Action<HttpClient> configureClient = null)
             where TClient : class
             where TImplementation : class, TClient
@@ -79,11 +74,6 @@ namespace Lens.Core.Lib
         /// <summary>
         /// Add a HttpClient Service that gets a bearer-token from the configured IdentityServer
         /// </summary>
-        /// <typeparam name="TClient"></typeparam>
-        /// <typeparam name="TImplementation"></typeparam>
-        /// <param name="builder"></param>
-        /// <param name="baseUri"></param>
-        /// <returns></returns>
         public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation, THttpMessageHandler>(this IApplicationSetupBuilder builder, Action<HttpClient> configureClient = null)
             where TClient : class
             where TImplementation : class, TClient
