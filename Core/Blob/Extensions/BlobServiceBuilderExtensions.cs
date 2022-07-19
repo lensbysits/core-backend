@@ -6,6 +6,7 @@ using Lens.Core.Lib;
 using Lens.Core.Blob.Data;
 using Lens.Core.Data.EF;
 using Lens.Core.Blob.Services;
+using Lens.Core.Data.EF.AuditTrail;
 
 namespace Lens.Core.Blob
 {
@@ -40,8 +41,9 @@ namespace Lens.Core.Blob
 
             builder
                 .AddProgramInitializer<BlobInitializerService>()
-                .AddAssemblies(typeof(AutoMapperProfile).Assembly)
+                .AddAssemblies(typeof(Data.AutoMapperProfile).Assembly)
                 .AddDatabase<BlobDbContext>(connectionStringName, connectionStringPassword)
+                .AddAuditTrailing()
                 .Services
                 .AddScoped<IBlobManagementService, BlobManagementService>();
 
