@@ -19,10 +19,12 @@ namespace Lens.Core.Lib.Azure.Extensions
         public static LoggerConfiguration AddAzureAppLogging(this LoggerConfiguration loggerConfiguration, IConfiguration configuration, bool isBootstrap = false)
         {
             var appInsightsConnectionstring = configuration.GetValue<string>("APPLICATIONINSIGHTS_CONNECTION_STRING");
+
             if (!string.IsNullOrWhiteSpace(appInsightsConnectionstring))
             {
                 var config = TelemetryConfiguration.CreateFromConfiguration(appInsightsConnectionstring);
                 config.InstrumentationKey = ParseFromConnectionString(appInsightsConnectionstring);
+
                 return loggerConfiguration
                     .Enrich.FromLogContext()
                     .Enrich.WithOperationId()

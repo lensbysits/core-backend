@@ -12,55 +12,54 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Lens.Core.App.Web.Authentication
+namespace Lens.Core.App.Web.Authentication;
+
+internal class ApiKeyAuthentication<T> : AuthenticationBase<T> where T : ApiKeyAuthSettings
 {
-    internal class ApiKeyAuthentication<T> : AuthenticationBase<T> where T : ApiKeyAuthSettings
+    public ApiKeyAuthentication(T authSettings) : base(authSettings)
     {
-        public ApiKeyAuthentication(T authSettings) : base(authSettings)
-        {
-        }
+    }
 
-        public override void UseMiddleware(IApplicationBuilder applicationBuilder)
-        {
-            // don't use the base one
-            applicationBuilder.UseMiddleware<ApiKeyMiddleware>();
-        }
+    public override void UseMiddleware(IApplicationBuilder applicationBuilder)
+    {
+        // don't use the base one
+        applicationBuilder.UseMiddleware<ApiKeyMiddleware>();
+    }
 
-        public override void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings)
-        {
-            base.ConfigureSwaggerAuth(options, swaggerSettings);
+    public override void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings)
+    {
+        base.ConfigureSwaggerAuth(options, swaggerSettings);
 
-            options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme()
+        options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme()
+        {
+            Type = SecuritySchemeType.ApiKey,
+            In = ParameterLocation.Header,
+            Name = this.AuthSettings.ApiKeyHeader,
+            Description = "API Key Authentication",
+        });
+
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
             {
-                Type = SecuritySchemeType.ApiKey,
-                In = ParameterLocation.Header,
-                Name = this.AuthSettings.ApiKeyHeader,
-                Description = "API Key Authentication",
-            });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+                new OpenApiSecurityScheme
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
-                    },
-                    Array.Empty<string>()
-                }
-            });
-        }
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
+                },
+                Array.Empty<string>()
+            }
+        });
+    }
 
-        public override void ApplyMvcFilters(FilterCollection filters)
+    public override void ApplyMvcFilters(FilterCollection filters)
+    {
+        base.ApplyMvcFilters(filters);
+
+
+        foreach (var filter in filters.OrEmpty().ToArray())
         {
-            base.ApplyMvcFilters(filters);
-
-
-            foreach (var filter in filters.OrEmpty().ToArray())
+            if (filter is AuthorizeFilter)
             {
-                if (filter is AuthorizeFilter)
-                {
-                    filters.Remove(filter);
-                }
+                filters.Remove(filter);
             }
         }
     }

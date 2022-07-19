@@ -6,6 +6,7 @@ using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Lens.Core.Blob.Services
 {
     public class BlobManagementService : BaseService<BlobManagementService>, IBlobManagementService
     {
+        private const string DefaultRelativePath = @"uploads/";
         private readonly IBlobService _blobService;
         private readonly BlobDbContext _blobDbContext;
 
@@ -34,64 +36,55 @@ namespace Lens.Core.Blob.Services
             return (blob, ApplicationService.Mapper.Map<BlobInfoModel>(blobInfo));
         }
 
-        public async Task<ResultListModel<BlobInfoModel>> GetBlobList(Guid id)
+        public async Task<ResultListModel<BlobInfoModel>> GetBlobList(Guid entityId, QueryModel queryModel = null)
         {
             var blobInfos = _blobDbContext.BlobInfos
-                .Where(bi => bi.EntityId == id);
+                .Where(bi => bi.EntityId == entityId);
+
+            if (queryModel == null)
+            {
+                queryModel = new QueryModel { NoLimit = true };
+            }
 
             return await blobInfos
-                .ToResultList<BlobInfo, BlobInfoModel>(new QueryModel { NoLimit = true }, ApplicationService.Mapper);
+                .GetByQueryModel(queryModel)
+                .ToResultList<BlobInfo, BlobInfoModel>(queryModel, ApplicationService.Mapper);
         }
 
-        public async Task<BlobInfoModel> AddBlob(Guid entityId, IFormFile file, string relativeSubfolder = null)
+        public async Task<BlobInfoModel> AddBlob(Guid entityId, IFormFile file, string relativePath = null)
         {
-            var value = new BlobInfoMergeModel
-            {
-                FilenameWithExtension = file.FileName,
-                Size = (int)file.Length,
-                ContentType = file.ContentType,
-                EntityId = entityId
-            };
+            var blobInfoItem = new BlobInfoInputModel() { EntityId = entityId };
+            return await AddBlob(blobInfoItem, file, relativePath);
+        }
 
-            // add blob info
-            var blobInfo = _blobDbContext.BlobInfos.Add(ApplicationService.Mapper.Map<BlobInfo>(value)).Entity;
+        public async Task<BlobInfoModel> AddBlob(BlobInfoInputModel blobInfoItem, IFormFile file, string relativePath = null)
+        {
+            var blobInfoCreateModel = GetInitialBlobInfo(file);
+            ApplicationService.Mapper.Map(blobInfoItem, blobInfoCreateModel);
 
-            var fileInfo = new FileInfo(blobInfo.FilenameWithExtension);
-            blobInfo.FilenameWithoutExtension = fileInfo.Name.Substring(0, fileInfo.Name.Length - fileInfo.Extension.Length);
-            blobInfo.FileExtension = fileInfo.Extension;
-            if (string.IsNullOrEmpty(relativeSubfolder))
-            {
-                relativeSubfolder = $"uploads/";
-            }
-            blobInfo.RelativePathAndName = Path.Combine(relativeSubfolder, blobInfo.FilenameWithExtension);
+            return await AddBlob(blobInfoCreateModel, file, relativePath);
+        }
 
-            await _blobDbContext.SaveChangesAsync();
+        public async Task<IEnumerable<BlobInfoModel>> AddBlob(IEnumerable<BlobInfoInputModel> blobInfoItems, IFormFile file, string relativePath = null)
+        {
+            var blobInfoCreateModel = GetInitialBlobInfo(file);
+            var blobInfoBulkCreateModel = ApplicationService.Mapper.Map<BlobInfoBulkCreateModel>(blobInfoCreateModel);
+            blobInfoBulkCreateModel.BlobInfoItems = blobInfoItems;
 
-            // upload blob info
-            try
-            {
-                BlobMetadataModel blobMetadata = await _blobService.Upload(blobInfo.RelativePathAndName, file.OpenReadStream());
-                ApplicationService.Mapper.Map(blobMetadata, blobInfo);
-                
-                await _blobDbContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                // rollback blob info entity if something went wrong when uploading the blob
-                _blobDbContext.BlobInfos.Remove(blobInfo);
-                await _blobDbContext.SaveChangesAsync();
-
-                throw;
-            }
-
-            return ApplicationService.Mapper.Map<BlobInfoModel>(blobInfo);
+            return await AddBlobForMultipleEntities(blobInfoBulkCreateModel, file, relativePath);
         }
 
         public async Task DeleteBlob(Guid blobInfoId)
         {
             var blobEntity = await _blobDbContext.BlobInfos.GetById(blobInfoId);
-            bool deleteSucces = await _blobService.DeleteBlob(blobEntity.RelativePathAndName);
-            if (deleteSucces)
+            bool canDeleteBlobInfo = true;
+            
+            if (!blobEntity.SkipFileDeletion)
+            {
+                canDeleteBlobInfo = await _blobService.DeleteBlob(blobEntity.RelativePathAndName);
+            }
+            
+            if (canDeleteBlobInfo)
             {
                 _blobDbContext.BlobInfos.Remove(blobEntity);
                 await _blobDbContext.SaveChangesAsync();
@@ -99,5 +92,87 @@ namespace Lens.Core.Blob.Services
         }
 
         #endregion IBlobManagementService implementation
+
+        #region Private Methods
+
+        private async Task<BlobInfoModel> AddBlob(BlobInfoCreateModel value, IFormFile file, string relativePath)
+        {
+            var fileInfo = GetFileInfo(value.FilenameWithExtension, relativePath);
+
+            // create blob info entity
+            var blobInfo = _blobDbContext.BlobInfos.Add(ApplicationService.Mapper.Map<BlobInfo>(value)).Entity;
+            ApplicationService.Mapper.Map(fileInfo, blobInfo);
+
+            // upload blob
+            BlobMetadataModel blobMetadata = await _blobService.Upload(blobInfo.RelativePathAndName, file.OpenReadStream());
+            ApplicationService.Mapper.Map(blobMetadata, blobInfo);
+
+            // save blob info entity
+            await _blobDbContext.SaveChangesAsync();
+
+            return ApplicationService.Mapper.Map<BlobInfoModel>(blobInfo);
+        }
+
+        private async Task<IEnumerable<BlobInfoModel>> AddBlobForMultipleEntities(BlobInfoBulkCreateModel value, IFormFile file, string relativePath)
+        {
+            var fileInfo = GetFileInfo(value.FilenameWithExtension, relativePath);
+
+            // create blob info entities
+            var blobInfoList = new List<BlobInfo>();
+            foreach (var blobInfoItem in value.BlobInfoItems)
+            {
+                var blobInfo = _blobDbContext.BlobInfos.Add(ApplicationService.Mapper.Map<BlobInfo>(value)).Entity;
+                ApplicationService.Mapper.Map(fileInfo, blobInfo);
+                ApplicationService.Mapper.Map(blobInfoItem, blobInfo);
+
+                blobInfoList.Add(blobInfo);
+            }
+
+            // upload blob
+            BlobMetadataModel blobMetadata = await _blobService.Upload(fileInfo.RelativePathAndName, file.OpenReadStream());
+            foreach (var blobInfo in blobInfoList)
+            {
+                ApplicationService.Mapper.Map(blobMetadata, blobInfo);
+            }
+
+            // save blob info entities
+            await _blobDbContext.SaveChangesAsync();
+
+            return blobInfoList.Select(bi =>
+            {
+                return ApplicationService.Mapper.Map<BlobInfoModel>(bi);
+            });
+        }
+
+        private static BlobInfoCreateModel GetInitialBlobInfo(IFormFile file)
+        {
+            return new BlobInfoCreateModel
+            {
+                FilenameWithExtension = file.FileName,
+                Size = (int)file.Length,
+                ContentType = file.ContentType
+            };
+        }
+
+        public static FileInfoModel GetFileInfo(string fileNameWithExtension, string relativePath)
+        {
+            var fileInfo = new FileInfo(fileNameWithExtension);
+            var filenameWithoutExtension = fileInfo.Name[..^fileInfo.Extension.Length];
+            var fileExtension = fileInfo.Extension;
+            if (string.IsNullOrEmpty(relativePath))
+            {
+                relativePath = DefaultRelativePath;
+            }
+            var relativePathAndName = Path.Combine(relativePath, fileNameWithExtension);
+
+            return new FileInfoModel
+            {
+                FileExtension = fileExtension,
+                FilenameWithoutExtension = filenameWithoutExtension,
+                RelativePathAndName = relativePathAndName
+            };
+        }
+
+        #endregion Private Methods
     }
 }

@@ -1,11 +1,19 @@
 ﻿using Lens.Core.Blob.Data.Entities;
+using Lens.Core.Data.EF;
+using Lens.Core.Data.EF.Services;
+using Lens.Core.Data.Services;
+using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Lens.Core.Blob.Data
 {
-    public class BlobDbContext : DbContext
+    public class BlobDbContext : ApplicationDbContext
     {
-        public BlobDbContext(DbContextOptions<BlobDbContext> options) : base(options)
+        public BlobDbContext(DbContextOptions<BlobDbContext> options,
+            IUserContext userContext,
+            IAuditTrailService auditTrailService,
+            IEnumerable<IModelBuilderService> modelBuilders) : base(options, userContext, auditTrailService, modelBuilders)
         {
         }
 
@@ -13,15 +21,9 @@ namespace Lens.Core.Blob.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<BlobInfo>(builder =>
-            {
-                if (!Database.IsSqlServer()) return;
+            base.OnModelCreating(modelBuilder);
 
-                builder
-                    .Property(e => e.Id)
-                    .HasDefaultValueSql("newsequentialid()")
-                    .ValueGeneratedOnAdd();
-            });
+            ConfigureBaseProperties(typeof(BlobInfo), modelBuilder);
         }
     }
 }

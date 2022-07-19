@@ -10,6 +10,7 @@ namespace Lens.Core.Lib.Builders
     {
         public IServiceCollection Services { get; }
         public IConfiguration Configuration { get; }
+        public IHealthChecksBuilder HealthChecks { get; }
 
         public List<Assembly> Assemblies { get; } = new List<Assembly>();
 
@@ -17,6 +18,7 @@ namespace Lens.Core.Lib.Builders
         {
             Services = services;
             Configuration = configuration;
+            HealthChecks = services.AddHealthChecks();
             Assemblies.Add(Assembly.GetEntryAssembly());
         }
 

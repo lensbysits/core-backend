@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Lens.Core.App.Web.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using Lens.Core.App.Web.Filters;
 using CorrelationId.DependencyInjection;
 using CorrelationId;
 
@@ -59,7 +59,7 @@ namespace Lens.Core.App.Web
             services.AddControllers(config =>
             {
                 config.Filters.Add(new AuthorizeFilter());
-
+                config.Filters.Add(new ResultModelWrapperFilter());
                 authMethod.ApplyMvcFilters(config.Filters);
             });
 
@@ -81,6 +81,7 @@ namespace Lens.Core.App.Web
                 .UseSwagger(Configuration)
                 .UseSwaggerUI(Configuration);
 
+            app.UseAuthentication(Configuration);
             app.UseCorrelationId();
 
             app.UseErrorHandling();

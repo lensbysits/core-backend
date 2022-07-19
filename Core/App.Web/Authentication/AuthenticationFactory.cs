@@ -2,57 +2,56 @@
 using System;
 using System.Collections.Generic;
 
-namespace Lens.Core.App.Web.Authentication
+namespace Lens.Core.App.Web.Authentication;
+
+internal static class AuthenticationFactory
 {
-    internal static class AuthenticationFactory
+    private static readonly Dictionary<string, IAuthenticationMethod> methods = new Dictionary<string, IAuthenticationMethod>();
+    public static IAuthenticationMethod GetAuthenticationMethod(IConfiguration configuration)
     {
-        private static readonly Dictionary<string, IAuthententicationMethod> methods = new Dictionary<string, IAuthententicationMethod>();
-        public static IAuthententicationMethod GetAuthenticationMethod(IConfiguration configuration)
+        var authSection = configuration.GetSection(nameof(AuthSettings));
+        return GetAuthenticationMethodByType(authSection, configuration);
+    }
+
+    private static IAuthenticationMethod GetAuthenticationMethodByType(IConfigurationSection authSection, IConfiguration configuration)
+    {
+        if (!authSection?.Exists() ?? false)
         {
-            var authSection = configuration.GetSection(nameof(AuthSettings));
-            return GetAuthenticationMethodByType(authSection, configuration);
+            return InitializeAuthenticationMethod(AuthenticationMethod.Anonymous, () => new AnonymousAuthentication());
         }
 
-        private static IAuthententicationMethod GetAuthenticationMethodByType(IConfigurationSection authSection, IConfiguration configuration)
+        var type = authSection.GetValue<string>("AuthenticationType").ToLowerInvariant();
+
+
+        switch (type)
         {
-            if (!authSection?.Exists() ?? false)
-            {
-                return InitializeAuthenticationMethod(AuthenticationMethod.Anonymous, () => new AnonymousAuthentication());
-            }
+            case AuthenticationMethod.OAuth2:
+                return InitializeAuthenticationMethod(type, 
+                    () => new OAuth2Authentication<OAuthSettings>(authSection.Get<OAuthSettings>()));
 
-            var type = authSection.GetValue<string>("AuthenticationType").ToLowerInvariant();
+            case AuthenticationMethod.ApiKey:
+                return InitializeAuthenticationMethod(type,
+                    () => new ApiKeyAuthentication<ApiKeyAuthSettings>(authSection.Get<ApiKeyAuthSettings>()));
 
+            case AuthenticationMethod.AzureAd:
+                return InitializeAuthenticationMethod(type, 
+                    () => new AzureAuthentication<AzureAuthSettings>(authSection.Get<AzureAuthSettings>(), configuration));
 
-            switch (type)
-            {
-                case AuthenticationMethod.OAuth2:
-                    return InitializeAuthenticationMethod(type, 
-                        () => new OAuth2Authentication<OAuthSettings>(authSection.Get<OAuthSettings>()));
+            default:
+                throw new Exception($"No implementation found for auth method '{type}'. " +
+                                        "Update authentication type or add a new implementation");
+        }
+    }
 
-                case AuthenticationMethod.ApiKey:
-                    return InitializeAuthenticationMethod(type,
-                        () => new ApiKeyAuthentication<ApiKeyAuthSettings>(authSection.Get<ApiKeyAuthSettings>()));
-
-                case AuthenticationMethod.AzureAd:
-                    return InitializeAuthenticationMethod(type, 
-                        () => new AzureAuthentication<AzureAuthSettings>(authSection.Get<AzureAuthSettings>(), configuration));
-
-                default:
-                    throw new Exception($"No implementation found for auth method '{type}'. " +
-                                            "Update authentication type or add a new implementation");
-            }
+    private static IAuthenticationMethod InitializeAuthenticationMethod(string authenticationType, Func<IAuthenticationMethod> initAuthMethod)
+    {
+        methods.TryGetValue(authenticationType ?? string.Empty, out var method);
+        if (method == null)
+        {
+            method = initAuthMethod();
+            methods.Add(authenticationType, method);
         }
 
-        private static IAuthententicationMethod InitializeAuthenticationMethod(string authenticationType, Func<IAuthententicationMethod> initAuthMethod)
-        {
-            methods.TryGetValue(authenticationType ?? string.Empty, out var method);
-            if (method == null)
-            {
-                method = initAuthMethod();
-                methods.Add(authenticationType, method);
-            }
-
-            return method;
-        }
+        return method;
     }
 }

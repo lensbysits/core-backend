@@ -1,5 +1,6 @@
 ﻿using Lens.Core.App.Web.Services;
 using Lens.Core.Lib.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -9,143 +10,139 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Lens.Core.App.Web.Authentication
+namespace Lens.Core.App.Web.Authentication;
+
+internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSettings
 {
-    internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSettings
+    protected static AuthorizationPolicy DefaultPolicy
     {
-        protected static AuthorizationPolicy DefaultPolicy
-        {
-            get =>
-                new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser()
-                    .Build();
-        }
+        get =>
+            new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .Build();
+    }
 
-        public OAuth2Authentication(T authSettings) : base(authSettings)
-        {
-        }
+    public OAuth2Authentication(T authSettings) : base(authSettings)
+    {
+    }
 
-        public override void Configure(
-            IServiceCollection services,
-            Action<AuthorizationOptions> authorizationOptions)
-        {
-            services
-                    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
-                    {
-                        options.Audience = this.AuthSettings.Audience;
-                        options.Authority = this.AuthSettings.Authority;
-
-                        if (!string.IsNullOrEmpty(this.AuthSettings.MetadataAddress))
-                            options.MetadataAddress = this.AuthSettings.MetadataAddress;
-
-                        options.RequireHttpsMetadata = this.AuthSettings.RequireHttps;
-                        options.TokenValidationParameters.ValidateAudience = this.AuthSettings.ValidateAudience;
-                        options.TokenValidationParameters.NameClaimType = "name";
-
-                        this.RegisterAuthenticationInterceptorEventHandlers(options);
-                    });
-
-            authorizationOptions ??= options => { options.DefaultPolicy = DefaultPolicy; };
-            services.AddAuthorization(authorizationOptions);
-
-            services.AddHttpContextAccessor();
-            services.AddScoped<IUserContext, UserContext>();
-        }
-
-        public override void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings)
-        {
-            base.ConfigureSwaggerAuth(options, swaggerSettings);
-
-            //https://www.c-sharpcorner.com/article/enable-oauth-2-authorization-using-azure-ad-and-swagger-in-net-5-0/
-            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    public override void Configure(
+        IServiceCollection services,
+        Action<AuthorizationOptions> authorizationOptions)
+    {
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
             {
-                Type = SecuritySchemeType.OAuth2,
-                Flows = new OpenApiOAuthFlows
-                {
-                    AuthorizationCode = new OpenApiOAuthFlow
-                    {
-                        AuthorizationUrl = new Uri($"{swaggerSettings.Authority}authorize"),
-                        TokenUrl = new Uri($"{swaggerSettings.Authority}token"),
-                        Scopes = new Dictionary<string, string>
-                                {
-                                    {swaggerSettings.Scope, swaggerSettings.ScopeName}
-                                }
-                    }
-                }
+                options.Audience = this.AuthSettings.Audience;
+                options.Authority = this.AuthSettings.Authority;
+
+                if (!string.IsNullOrEmpty(this.AuthSettings.MetadataAddress))
+                    options.MetadataAddress = this.AuthSettings.MetadataAddress;
+
+                options.RequireHttpsMetadata = this.AuthSettings.RequireHttps;
+                options.TokenValidationParameters.ValidateAudience = this.AuthSettings.ValidateAudience;
+                options.TokenValidationParameters.NameClaimType = "name";
+
+                this.RegisterAuthenticationInterceptorEventHandlers(options);
             });
 
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        authorizationOptions ??= options => { options.DefaultPolicy = DefaultPolicy; };
+
+        if (this.AuthSettings.Policies?.Any() ?? false)
+        {
+            services.AddAuthorization(options =>
             {
+                options.DefaultPolicy = Policy.DefaultPolicy;
+                foreach (var policy in this.AuthSettings.Policies)
                 {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-                    },
-                    new[] { swaggerSettings.Scope }
+                    options.AddPolicy(policy.Name, policy.PolicyInstance);
                 }
             });
-
-            options.OperationFilter<AuthorizeCheckOperationFilter>();
         }
 
-        public override void UseSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings)
+        services.AddHttpContextAccessor();
+        services.AddScoped<IUserContext, UserContext>();
+    }
+
+    public override void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings)
+    {
+        if (swaggerSettings == null)
+            return;
+
+        //https://www.c-sharpcorner.com/article/enable-oauth-2-authorization-using-azure-ad-and-swagger-in-net-5-0/
+        options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
         {
-            base.UseSwaggerUI(options, swaggerSettings);
+            Type = SecuritySchemeType.OAuth2,
+            Flows = new OpenApiOAuthFlows
+            {
+                AuthorizationCode = new OpenApiOAuthFlow
+                {
+                    AuthorizationUrl = new Uri($"{swaggerSettings.Authority}authorize"),
+                    TokenUrl = new Uri($"{swaggerSettings.Authority}token"),
+                    Scopes = new Dictionary<string, string>
+                            {
+                                {swaggerSettings.Scope, swaggerSettings.ScopeName}
+                            }
+                }
+            }
+        });
 
-            //https://lurumad.github.io/swagger-ui-with-pkce-using-swashbuckle-asp-net-core
-            options.OAuthClientId(swaggerSettings.ClientId);
-            options.OAuthClientSecret(swaggerSettings.ClientSecret);
-            options.OAuthUsePkce();
-        }
-
-        protected void RegisterAuthenticationInterceptorEventHandlers(JwtBearerOptions options)
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
-            options.Events.OnMessageReceived = async context =>
             {
-                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
-                foreach (var interceptor in interceptors)
+                new OpenApiSecurityScheme
                 {
-                    await interceptor.OnMessageReceived(context);
-                }
-            };
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
+                },
+                new[] { swaggerSettings.Scope }
+            }
+        });
 
-            options.Events.OnTokenValidated = async context =>
-            {
-                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
-                foreach (var interceptor in interceptors)
-                {
-                    await interceptor.OnTokenValidated(context);
-                }
-            };
+        options.OperationFilter<AuthorizeCheckOperationFilter>();
+    }
 
-            options.Events.OnChallenge = async context =>
-            {
-                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
-                foreach (var interceptor in interceptors)
-                {
-                    await interceptor.OnChallenge(context);
-                }
-            };
+    public override void UseSwaggerUI(SwaggerUIOptions options, SwaggerSettings swaggerSettings)
+    {
+        base.UseSwaggerUI(options, swaggerSettings);
 
-            options.Events.OnForbidden = async context =>
-            {
-                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
-                foreach (var interceptor in interceptors)
-                {
-                    await interceptor.OnForbidden(context);
-                }
-            };
+        //https://lurumad.github.io/swagger-ui-with-pkce-using-swashbuckle-asp-net-core
+        options.OAuthClientId(swaggerSettings.ClientId);
+        options.OAuthClientSecret(swaggerSettings.ClientSecret);
+        options.OAuthUsePkce();
+    }
 
-            options.Events.OnAuthenticationFailed = async context =>
+    protected void RegisterAuthenticationInterceptorEventHandlers(JwtBearerOptions options)
+    {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = async context => await HandleEvent(context, async interceptor => await interceptor.OnMessageReceived(context)),
+            OnTokenValidated = async context => await HandleEvent(context, async interceptor => await interceptor.OnTokenValidated(context)),
+            OnChallenge = async context => await HandleEvent(context, async interceptor => await interceptor.OnChallenge(context)),
+            OnForbidden = async context => await HandleEvent(context, async interceptor => await interceptor.OnForbidden(context)),
+            OnAuthenticationFailed = async context => await HandleEvent(context, async interceptor => await interceptor.OnAuthenticationFailed(context))
+        };
+
+        options.Events.OnForbidden = async context =>
+        {
+            var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
+            foreach (var interceptor in interceptors)
             {
-                var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
-                foreach (var interceptor in interceptors)
-                {
-                    await interceptor.OnAuthenticationFailed(context);
-                }
-            };
+                await interceptor.OnForbidden(context);
+            }
+        };
+    }
+
+    private static async Task HandleEvent<TContext>(TContext context, Func<IAuthenticationInterceptor, Task> action) where TContext : BaseContext<JwtBearerOptions>
+    {
+        var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
+        foreach (var interceptor in interceptors)
+        {
+            await action(interceptor);
         }
     }
 }
+

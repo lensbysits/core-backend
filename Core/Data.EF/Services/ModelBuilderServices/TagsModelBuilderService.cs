@@ -12,7 +12,8 @@ namespace Lens.Core.Data.EF.Services
 
             // Tags
             builder
-                .Property<string>(ShadowProperties.Tag);
+                .Property<string>(ShadowProperties.Tag)
+                .HasMaxLength(2048); 
         }
     }
 }

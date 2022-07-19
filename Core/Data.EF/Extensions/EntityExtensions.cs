@@ -103,6 +103,15 @@ namespace Lens.Core.Data.EF
             return predicate;
         }
 
+        public static TEntity CloneEntity<TEntity>(this TEntity sourceEntity, ApplicationDbContext applicationDbContext) 
+            where TEntity : BaseEntity
+        {
+            var newEntity = (TEntity)applicationDbContext.Entry(sourceEntity).CurrentValues.ToObject();
+            newEntity.Id = Guid.NewGuid();
+
+            return newEntity;
+        }
+
         #region Private static methods
 
         private static IQueryable<TEntity> ApplySort<TEntity>(IQueryable<TEntity> entities, QueryModel queryModel)
