@@ -52,7 +52,7 @@ namespace Lens.Core.App.Web
             services.AddControllers(config =>
             {
                 config.Filters.Add(new AuthorizeFilter());
-                config.Filters.Add(new ResultModelWrapperFilter());
+                //config.Filters.Add(new ResultModelWrapperFilter());
                 authMethod.ApplyMvcFilters(config.Filters);
             });
 
