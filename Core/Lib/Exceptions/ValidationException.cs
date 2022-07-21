@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Lens.Core.Lib.Exceptions
 {
@@ -13,11 +14,11 @@ namespace Lens.Core.Lib.Exceptions
         {
         }
 
-        public ValidationException(System.ComponentModel.DataAnnotations.ValidationResult validationResult, System.ComponentModel.DataAnnotations.ValidationAttribute? validatingAttribute, object? value) : base(validationResult, validatingAttribute, value)
+        public ValidationException(ValidationResult validationResult, ValidationAttribute? validatingAttribute, object? value) : base(validationResult, validatingAttribute, value)
         {
         }
 
-        public ValidationException(string? errorMessage, System.ComponentModel.DataAnnotations.ValidationAttribute? validatingAttribute, object? value) : base(errorMessage, validatingAttribute, value)
+        public ValidationException(string? errorMessage, ValidationAttribute? validatingAttribute, object? value) : base(errorMessage, validatingAttribute, value)
         {
         }
 
