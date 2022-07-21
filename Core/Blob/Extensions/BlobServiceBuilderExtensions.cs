@@ -41,7 +41,6 @@ namespace Lens.Core.Blob
                 .AddProgramInitializer<BlobInitializerService>()
                 .AddAssemblies(typeof(Data.AutoMapperProfile).Assembly)
                 .AddDatabase<BlobDbContext>(connectionStringName, connectionStringPassword)
-                .AddAuditTrailing()
                 .Services
                 .AddScoped<IBlobManagementService, BlobManagementService>();
 
