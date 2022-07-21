@@ -59,39 +59,42 @@ namespace Lens.Core.App.Web
         }
 
         #region Private Methods
+        private HttpStatusCode GetHttpStatusCodeForException(Type exceptionType)
+        {
+            foreach (var kv in _exceptionTypes)
+            {
+                if (exceptionType.Equals(kv.Key) || exceptionType.IsSubclassOf(kv.Key))
+                {
+                    return kv.Value;
+                }
+            }
+
+            return HttpStatusCode.InternalServerError;
+        }
+
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var exceptionMessage = GetExceptionMessage(exception);
             var exceptionType = exception.GetType();
             var serializedData = JsonSerializer.Serialize(exception.Data);
             var correlationId = correlationContext.CorrelationContext.CorrelationId;
-            HttpStatusCode exceptionCode = HttpStatusCode.InternalServerError;
+            HttpStatusCode httpStatusCodeForException = GetHttpStatusCodeForException(exceptionType);
             
-
-            foreach (var kv in _exceptionTypes)
-            {
-                if (exceptionType.Equals(kv.Key) || exceptionType.IsSubclassOf(kv.Key))
-                {
-                    exceptionCode = kv.Value;
-                    break;
-                }
-            }
-
-            if (exceptionCode != HttpStatusCode.InternalServerError)
+            if (httpStatusCodeForException != HttpStatusCode.InternalServerError)
             {
                 // log as warning the expected exceptions
-                _logger.LogWarning(exception, $"Exception: {exceptionType.Name} (expected): HTTP Status: {(int)exceptionCode} ({exceptionCode}): {exceptionMessage} (data: {serializedData})"); 
+                _logger.LogWarning(exception, $"Exception: {exceptionType.Name} (expected): HTTP Status: {(int)httpStatusCodeForException} ({httpStatusCodeForException}): {exceptionMessage} (data: {serializedData})"); 
             }
             else
             {
                 // log as error the unexpected exceptions
-                exceptionCode = HttpStatusCode.InternalServerError; 
-                _logger.LogError(exception, $"Exception: {exceptionType.Name} (unexpected): HTTP Status: {(int)exceptionCode} ({exceptionCode}): {exceptionMessage} (data: {serializedData})");
+                httpStatusCodeForException = HttpStatusCode.InternalServerError; 
+                _logger.LogError(exception, $"Exception: {exceptionType.Name} (unexpected): HTTP Status: {(int)httpStatusCodeForException} ({httpStatusCodeForException}): {exceptionMessage} (data: {serializedData})");
             }
 
             
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)exceptionCode;
+            context.Response.StatusCode = (int)httpStatusCodeForException;
             string result = string.Empty;
 
             if (_webHostEnvironment.IsDevelopment())
