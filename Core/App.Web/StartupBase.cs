@@ -81,7 +81,7 @@ namespace Lens.Core.App.Web
                 .UseSwagger(Configuration)
                 .UseSwaggerUI(Configuration);
 
-            app.UseAuthentication(Configuration);
+
             app.UseCorrelationId();
 
             app.UseErrorHandling();
