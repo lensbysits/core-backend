@@ -6,11 +6,8 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -31,16 +28,6 @@ namespace Lens.Core.App.Web.Authentication
         public override void ApplyMvcFilters(FilterCollection filters)
         {
             base.ApplyMvcFilters(filters);
-
-            //if (this.AuthSettings.RequiredScopes.Any())
-            //{
-            //    filters.Add(new AuthorizeFilter(ScopePolicyName));
-            //}
-
-            //if (this.AuthSettings.RequiredAppRoles.Any())
-            //{
-            //    filters.Add(new AuthorizeFilter(RolePolicyName));
-            //}
 
             if (this.AuthSettings.RequiredScopes.Any() || this.AuthSettings.RequiredAppRoles.Any())
             {
@@ -86,12 +73,10 @@ namespace Lens.Core.App.Web.Authentication
                 base.RegisterAuthenticationInterceptorEventHandlers(options);
 
             });
-            
+
             services.AddAuthorization(
                 options =>
                 {
-                    //options.AddPolicy(ScopePolicyName, ScopePolicy(Serilog.Log.Logger));
-                    //options.AddPolicy(RolePolicyName, RolePolicy(Serilog.Log.Logger));
                     options.AddPolicy(ScopeOrRolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger));
                     options.FallbackPolicy = DefaultPolicy;
 
@@ -108,134 +93,51 @@ namespace Lens.Core.App.Web.Authentication
         /// <returns></returns>
         private Action<AuthorizationPolicyBuilder> ScopeOrRolePolicy(Serilog.ILogger logger = null)
         {
-            return policy => policy.RequireAssertion(
-                                        context =>
-                                        {
+            return policy => policy.RequireAssertion(context =>
+                    {
+                        var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
+                        var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
 
-                                            var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
-                                            var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
+                        var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} Found roles: {roleClaim?.Value} ";
 
-                                            var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} Found roles: {roleClaim?.Value} ";
+                        if (scopeClaim != null && !string.IsNullOrEmpty(scopeClaim.Value))
+                        {
+                            var incommingScopes = scopeClaim.Value.Split(' ');
+                            var accessAllowed = this.AuthSettings.RequiredScopes.All(
+                                s => incommingScopes.Contains(s));
 
-                                            if (scopeClaim != null && !string.IsNullOrEmpty(scopeClaim.Value)){
-                                                var incommingScopes = scopeClaim.Value.Split(' ');
-                                                var accessAllowed = this.AuthSettings.RequiredScopes.All(
-                                                    s => incommingScopes.Contains(s));
+                            if (logger != null)
+                            {
+                                logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
+                                logger.Information(logStr);
+                            }
 
-                                                if (logger != null)
-                                                {
-                                                    logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
-                                                    logger.Information(logStr);
-                                                }
-                                                
-                                                if (accessAllowed)
-                                                {
-                                                    return true;
-                                                }
-                                            }
-                                            
-                                            if (roleClaim != null && !string.IsNullOrEmpty(roleClaim.Value))
-                                            {
-                                                var incommingRoles = roleClaim.Value.Split(' ');
-                                                var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
-                                                    s => incommingRoles.Contains(s));
+                            if (accessAllowed)
+                            {
+                                return true;
+                            }
+                        }
 
-                                                if (logger != null)
-                                                {
-                                                    logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
-                                                    logger.Information(logStr);
-                                                }
+                        if (roleClaim != null && !string.IsNullOrEmpty(roleClaim.Value))
+                        {
+                            var incommingRoles = roleClaim.Value.Split(' ');
+                            var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
+                                s => incommingRoles.Contains(s));
 
-                                                if (accessAllowed)
-                                                {
-                                                    return true;
-                                                }
-                                            }
+                            if (logger != null)
+                            {
+                                logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
+                                logger.Information(logStr);
+                            }
 
-                                            return false;
-                                        });
-        }
+                            if (accessAllowed)
+                            {
+                                return true;
+                            }
+                        }
 
-        private Action<AuthorizationPolicyBuilder> ScopePolicy(Serilog.ILogger logger = null)
-        {
-            return policy => policy.RequireAssertion(
-                                        context =>
-                                        {
-                                            
-                                            var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
-
-                                            var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} ";
-
-                                            if (scopeClaim == null)
-                                            {
-                                                /// For a confidential client, the value is 1 when a shared secret (a password) is used as a client secret (app authentication) and 
-                                                /// 2 when a certificate is used as a client secret (app authentication). 
-                                                /// The value 0 indicates a public client, which does not provide a client secret (user authentication)
-                                                var authType = context.User.FindFirst(ClaimConstants.Acr) ?? context.User.FindFirst("appidacr");
-                                                var hasClientSecret = (authType != null && (authType.Value == "1" || authType.Value == "2"));
-
-                                                logStr += $"Has Client Secret: {hasClientSecret.ToString()} ";
-
-                                                if (logger != null)
-                                                {
-                                                    logger.Information(logStr);
-                                                }
-
-                                                return hasClientSecret;
-                                            }
-                                            
-                                            var incommingScopes = scopeClaim.Value.Split(' ');
-                                            var accessAllowed = this.AuthSettings.RequiredScopes.All(
-                                                s => incommingScopes.Contains(s));
-
-                                            if (logger != null)
-                                            {
-                                                logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
-                                                logger.Information(logStr);
-                                            }
-                                            return accessAllowed;
-                                        });
-        }
-
-        private Action<AuthorizationPolicyBuilder> RolePolicy(Serilog.ILogger logger = null)
-        {
-            return policy => policy.RequireAssertion(
-                                        context =>
-                                        {
-                                            var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
-
-                                            var logStr = $"Authz:RolePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found roles: {roleClaim?.Value} ";
-
-                                            if (roleClaim == null)
-                                            {
-                                                /// For a confidential client, the value is 1 when a shared secret (a password) is used as a client secret (app authentication) and 
-                                                /// 2 when a certificate is used as a client secret (app authentication). 
-                                                /// The value 0 indicates a public client, which does not provide a client secret (user authentication)
-                                                var authType = context.User.FindFirst(ClaimConstants.Acr) ?? context.User.FindFirst("appidacr");
-                                                var isPublicClient = this.AuthSettings.RolesForApplicationsOnly && authType != null && (authType.Value == "0");
-
-                                                logStr += $"Is Public Client: {isPublicClient.ToString()} ";
-
-                                                if (logger != null)
-                                                {
-                                                    logger.Information(logStr);
-                                                }
-
-                                                return isPublicClient;
-                                            }
-
-                                            var incommingScopes = roleClaim.Value.Split(' ');
-                                            var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
-                                                s => incommingScopes.Contains(s));
-
-                                            if (logger != null)
-                                            {
-                                                logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
-                                                logger.Information(logStr);
-                                            }
-
-                                            return accessAllowed;
-                                        });
+                        return false;
+                    });
         }
     }
 }
