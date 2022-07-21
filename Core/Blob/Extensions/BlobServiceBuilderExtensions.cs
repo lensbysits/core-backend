@@ -39,7 +39,7 @@ namespace Lens.Core.Blob
 
             builder
                 .AddProgramInitializer<BlobInitializerService>()
-                .AddAssemblies(typeof(Data.AutoMapperProfile).Assembly)
+                .AddAssemblies(typeof(AutoMapperProfile).Assembly)
                 .AddDatabase<BlobDbContext>(connectionStringName, connectionStringPassword)
                 .Services
                 .AddScoped<IBlobManagementService, BlobManagementService>();
