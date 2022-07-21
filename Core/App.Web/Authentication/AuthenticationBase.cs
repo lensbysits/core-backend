@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,11 +17,12 @@ internal abstract class AuthenticationBase<T> : IAuthenticationMethod where T : 
 
     protected T AuthSettings { get; }
 
-    public virtual void UseMiddleware(IApplicationBuilder applicationBuilder) {
+    public virtual void UseMiddleware(IApplicationBuilder applicationBuilder)
+    {
         // default use authentication middleware (otherwise override it)
         applicationBuilder.UseAuthentication();
     }
-    
+
     public virtual void ApplyMvcFilters(FilterCollection filters) { }
 
     public virtual void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions) { }

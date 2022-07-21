@@ -1,7 +1,5 @@
 ﻿using Lens.Core.App.Web.Middleware;
 using Lens.Core.Lib.Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -10,7 +8,6 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Linq;
-using System.Collections.Generic;
 
 namespace Lens.Core.App.Web.Authentication;
 

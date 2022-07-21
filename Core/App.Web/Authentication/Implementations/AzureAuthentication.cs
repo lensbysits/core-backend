@@ -87,10 +87,9 @@ namespace Lens.Core.App.Web.Authentication
         }
 
         /// <summary>
-        /// Don't use, but temporary fix
+        /// Validates scope and app role claims exists and check against the configured required scope(s) and/or role(s).
+        /// Every request must contain a scope or role claim, otherwise a 401 is returned.
         /// </summary>
-        /// <param name="logger"></param>
-        /// <returns></returns>
         private Action<AuthorizationPolicyBuilder> ScopeOrRolePolicy(Serilog.ILogger logger = null)
         {
             return policy => policy.RequireAssertion(context =>

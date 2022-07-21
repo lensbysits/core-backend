@@ -30,9 +30,7 @@ namespace Lens.Core.Blob
             {
                 throw new NotFoundException($"Missing value for '{nameof(BlobSettings.ConnectionString)}'");
             }
-
             
-
             _ = blobImplementationType == BlobImplementationType.Filesystem
                 ? builder.Services.AddScoped<IBlobService, FilesystemBlobService>()
                 : blobImplementationType == BlobImplementationType.AzureStorage

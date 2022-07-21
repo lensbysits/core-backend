@@ -2,11 +2,6 @@
 using Lens.Core.Lib.Builders;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lens.Core.Lib.Azure.Extensions
 {
@@ -28,7 +23,8 @@ namespace Lens.Core.Lib.Azure.Extensions
 
         public static IApplicationSetupBuilder AddAzureClients(this IApplicationSetupBuilder applicationSetup)
         {
-            applicationSetup.Services.AddAzureClients(builder => {
+            applicationSetup.Services.AddAzureClients(builder =>
+            {
                 var keyvaultName = applicationSetup.Configuration["KeyVault:Vault"];
 
                 if (!string.IsNullOrEmpty(keyvaultName))

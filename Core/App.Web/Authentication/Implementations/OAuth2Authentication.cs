@@ -125,15 +125,6 @@ internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSe
             OnForbidden = async context => await HandleEvent(context, async interceptor => await interceptor.OnForbidden(context)),
             OnAuthenticationFailed = async context => await HandleEvent(context, async interceptor => await interceptor.OnAuthenticationFailed(context))
         };
-
-        options.Events.OnForbidden = async context =>
-        {
-            var interceptors = context.HttpContext.RequestServices.GetServices<IAuthenticationInterceptor>();
-            foreach (var interceptor in interceptors)
-            {
-                await interceptor.OnForbidden(context);
-            }
-        };
     }
 
     private static async Task HandleEvent<TContext>(TContext context, Func<IAuthenticationInterceptor, Task> action) where TContext : BaseContext<JwtBearerOptions>
