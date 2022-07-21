@@ -11,135 +11,132 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace Lens.Core.App.Web.Authentication;
-
-internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureAuthSettings
+namespace Lens.Core.App.Web.Authentication
 {
-    private const string ScopePolicyName = "ApiScopePolicy";
-    private const string RolePolicyName = "ApiRolePolicy";
-    private readonly IConfiguration configuration;
-
-    public AzureAuthentication(T authSettings, IConfiguration configuration) : base(authSettings)
+    internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureAuthSettings
     {
-        this.configuration = configuration;
-    }
+        private const string ScopePolicyName = "ApiScopePolicy";
+        private const string RolePolicyName = "ApiRolePolicy";
+        private const string ScopeOrRolePolicyName = "ApiScopeOrRolePolicy";
+        private readonly IConfiguration configuration;
 
-    public override void ApplyMvcFilters(FilterCollection filters)
-    {
-        base.ApplyMvcFilters(filters);
-
-        if (this.AuthSettings.RequiredScopes.Any())
+        public AzureAuthentication(T authSettings, IConfiguration configuration) : base(authSettings)
         {
-            filters.Add(new AuthorizeFilter(ScopePolicyName));
+            this.configuration = configuration;
         }
 
-        if (this.AuthSettings.RequiredAppRoles.Any())
+        public override void ApplyMvcFilters(FilterCollection filters)
         {
-            filters.Add(new AuthorizeFilter(RolePolicyName));
+            base.ApplyMvcFilters(filters);
+
+            if (this.AuthSettings.RequiredScopes.Any() || this.AuthSettings.RequiredAppRoles.Any())
+            {
+                filters.Add(new AuthorizeFilter(ScopeOrRolePolicyName));
+            }
         }
-    }
 
-    public override void Configure(
-        IServiceCollection services,
-        Action<AuthorizationOptions> authorizationOptions)
-    {
-        services.AddMicrosoftIdentityWebApiAuthentication(this.configuration, "AuthSettings");
-
-        services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+        public override void Configure(
+            IServiceCollection services,
+            Action<AuthorizationOptions> authorizationOptions)
         {
-            if (this.AuthSettings.IncludeConfigInBearerHeader)
+
+            services.AddMicrosoftIdentityWebApiAuthentication(this.configuration, "AuthSettings");
+
+            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
-                var buildHeader = new StringBuilder("Bearer");
-                if (!string.IsNullOrEmpty(this.AuthSettings.Authority))
+                options.TokenValidationParameters.NameClaimType = "name";
+
+                if (this.AuthSettings.IncludeConfigInBearerHeader)
                 {
-                    buildHeader.AppendFormat(" authorization_uri=\"{0}authorize\"", this.AuthSettings.Authority);
+                    var buildHeader = new StringBuilder("Bearer");
+                    if (!string.IsNullOrEmpty(this.AuthSettings.Authority))
+                    {
+                        buildHeader.AppendFormat(" authorization_uri=\"{0}authorize\"", this.AuthSettings.Authority);
+                    }
+
+                    if (!string.IsNullOrEmpty(this.AuthSettings.Resource))
+                    {
+                        buildHeader.AppendFormat(", resource=\"{0}\"", this.AuthSettings.Resource);
+                    }
+
+                    options.Challenge = buildHeader.ToString().Trim();
+                }
+                if (this.AuthSettings.AllowedIssuers.Any())
+                {
+                    // we need to override the default issuer validation in order to restrict access only for pre-configured allowed issuers
+                    // otherwise all Azure tenants are considered as valid issuer
+                    options.TokenValidationParameters.IssuerValidator = null;
+                    options.TokenValidationParameters.ValidIssuers = this.AuthSettings.AllowedIssuers;
+                    options.TokenValidationParameters.ValidateIssuer = true;
                 }
 
-                if (!string.IsNullOrEmpty(this.AuthSettings.Resource))
-                {
-                    buildHeader.AppendFormat(", resource=\"{0}\"", this.AuthSettings.Resource);
-                }
+                base.RegisterAuthenticationInterceptorEventHandlers(options);
 
-                options.Challenge = buildHeader.ToString().Trim();
-            }
-            if (this.AuthSettings.AllowedIssuers.Any())
-            {
-                // we need to override the default issuer validation in order to restrict access only for pre-configured allowed issuers
-                // otherwise all Azure tenants are considered as valid issuer
-                options.TokenValidationParameters.IssuerValidator = null;
-                options.TokenValidationParameters.ValidIssuers = this.AuthSettings.AllowedIssuers;
-                options.TokenValidationParameters.ValidateIssuer = true;
-            }
-
-            base.RegisterAuthenticationInterceptorEventHandlers(options);
-
-        });
-
-        services.AddAuthorization(
-            options =>
-            {
-                options.AddPolicy(ScopePolicyName, ScopePolicy());
-                options.AddPolicy(RolePolicyName, RolePolicy());
-                options.FallbackPolicy = DefaultPolicy;
-
-                authorizationOptions?.Invoke(options);
             });
 
-        services.AddScoped<IUserContext, UserContext>();
-    }
-    
-    private Action<AuthorizationPolicyBuilder> ScopePolicy()
-    {
-        return policy => policy.RequireAssertion(
-                                    context =>
-                                    {
-                                        
-                                        var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
-                                        if (scopeClaim == null)
-                                        {
-                                            /// For a confidential client, the value is 1 when a shared secret (a password) is used as a client secret (app authentication) and 
-                                            /// 2 when a certificate is used as a client secret (app authentication). 
-                                            /// The value 0 indicates a public client, which does not provide a client secret (user authentication)
-                                            var authType = context.User.FindFirst(ClaimConstants.Acr) ?? context.User.FindFirst("appidacr");
+            services.AddAuthorization(
+                options =>
+                {
+                    options.AddPolicy(ScopeOrRolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger));
+                    options.FallbackPolicy = DefaultPolicy;
 
-                                            if (authType != null && (authType.Value == "1" || authType.Value == "2"))
-                                            {
-                                                return true;
-                                            }
-                                            return false;
-                                        }
+                    authorizationOptions?.Invoke(options);
+                });
 
-                                        var incommingScopes = scopeClaim.Value.Split(' ');
-                                        var accessAllowed = this.AuthSettings.RequiredScopes.All(
-                                            s => incommingScopes.Contains(s));
-                                        return accessAllowed;
-                                    });
-    }
+            services.AddScoped<IUserContext, UserContext>();
+        }
 
-    private Action<AuthorizationPolicyBuilder> RolePolicy()
-    {
-        return policy => policy.RequireAssertion(
-                                    context =>
-                                    {
-                                        var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
-                                        if (roleClaim == null)
-                                        {
-                                            /// For a confidential client, the value is 1 when a shared secret (a password) is used as a client secret (app authentication) and 
-                                            /// 2 when a certificate is used as a client secret (app authentication). 
-                                            /// The value 0 indicates a public client, which does not provide a client secret (user authentication)
-                                            var authType = context.User.FindFirst(ClaimConstants.Acr) ?? context.User.FindFirst("appidacr");
+        /// <summary>
+        /// Validates scope and app role claims exists and check against the configured required scope(s) and/or role(s).
+        /// Every request must contain a scope or role claim, otherwise a 401 is returned.
+        /// </summary>
+        private Action<AuthorizationPolicyBuilder> ScopeOrRolePolicy(Serilog.ILogger logger = null)
+        {
+            return policy => policy.RequireAssertion(context =>
+                    {
+                        var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
+                        var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
 
-                                            if (this.AuthSettings.RolesForApplicationsOnly && authType != null && (authType.Value == "0"))
-                                            {
-                                                return true;
-                                            }
-                                            return false;
-                                        }
+                        var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} Found roles: {roleClaim?.Value} ";
 
-                                        var incommingScopes = roleClaim.Value.Split(' ');
-                                        var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
-                                            s => incommingScopes.Contains(s));
-                                        return accessAllowed;
-                                    });
+                        if (scopeClaim != null && !string.IsNullOrEmpty(scopeClaim.Value))
+                        {
+                            var incommingScopes = scopeClaim.Value.Split(' ');
+                            var accessAllowed = this.AuthSettings.RequiredScopes.All(
+                                s => incommingScopes.Contains(s));
+
+                            if (logger != null)
+                            {
+                                logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
+                                logger.Information(logStr);
+                            }
+
+                            if (accessAllowed)
+                            {
+                                return true;
+                            }
+                        }
+
+                        if (roleClaim != null && !string.IsNullOrEmpty(roleClaim.Value))
+                        {
+                            var incommingRoles = roleClaim.Value.Split(' ');
+                            var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
+                                s => incommingRoles.Contains(s));
+
+                            if (logger != null)
+                            {
+                                logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
+                                logger.Information(logStr);
+                            }
+
+                            if (accessAllowed)
+                            {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    });
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Lens.Core.Lib.Services;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Claims;
@@ -42,6 +43,19 @@ namespace Lens.Core.App.Web.Services
 
             TypeConverter tc = TypeDescriptor.GetConverter(typeof(T));
             return (T)tc.ConvertFrom(value);
+        }
+        public ICollection<T> ClaimValueAsCollection<T>(string claim)
+        {
+            var values = UserClaims?.Claims?.Where(c => c.Type == claim)?.Select(c => c.Value);
+            if (values == null)
+            {
+                return new List<T>();
+            }
+
+            TypeConverter tc = TypeDescriptor.GetConverter(typeof(T));
+            var result = values.Select(v => (T)tc.ConvertFrom(v)).ToList();
+
+            return result;
         }
 
         public bool HasClaim(string claim)

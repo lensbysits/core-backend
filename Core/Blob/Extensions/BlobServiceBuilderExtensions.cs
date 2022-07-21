@@ -6,6 +6,7 @@ using Lens.Core.Lib;
 using Lens.Core.Blob.Data;
 using Lens.Core.Data.EF;
 using Lens.Core.Blob.Services;
+using Lens.Core.Data.EF.AuditTrail;
 
 namespace Lens.Core.Blob
 {
@@ -29,7 +30,7 @@ namespace Lens.Core.Blob
             {
                 throw new NotFoundException($"Missing value for '{nameof(BlobSettings.ConnectionString)}'");
             }
-
+            
             _ = blobImplementationType == BlobImplementationType.Filesystem
                 ? builder.Services.AddScoped<IBlobService, FilesystemBlobService>()
                 : blobImplementationType == BlobImplementationType.AzureStorage
@@ -38,12 +39,36 @@ namespace Lens.Core.Blob
 
             builder
                 .AddProgramInitializer<BlobInitializerService>()
-                .AddAssemblies(typeof(AutoMapperProfile).Assembly)
+                .AddAssemblies(typeof(Data.AutoMapperProfile).Assembly)
                 .AddDatabase<BlobDbContext>(connectionStringName, connectionStringPassword)
                 .Services
                 .AddScoped<IBlobManagementService, BlobManagementService>();
 
             return builder;
+        }
+
+        public static IApplicationSetupBuilder AddBlobService(this IApplicationSetupBuilder builder,
+            string connectionStringName = "DefaultConnection",
+            string connectionStringPassword = "dbPassword")
+        {
+            var blobSettings = builder.Configuration.GetSection(nameof(BlobSettings)).Get<BlobSettings>();
+            if (blobSettings == null)
+            {
+                throw new NotFoundException($"Missing '{nameof(BlobSettings)}' configuration section.");
+            }
+
+            var implementation = BlobImplementationType.Filesystem;
+            switch (blobSettings.Provider.ToLowerInvariant())
+            {
+                case BlobSettings.BlobProvider_FileSystem:
+                    implementation = BlobImplementationType.Filesystem;
+                    break;
+                case BlobSettings.BlobProvider_AzureStorage:
+                    implementation = BlobImplementationType.AzureStorage;
+                    break;
+            }
+
+            return AddBlobService(builder, implementation, connectionStringName, connectionStringPassword);
         }
     }
 }
