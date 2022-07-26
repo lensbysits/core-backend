@@ -2,29 +2,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models
 {
     public class QueryModel
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Offset { get; set; } = 0;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Limit { get; set; } = 50;
         /// <summary>
         /// The parameter doesn't take into account the set or default offset or limit
         /// </summary>
-        public bool NoLimit { get;set; } = false;
-        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool NoLimit { get; set; } = false;
+
         // Filter by fields:
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string Tag { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string CreatedBy { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public DateTime? CreatedSince { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string UpdatedBy { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public DateTime? UpdatedSince { get; set; }
 
         // Search by fields:
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string SearchTerm { get; set; }
 
         // Sort by fields:
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string OrderBy { get; set; }
 
         public virtual string QueryString
@@ -32,7 +43,7 @@ namespace Lens.Core.Lib.Models
             get
             {
                 List<string> queryStringSegments = new();
-                    
+
                 queryStringSegments.Add($"{nameof(Offset)}={Offset}");
                 queryStringSegments.Add($"{nameof(Limit)}={Limit}");
                 queryStringSegments.Add($"{nameof(NoLimit)}={NoLimit}");
