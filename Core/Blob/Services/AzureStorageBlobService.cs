@@ -35,9 +35,22 @@ namespace Lens.Core.Blob.Services
             BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
 
             var fStream = new MemoryStream();
-            var response = await blobClient.DownloadToAsync(fStream);
+            await blobClient.DownloadToAsync(fStream);
 
             return fStream;
+        }
+
+        public async Task<BlobDownloadResultModel> DownloadWithMetadata(string relativePathAndName)
+        {
+            BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
+
+            var fStream = new MemoryStream();
+            var response = await blobClient.DownloadToAsync(fStream);
+
+            return new BlobDownloadResultModel(
+                        fStream, 
+                        response.Headers.ContentType, 
+                        response.Headers.ContentLength);
         }
 
         public async Task<string[]> GetBlobs()

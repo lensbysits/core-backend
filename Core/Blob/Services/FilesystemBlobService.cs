@@ -45,6 +45,11 @@ namespace Lens.Core.Blob.Services
             return await Task.FromResult(File.OpenRead(path));
         }
 
+        public Task<BlobDownloadResultModel> DownloadWithMetadata(string relativePathAndName)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string[]> GetBlobs()
         {
             var root = _blobServiceSettings.ContainerPath;
