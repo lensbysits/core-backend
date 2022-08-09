@@ -86,5 +86,13 @@ namespace Lens.Core.Blob.Services
 
             return blobMetadata;
         }
+
+        public Task MoveBlob(string sourceRelativePathAndName, string targetRelativePathAndName)
+        {
+            BlobClient sourceBlobClient = blobcontainerClient.GetBlobClient(sourceRelativePathAndName);
+            BlobClient targetBlobClient = blobcontainerClient.GetBlobClient(targetRelativePathAndName);
+            var result = targetBlobClient.StartCopyFromUri(sourceBlobClient.Uri);
+            return sourceBlobClient.DeleteAsync();
+        }
     }
 }

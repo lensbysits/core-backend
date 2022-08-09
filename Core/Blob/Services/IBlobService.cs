@@ -12,5 +12,6 @@ namespace Lens.Core.Blob.Services
         Task<string[]> GetBlobs();
         Task<string> GetBlobUrl(string relativePathAndName);
         Task<bool> DeleteBlob(string relativePathAndName);
+        Task MoveBlob(string sourceRelativePathAndName, string targetRelativePathAndName);
     }
 }

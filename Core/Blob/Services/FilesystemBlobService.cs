@@ -45,11 +45,6 @@ namespace Lens.Core.Blob.Services
             return await Task.FromResult(File.OpenRead(path));
         }
 
-        public Task<BlobDownloadResultModel> DownloadWithMetadata(string relativePathAndName)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<string[]> GetBlobs()
         {
             var root = _blobServiceSettings.ContainerPath;
@@ -92,6 +87,16 @@ namespace Lens.Core.Blob.Services
                 RelativePathAndName = Path.Combine(relativePath, newFileName),
                 FullPathAndName = filePath 
             };
+        }
+
+        public Task<BlobDownloadResultModel> DownloadWithMetadata(string relativePathAndName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task MoveBlob(string sourceRelativePathAndName, string targetRelativePathAndName)
+        {
+            throw new NotImplementedException();
         }
     }
 }
