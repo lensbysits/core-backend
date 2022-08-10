@@ -67,17 +67,17 @@ namespace Lens.Core.App
             Host.CreateDefaultBuilder(args)
                 // Use Lamar as the depencency injection framework
                 .UseLamar()
+
                 // Allow the deriving class to add extra configuration sources as early as possible while the program is starting up.
                 .ConfigureHostConfiguration(config =>
                 {
                     HostConfigurationSetup?.Invoke(config);
                 })
+
                 // Add Initialize properties from special json config file
                 // Allow for the deriving class to add extra configuration sources for use while the program is running.
                 .ConfigureAppConfiguration(config =>
                 {
-                    config.AddJsonFile("appsettings.ProgramInitialize.json", optional: true);
-
                     AppConfigurationSetup?.Invoke(config);
                 })
 
@@ -88,9 +88,7 @@ namespace Lens.Core.App
                         .ReadFrom.Configuration(context.Configuration)
                         .ReadFrom.Services(services);
 
-
                     SeriloggerConfigurationSetup?.Invoke(configuration, false, context.Configuration);
-
                 });
 
         /// <summary>
@@ -110,9 +108,7 @@ namespace Lens.Core.App
 
             var configuration = configurationBuilder.Build();
 
-            //See: https://nblumhardt.com/2020/10/bootstrap-logger/
             var logConfig = new LoggerConfiguration()
-                .WriteTo.Console() // for the bootstrapped logger
                 .ReadFrom.Configuration(configuration);
 
 

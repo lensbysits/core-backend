@@ -11,7 +11,6 @@ namespace Lens.Core.Lib.Builders
         IServiceCollection Services { get; }
         IConfiguration Configuration { get; }
         List<Assembly> Assemblies { get; }
-        IHealthChecksBuilder HealthChecks { get; }
 
         IApplicationSetupBuilder AddAssemblies(params Assembly[] assemblies);
         IApplicationSetupBuilder AddAutoMapper();
