@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Lens.Core.App.Web.Authentication;
 using Lens.Core.App.Web.Filters;
+using Lens.Core.App.Web.Builders;
 
 namespace Lens.Core.App.Web
 {
@@ -40,7 +41,7 @@ namespace Lens.Core.App.Web
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            var applicationSetup = new ApplicationSetupBuilder(services, Configuration);
+            var applicationSetup = new WebApplicationSetupBuilder(services, Configuration);
             OnSetupApplication(applicationSetup);
 
             services
@@ -52,14 +53,19 @@ namespace Lens.Core.App.Web
             services.AddControllers(config =>
             {
                 config.Filters.Add(new AuthorizeFilter());
-                config.Filters.Add(new ResultModelWrapperFilter());
+
+                if(!applicationSetup.ControllerOptions.IgnoreResultModelWrapper)
+                {
+                    config.Filters.Add(new ResultModelWrapperFilter());
+                }
+
                 authMethod.ApplyMvcFilters(config.Filters);
             });
 
             applicationSetup.AddApplicationServices();
         }
 
-        public virtual void OnSetupApplication(IApplicationSetupBuilder applicationSetup) { }
+        public virtual void OnSetupApplication(IWebApplicationSetupBuilder applicationSetup) { }
 
         public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

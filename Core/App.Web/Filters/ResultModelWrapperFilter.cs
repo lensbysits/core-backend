@@ -14,18 +14,17 @@ namespace Lens.Core.App.Web.Filters
             var ignore = context.Filters.Any(filter => filter is IgnoreResultModelWrapperAttribute);
             if (ignore) return;
 
-            object result;
             switch (context.Result)
             {
-                case ObjectResult actionResult:
-                    result = VerifyResult(actionResult.Value);
+                case ObjectResult objectResult:
+                {
+                    var result = VerifyResult(objectResult.Value);
+                    context.Result = new ObjectResult(result);
                     break;
+                }
                 default:
-                    result = VerifyResult(context.Result);
-                    break;
+                    return;
             }
-
-            context.Result = new ObjectResult(result);
         }
 
         private static object VerifyResult(object value)
