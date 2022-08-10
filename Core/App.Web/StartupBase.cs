@@ -84,6 +84,8 @@ namespace Lens.Core.App.Web
 
             app.UseErrorHandling();
 
+            app.UseHealthChecks("/health");
+
             app.UseRouting();
 
             app.UseAuthorization();
