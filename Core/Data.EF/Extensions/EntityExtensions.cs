@@ -103,6 +103,18 @@ namespace Lens.Core.Data.EF
             return predicate;
         }
 
+        public static Expression<Func<TEntity, bool>> ToOrCompositePredicate<TEntity>(this IEnumerable<Expression<Func<TEntity, bool>>> expressions)
+            where TEntity : class, IIdEntity
+        {
+            ExpressionStarter<TEntity> predicate = null;
+            foreach (var expression in expressions)
+            {
+                predicate = (predicate == null) ? PredicateBuilder.New(expression) : predicate.Or(expression);
+            }
+
+            return predicate;
+        }
+
         public static TEntity CloneEntity<TEntity>(this TEntity sourceEntity, ApplicationDbContext applicationDbContext) 
             where TEntity : BaseEntity
         {
