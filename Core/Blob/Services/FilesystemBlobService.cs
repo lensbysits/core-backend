@@ -94,7 +94,7 @@ namespace Lens.Core.Blob.Services
             throw new NotImplementedException();
         }
 
-        public Task MoveBlob(string sourceRelativePathAndName, string targetRelativePathAndName)
+        public Task MoveBlobWithinContainer(string sourceRelativePathAndName, string targetRelativePathAndName)
         {
             throw new NotImplementedException();
         }

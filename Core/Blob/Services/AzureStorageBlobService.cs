@@ -81,14 +81,26 @@ namespace Lens.Core.Blob.Services
             var blobMetadata = new BlobMetadataModel()
             {
                 RelativePathAndName = relativePathAndName,
-                FullPathAndName = relativePathAndName
+                FullPathAndName = blobClient.Uri.AbsoluteUri
             };
 
             return blobMetadata;
         }
 
-        public Task MoveBlob(string sourceRelativePathAndName, string targetRelativePathAndName)
+        public Task MoveBlobWithinContainer(string sourceRelativePathAndName, string targetRelativePathAndName)
         {
+            var containerPath = $"/{_blobServiceSettings.ContainerPath}";
+            if (sourceRelativePathAndName.StartsWith(containerPath))
+            {
+                sourceRelativePathAndName = sourceRelativePathAndName[containerPath.Length..];
+            }
+
+            if (targetRelativePathAndName.StartsWith(containerPath))
+            {
+                targetRelativePathAndName = targetRelativePathAndName[containerPath.Length..];
+            }
+
+
             BlobClient sourceBlobClient = blobcontainerClient.GetBlobClient(sourceRelativePathAndName);
             BlobClient targetBlobClient = blobcontainerClient.GetBlobClient(targetRelativePathAndName);
             var result = targetBlobClient.StartCopyFromUri(sourceBlobClient.Uri);
