@@ -91,7 +91,7 @@ namespace Lens.Core.Data.EF
             entities.RemoveRange(entitiesToDelete);
         }
 
-        public static Expression<Func<TEntity, bool>> ToCompositePredicate<TEntity>(this IEnumerable<Expression<Func<TEntity, bool>>> expressions)
+        public static Expression<Func<TEntity, bool>> ToAndCompositePredicate<TEntity>(this IEnumerable<Expression<Func<TEntity, bool>>> expressions)
             where TEntity : class, IIdEntity
         {
             ExpressionStarter<TEntity> predicate = null;
