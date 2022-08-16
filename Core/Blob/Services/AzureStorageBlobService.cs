@@ -35,9 +35,22 @@ namespace Lens.Core.Blob.Services
             BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
 
             var fStream = new MemoryStream();
-            var response = await blobClient.DownloadToAsync(fStream);
+            await blobClient.DownloadToAsync(fStream);
 
             return fStream;
+        }
+
+        public async Task<BlobDownloadResultModel> DownloadWithMetadata(string relativePathAndName)
+        {
+            BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
+
+            var fStream = new MemoryStream();
+            var response = await blobClient.DownloadToAsync(fStream);
+
+            return new BlobDownloadResultModel(
+                        fStream, 
+                        response.Headers.ContentType, 
+                        response.Headers.ContentLength);
         }
 
         public async Task<string[]> GetBlobs()
@@ -68,10 +81,30 @@ namespace Lens.Core.Blob.Services
             var blobMetadata = new BlobMetadataModel()
             {
                 RelativePathAndName = relativePathAndName,
-                FullPathAndName = relativePathAndName
+                FullPathAndName = blobClient.Uri.AbsoluteUri
             };
 
             return blobMetadata;
+        }
+
+        public Task MoveBlobWithinContainer(string sourceRelativePathAndName, string targetRelativePathAndName)
+        {
+            var containerPath = $"/{_blobServiceSettings.ContainerPath}";
+            if (sourceRelativePathAndName.StartsWith(containerPath))
+            {
+                sourceRelativePathAndName = sourceRelativePathAndName[containerPath.Length..];
+            }
+
+            if (targetRelativePathAndName.StartsWith(containerPath))
+            {
+                targetRelativePathAndName = targetRelativePathAndName[containerPath.Length..];
+            }
+
+
+            BlobClient sourceBlobClient = blobcontainerClient.GetBlobClient(sourceRelativePathAndName);
+            BlobClient targetBlobClient = blobcontainerClient.GetBlobClient(targetRelativePathAndName);
+            var result = targetBlobClient.StartCopyFromUri(sourceBlobClient.Uri);
+            return sourceBlobClient.DeleteAsync();
         }
     }
 }
