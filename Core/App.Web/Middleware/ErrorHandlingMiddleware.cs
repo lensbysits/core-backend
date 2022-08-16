@@ -106,7 +106,8 @@ namespace Lens.Core.App.Web
                     ErrorType = exceptionType.Name,
                     ErrorDetails = exception.GetFullExceptionData(),
                     Stacktrace = exception.StackTrace,
-                    CorrelationId = correlationId
+                    CorrelationId = correlationId,
+                    Data = exception.GetSerializableDataDictionary(true)
                 });
             }
             else
@@ -116,7 +117,8 @@ namespace Lens.Core.App.Web
                     IsError = true,
                     Message = exceptionMessage,
                     ErrorType = exceptionType.Name,
-                    CorrelationId = correlationId
+                    CorrelationId = correlationId,
+                    Data = exception.GetSerializableDataDictionary(true)
                 });
             }
             return context.Response.WriteAsync(result);

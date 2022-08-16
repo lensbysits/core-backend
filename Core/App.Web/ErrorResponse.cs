@@ -8,7 +8,6 @@ namespace Lens.Core.App.Web
 {
     public class ErrorResponse
     {
-        public bool IsError { get; set; } = true;
 
         public string Message { get; set; }
 
@@ -19,5 +18,7 @@ namespace Lens.Core.App.Web
         public string? Stacktrace { get; set; }
 
         public string? CorrelationId { get; set; }
+
+        public Dictionary<string, object>? Data { get; set; }
     }
 }
