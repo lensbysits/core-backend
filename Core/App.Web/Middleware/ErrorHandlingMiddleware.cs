@@ -101,7 +101,6 @@ namespace Lens.Core.App.Web
             {
                 result = JsonSerializer.Serialize(new ErrorResponse
                 {
-                    IsError = true,
                     Message = exceptionMessage,
                     ErrorType = exceptionType.Name,
                     ErrorDetails = exception.GetFullExceptionData(),
@@ -114,7 +113,6 @@ namespace Lens.Core.App.Web
             {
                 result = JsonSerializer.Serialize(new ErrorResponse
                 {
-                    IsError = true,
                     Message = exceptionMessage,
                     ErrorType = exceptionType.Name,
                     CorrelationId = correlationId,
