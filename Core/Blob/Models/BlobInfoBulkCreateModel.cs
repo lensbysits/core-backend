@@ -1,15 +1,13 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Lens.Core.Blob.Models
+namespace Lens.Core.Blob.Models;
+
+public class BlobInfoBulkCreateModel
 {
-    public class BlobInfoBulkCreateModel
-    {
-        public IEnumerable<BlobInfoInputModel> BlobInfoItems { get; set; }
-        [StringLength(20)]
-        public string ContentType { get; set; }
-        [StringLength(532)]
-        public string FilenameWithExtension { get; set; }
-        public int Size { get; set; }
-    }
+    public IEnumerable<BlobInfoInputModel> BlobInfoItems { get; set; } = null!;
+    [StringLength(20)]
+    public string? ContentType { get; set; }
+    [StringLength(532)]
+    public string FilenameWithExtension { get; set; } = null!;
+    public int Size { get; set; }
 }

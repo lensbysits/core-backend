@@ -9,7 +9,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Data.EF\Core.Data.EF.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\Migrations\" />
-  </ItemGroup>
 </Project>

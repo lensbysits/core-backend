@@ -2,91 +2,87 @@
 using Lens.Core.Lib.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
-namespace Lens.Core.Blob.Services
+namespace Lens.Core.Blob.Services;
+
+public class FilesystemBlobService : BaseService<FilesystemBlobService>, IBlobService
 {
-    public class FilesystemBlobService : BaseService<FilesystemBlobService>, IBlobService
+    private readonly BlobSettings _blobServiceSettings;
+
+    public FilesystemBlobService(
+        IApplicationService<FilesystemBlobService> applicationService, 
+        IConfiguration configuration) : base(applicationService)
     {
-        private readonly BlobSettings _blobServiceSettings;
+        _blobServiceSettings = configuration.GetSection(nameof(BlobSettings)).Get<BlobSettings>();
+    }
 
-        public FilesystemBlobService(
-            IApplicationService<FilesystemBlobService> applicationService, 
-            IConfiguration configuration) : base(applicationService)
+    public async Task<bool> DeleteBlob(string relativePathAndName)
+    {
+        var root = _blobServiceSettings.ContainerPath ?? string.Empty;
+        var path = Path.Combine(root, relativePathAndName);
+        
+        if (File.Exists(path))
         {
-            _blobServiceSettings = configuration.GetSection(nameof(BlobSettings)).Get<BlobSettings>();
+            File.Delete(path);
+        }
+        else
+        {
+            // log, but don't throw error if a blob couldn't be find at the given path.
+            ApplicationService.Logger.LogWarning($"No file found at the given path '{relativePathAndName}'.");
         }
 
-        public async Task<bool> DeleteBlob(string relativePathAndName)
-        {
-            var root = _blobServiceSettings.ContainerPath;
-            var path = Path.Combine(root, relativePathAndName);
-            
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-            else
-            {
-                // log, but don't throw error if a blob couldn't be find at the given path.
-                ApplicationService.Logger.LogWarning($"No file found at the given path '{relativePathAndName}'.");
-            }
+        return await Task.FromResult(true);
+    }
 
-            return await Task.FromResult(true);
+    public async Task<Stream> Download(string relativePathAndName)
+    {
+        var root = _blobServiceSettings.ContainerPath ?? string.Empty;
+        var path = Path.Combine(root, relativePathAndName);
+        
+        return await Task.FromResult(File.OpenRead(path));
+    }
+
+    public async Task<string[]> GetBlobs()
+    {
+        var root = _blobServiceSettings.ContainerPath ?? string.Empty;
+        var path = Path.Combine(root);
+        string[] fileEntries = Directory.GetFiles(path);
+
+        return await Task.FromResult(fileEntries);
+    }
+
+    public async Task<string> GetBlobUrl(string relativePathAndName)
+    {
+        var root = _blobServiceSettings.ContainerPath ?? string.Empty;
+        var path = Path.Combine(root, relativePathAndName);
+        
+        return File.Exists(path) 
+            ? await Task.FromResult(path.Replace(root, "~").Replace("\\", "/")) 
+            : await Task.FromResult(string.Empty);
+    }
+
+    public async Task<BlobMetadataModel> Upload(string relativePathAndName, Stream stream)
+    {
+        var extension = Path.GetExtension(relativePathAndName);
+        var newFileName = $"{Guid.NewGuid()}{extension}";
+        var relativePath = Path.GetDirectoryName(relativePathAndName) ?? string.Empty;
+        var folderPath = Path.Combine(_blobServiceSettings.ContainerPath ?? string.Empty, relativePath);
+
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+        var filePath = Path.Combine(folderPath, newFileName);
+        
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await stream.CopyToAsync(fileStream);
         }
 
-        public async Task<Stream> Download(string relativePathAndName)
-        {
-            var root = _blobServiceSettings.ContainerPath;
-            var path = Path.Combine(root, relativePathAndName);
-            
-            return await Task.FromResult(File.OpenRead(path));
-        }
-
-        public async Task<string[]> GetBlobs()
-        {
-            var root = _blobServiceSettings.ContainerPath;
-            var path = Path.Combine(root);
-            string[] fileEntries = Directory.GetFiles(path);
-
-            return await Task.FromResult(fileEntries);
-        }
-
-        public async Task<string> GetBlobUrl(string relativePathAndName)
-        {
-            var root = _blobServiceSettings.ContainerPath;
-            var path = Path.Combine(root, relativePathAndName);
-            
-            return File.Exists(path) 
-                ? await Task.FromResult(path.Replace(root, "~").Replace("\\", "/")) 
-                : await Task.FromResult(string.Empty);
-        }
-
-        public async Task<BlobMetadataModel> Upload(string relativePathAndName, Stream stream)
-        {
-            var extension = Path.GetExtension(relativePathAndName);
-            var newFileName = $"{Guid.NewGuid()}{extension}";
-            var relativePath = Path.GetDirectoryName(relativePathAndName);
-            var folderPath = Path.Combine(_blobServiceSettings.ContainerPath, relativePath);
-
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-            var filePath = Path.Combine(folderPath, newFileName);
-            
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await stream.CopyToAsync(fileStream);
-            }
-
-            return new BlobMetadataModel 
-            { 
-                RelativePathAndName = Path.Combine(relativePath, newFileName),
-                FullPathAndName = filePath 
-            };
-        }
+        return new BlobMetadataModel 
+        { 
+            RelativePathAndName = Path.Combine(relativePath, newFileName),
+            FullPathAndName = filePath 
+        };
     }
 }
