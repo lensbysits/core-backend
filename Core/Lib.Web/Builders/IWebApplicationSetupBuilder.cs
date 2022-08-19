@@ -2,11 +2,10 @@
 using Lens.Core.Lib.Builders;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lens.Core.App.Web.Builders
+namespace Lens.Core.App.Web.Builders;
+
+public interface IWebApplicationSetupBuilder : IApplicationSetupBuilder
 {
-    public interface IWebApplicationSetupBuilder : IApplicationSetupBuilder
-    {
-        IControllerOptions Controller { get; }
-        IHealthChecksBuilder HealthChecks { get; }
-    }
+    IControllerOptions Controller { get; }
+    IHealthChecksBuilder HealthChecks { get; }
 }
