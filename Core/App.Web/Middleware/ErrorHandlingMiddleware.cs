@@ -5,9 +5,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Lens.Core.Lib.Extensions;
+using CorrelationId.Abstractions;
 
 namespace Lens.Core.App.Web
 {
@@ -15,23 +18,31 @@ namespace Lens.Core.App.Web
     {
         private readonly RequestDelegate next;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private static readonly Dictionary<string, HttpStatusCode> _exceptionTypes = new()
+        private readonly ICorrelationContextAccessor correlationContext;
+        private static readonly Dictionary<Type, HttpStatusCode> _exceptionTypes = new()
         {
-            {typeof(NotFoundException).Name, HttpStatusCode.NotFound},
-            {typeof(BadRequestException).Name, HttpStatusCode.BadRequest},
-            {typeof(NotAllowedException).Name, HttpStatusCode.MethodNotAllowed},
-            {typeof(UnauthorizedException).Name, HttpStatusCode.Unauthorized},
-            {typeof(ForbiddenException).Name, HttpStatusCode.Forbidden},
-            {typeof(FormatException).Name, HttpStatusCode.BadRequest},
-            {typeof(DivideByZeroException).Name, HttpStatusCode.BadRequest},
-            {typeof(NullReferenceException).Name, HttpStatusCode.BadRequest},
+            {typeof(NotFoundException), HttpStatusCode.NotFound},
+            {typeof(BadRequestException), HttpStatusCode.BadRequest},
+            {typeof(NotAllowedException), HttpStatusCode.MethodNotAllowed},
+            {typeof(UnauthorizedException), HttpStatusCode.Unauthorized},
+            {typeof(ForbiddenException), HttpStatusCode.Forbidden},
+            {typeof(FormatException), HttpStatusCode.BadRequest},
+            {typeof(DivideByZeroException), HttpStatusCode.BadRequest},
+            {typeof(NullReferenceException), HttpStatusCode.BadRequest},
+            {typeof(InvalidCastException), HttpStatusCode.BadRequest},
+            {typeof(InvalidOperationException), HttpStatusCode.BadRequest},
+            {typeof(ValidationException), HttpStatusCode.UnprocessableEntity},
+            {typeof(ArgumentException), HttpStatusCode.UnprocessableEntity},
+            {typeof(ArgumentNullException), HttpStatusCode.UnprocessableEntity},
+            {typeof(InvalidDataException), HttpStatusCode.UnprocessableEntity},
         };
         protected readonly ILogger _logger;
 
-        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger, IWebHostEnvironment webHostEnvironment)
+        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger, IWebHostEnvironment webHostEnvironment, ICorrelationContextAccessor correlationContext)
         {
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
+            this.correlationContext = correlationContext;
             this.next = next;
         }
 
@@ -48,35 +59,66 @@ namespace Lens.Core.App.Web
         }
 
         #region Private Methods
+        private HttpStatusCode GetHttpStatusCodeForException(Type exceptionType)
+        {
+            foreach (var kv in _exceptionTypes)
+            {
+                if (exceptionType.Equals(kv.Key) || exceptionType.IsSubclassOf(kv.Key))
+                {
+                    return kv.Value;
+                }
+            }
+
+            return HttpStatusCode.InternalServerError;
+        }
+
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var exceptionMessage = GetExceptionMessage(exception);
+            var exceptionType = exception.GetType();
+            var serializedData = JsonSerializer.Serialize(exception.Data);
+            var correlationId = correlationContext.CorrelationContext.CorrelationId;
+            HttpStatusCode httpStatusCodeForException = GetHttpStatusCodeForException(exceptionType);
             
-            var basicExceptionResult = JsonSerializer.Serialize(new 
-            { 
-                message = exceptionMessage, data = exception.Data 
-            });
-            var fullExceptionResult = JsonSerializer.Serialize(new 
-            { 
-                message = exceptionMessage, data = exception.Data, exception = exception.ToString() 
-            });
-
-            if (_exceptionTypes.TryGetValue(exception.GetType().Name, out HttpStatusCode exceptionCode))
+            if (httpStatusCodeForException != HttpStatusCode.InternalServerError)
             {
                 // log as warning the expected exceptions
-                _logger.LogWarning($"Expected exception ({(int)exceptionCode})-{exceptionCode}: {basicExceptionResult}"); 
+                _logger.LogWarning(exception, $"Exception: {exceptionType.Name} (expected): HTTP Status: {(int)httpStatusCodeForException} ({httpStatusCodeForException}): {exceptionMessage} (data: {serializedData})"); 
             }
             else
             {
                 // log as error the unexpected exceptions
-                exceptionCode = HttpStatusCode.InternalServerError; 
-                _logger.LogError(exception, $"Unexpected exception ({(int)exceptionCode})-{exceptionCode}");
+                httpStatusCodeForException = HttpStatusCode.InternalServerError; 
+                _logger.LogError(exception, $"Exception: {exceptionType.Name} (unexpected): HTTP Status: {(int)httpStatusCodeForException} ({httpStatusCodeForException}): {exceptionMessage} (data: {serializedData})");
             }
 
-            string result = _webHostEnvironment.IsDevelopment() ? fullExceptionResult : basicExceptionResult;
             
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)exceptionCode;
+            context.Response.StatusCode = (int)httpStatusCodeForException;
+            string result = string.Empty;
+
+            if (_webHostEnvironment.IsDevelopment())
+            {
+                result = JsonSerializer.Serialize(new ErrorResponse
+                {
+                    Message = exceptionMessage,
+                    ErrorType = exceptionType.Name,
+                    ErrorDetails = exception.GetFullExceptionData(),
+                    Stacktrace = exception.StackTrace,
+                    CorrelationId = correlationId,
+                    Data = exception.GetSerializableDataDictionary(true)
+                });
+            }
+            else
+            {
+                result = JsonSerializer.Serialize(new ErrorResponse
+                {
+                    Message = exceptionMessage,
+                    ErrorType = exceptionType.Name,
+                    CorrelationId = correlationId,
+                    Data = exception.GetSerializableDataDictionary(true)
+                });
+            }
             return context.Response.WriteAsync(result);
         }
 

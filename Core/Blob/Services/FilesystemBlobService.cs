@@ -88,5 +88,15 @@ namespace Lens.Core.Blob.Services
                 FullPathAndName = filePath 
             };
         }
+
+        public Task<BlobDownloadResultModel> DownloadWithMetadata(string relativePathAndName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task MoveBlobWithinContainer(string sourceRelativePathAndName, string targetRelativePathAndName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
