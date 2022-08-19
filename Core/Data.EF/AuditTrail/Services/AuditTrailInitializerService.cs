@@ -1,33 +1,30 @@
 ﻿using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
-namespace Lens.Core.Data.EF.AuditTrail.Services
+namespace Lens.Core.Data.EF.AuditTrail.Services;
+
+public class AuditTrailInitializerService : BaseService<AuditTrailInitializerService>, IProgramInitializer
 {
-    public class AuditTrailInitializerService : BaseService<AuditTrailInitializerService>, IProgramInitializer
+    protected readonly AuditTrailDbContext _dbContext;
+
+    public AuditTrailInitializerService(IApplicationService<AuditTrailInitializerService> applicationService,
+        AuditTrailDbContext dbContext)
+        : base(applicationService)
     {
-        protected readonly AuditTrailDbContext _dbContext;
+        _dbContext = dbContext;
+    }
 
-        public AuditTrailInitializerService(IApplicationService<AuditTrailInitializerService> applicationService,
-            AuditTrailDbContext dbContext)
-            : base(applicationService)
+    public async Task Initialize()
+    {
+        try
         {
-            _dbContext = dbContext;
+            await _dbContext.Database.MigrateAsync();
         }
-
-        public async Task Initialize()
+        catch (Exception ex)
         {
-            try
-            {
-                await _dbContext.Database.MigrateAsync();
-            }
-            catch (Exception ex)
-            {
-                ApplicationService.Logger.LogError(ex, "An error had occured when applying audittrail db migrations.");
-                return;
-            }
+            ApplicationService.Logger.LogError(ex, "An error had occured when applying audittrail db migrations.");
+            return;
         }
     }
 }

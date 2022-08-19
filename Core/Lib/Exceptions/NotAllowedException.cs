@@ -1,21 +1,18 @@
-﻿using System;
+﻿namespace Lens.Core.Lib.Exceptions;
 
-namespace Lens.Core.Lib.Exceptions
+public class NotAllowedException : Exception
 {
-    public class NotAllowedException : Exception
+    public NotAllowedException()
     {
-        public NotAllowedException()
-        {
-        }
+    }
 
-        public NotAllowedException(string message)
-            : base(message)
-        {
-        }
+    public NotAllowedException(string message)
+        : base(message)
+    {
+    }
 
-        public NotAllowedException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
+    public NotAllowedException(string message, Exception inner)
+        : base(message, inner)
+    {
     }
 }

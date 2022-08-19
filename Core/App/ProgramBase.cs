@@ -16,23 +16,23 @@ namespace Lens.Core.App
         /// <summary>
         /// Allows the overriding class to add additional configuration sources while settting up the Logging Configuration
         /// </summary>
-        protected static Action<IConfigurationBuilder> LoggingConfigurationSetup { get; set; }
+        protected static Action<IConfigurationBuilder>? LoggingConfigurationSetup { get; set; }
 
         /// <summary>
         /// Allows to add configuration to serilogger, while it's being built. 
         /// The bool is if the logger configuration is about the bootstrapped logger, or the real application logger.
         /// </summary>
-        protected static Action<LoggerConfiguration, bool, IConfiguration> SeriloggerConfigurationSetup { get; set; }
+        protected static Action<LoggerConfiguration, bool, IConfiguration>? SeriloggerConfigurationSetup { get; set; }
 
         /// <summary>
         /// Allows the overriding class to add additional configuration sources while settting up the Host Configuration
         /// </summary>
-        protected static Action<IConfigurationBuilder> HostConfigurationSetup { get; set; }
+        protected static Action<IConfigurationBuilder>? HostConfigurationSetup { get; set; }
 
         /// <summary>
         /// Allows the overriding class to add additional configuration sources while settting up the App Configuration
         /// </summary>
-        protected static Action<IConfigurationBuilder> AppConfigurationSetup { get; set; }
+        protected static Action<IConfigurationBuilder>? AppConfigurationSetup { get; set; }
 
         public static async Task<int> Start(string[] args, Func<string[], IHostBuilder> appHostBuilder)
         {
@@ -135,7 +135,7 @@ namespace Lens.Core.App
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Error running initializer {initializer}", initializer.GetType().Name);
+                    logger?.LogError(e, "Error running initializer {initializer}", initializer.GetType().Name);
                 }
             }
         }

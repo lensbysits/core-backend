@@ -8,10 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Lens.Core.App.Web.Authentication;
 
@@ -85,7 +81,7 @@ internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSe
                     TokenUrl = new Uri($"{swaggerSettings.Authority}token"),
                     Scopes = new Dictionary<string, string>
                             {
-                                {swaggerSettings.Scope, swaggerSettings.ScopeName}
+                                {swaggerSettings.Scope ?? string.Empty, swaggerSettings.ScopeName ?? string.Empty }
                             }
                 }
             }

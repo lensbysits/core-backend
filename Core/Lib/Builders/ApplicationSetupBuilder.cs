@@ -4,50 +4,49 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Lens.Core.Lib.Builders
+namespace Lens.Core.Lib.Builders;
+
+public class ApplicationSetupBuilder : IApplicationSetupBuilder
 {
-    public class ApplicationSetupBuilder : IApplicationSetupBuilder
+    public IServiceCollection Services { get; }
+    public IConfiguration Configuration { get; }
+
+
+    public List<Assembly> Assemblies { get; } = new List<Assembly>();
+
+    public ApplicationSetupBuilder(IServiceCollection services, IConfiguration configuration)
     {
-        public IServiceCollection Services { get; }
-        public IConfiguration Configuration { get; }
+        Services = services;
+        Configuration = configuration;
+        Assemblies.Add(Assembly.GetEntryAssembly()!);
+    }
 
-
-        public List<Assembly> Assemblies { get; } = new List<Assembly>();
-
-        public ApplicationSetupBuilder(IServiceCollection services, IConfiguration configuration)
+    /// <summary>
+    /// Add assemblies that will be scanned for AutoMapper profiles and MediatR handlers.
+    /// The entry-assembly is added by default.
+    /// </summary>
+    public IApplicationSetupBuilder AddAssemblies(params Assembly[] assemblies)
+    {
+        foreach (var assembly in assemblies)
         {
-            Services = services;
-            Configuration = configuration;
-            Assemblies.Add(Assembly.GetEntryAssembly());
-        }
-
-        /// <summary>
-        /// Add assemblies that will be scanned for AutoMapper profiles and MediatR handlers.
-        /// The entry-assembly is added by default.
-        /// </summary>
-        public IApplicationSetupBuilder AddAssemblies(params Assembly[] assemblies)
-        {
-            foreach (var assembly in assemblies)
+            if (!Assemblies.Contains(assembly))
             {
-                if (!Assemblies.Contains(assembly))
-                {
-                    Assemblies.Add(assembly);
-                }
+                Assemblies.Add(assembly);
             }
-
-            return this;
         }
 
-        public IApplicationSetupBuilder AddAutoMapper()
-        {
-            Services.AddAutoMapper(Assemblies);
-            return this;
-        }
+        return this;
+    }
 
-        public IApplicationSetupBuilder AddMediatR()
-        {
-            Services.AddMediatR(Assemblies.ToArray());
-            return this;
-        }
+    public IApplicationSetupBuilder AddAutoMapper()
+    {
+        Services.AddAutoMapper(Assemblies);
+        return this;
+    }
+
+    public IApplicationSetupBuilder AddMediatR()
+    {
+        Services.AddMediatR(Assemblies.ToArray());
+        return this;
     }
 }

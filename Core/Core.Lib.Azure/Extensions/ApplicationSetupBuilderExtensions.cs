@@ -1,27 +1,21 @@
 ﻿using Lens.Core.Lib.Builders;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Lens.Core.Lib.Azure.Extensions
+namespace Lens.Core.Lib.Azure.Extensions;
+
+public static class ApplicationSetupBuilderExtensions
 {
-    public static class ApplicationSetupBuilderExtensions
+    public static IApplicationSetupBuilder AddAzureApplicationsInsightsForWeb(this IApplicationSetupBuilder applicationSetup)
     {
-        public static IApplicationSetupBuilder AddAzureApplicationsInsightsForWeb(this IApplicationSetupBuilder applicationSetup)
-        {
-            applicationSetup.Services.AddApplicationInsightsTelemetry(applicationSetup.Configuration);
+        applicationSetup.Services.AddApplicationInsightsTelemetry(applicationSetup.Configuration);
 
-            return applicationSetup;
-        }
+        return applicationSetup;
+    }
 
-        public static IApplicationSetupBuilder AddAzureApplicationsInsightsForWorkers(this IApplicationSetupBuilder applicationSetup)
-        {
-            applicationSetup.Services.AddApplicationInsightsTelemetryWorkerService(applicationSetup.Configuration);
+    public static IApplicationSetupBuilder AddAzureApplicationsInsightsForWorkers(this IApplicationSetupBuilder applicationSetup)
+    {
+        applicationSetup.Services.AddApplicationInsightsTelemetryWorkerService(applicationSetup.Configuration);
 
-            return applicationSetup;
-        }
+        return applicationSetup;
     }
 }

@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
-using System;
-using System.Linq;
 using System.Text;
 
 namespace Lens.Core.App.Web.Authentication;
