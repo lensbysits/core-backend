@@ -1,27 +1,20 @@
 ﻿using Lens.Core.Data.EF.AuditTrail.Entities;
+using Lens.Core.Data.EF.Services;
+using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace Lens.Core.Data.EF.AuditTrail
+namespace Lens.Core.Data.EF.AuditTrail;
+
+public class AuditTrailDbContext : ApplicationDbContext
 {
-    public class AuditTrailDbContext : DbContext
+    public AuditTrailDbContext(DbContextOptions options, IUserContext userContext, IEnumerable<IModelBuilderService> modelBuilders) : base(options, userContext, modelBuilders)
     {
-        public AuditTrailDbContext(DbContextOptions<AuditTrailDbContext> options) : base(options)
-        {
-        }
+    }
 
-        public DbSet<EntityChange> EntityChanges { get; set; }
+    public DbSet<EntityChange> EntityChanges { get; set; } = null!;
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<EntityChange>(builder =>
-            {
-                if (!Database.IsSqlServer()) return;
-
-                builder
-                    .Property(e => e.Id)
-                    .HasDefaultValueSql("newsequentialid()")
-                    .ValueGeneratedOnAdd();
-            });
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
     }
 }
