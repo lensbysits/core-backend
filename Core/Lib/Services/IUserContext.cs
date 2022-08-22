@@ -1,4 +1,4 @@
-﻿namespace Lens.Core.Lib.Services;
+namespace Lens.Core.Lib.Services;
 
 public interface IUserContext
 {

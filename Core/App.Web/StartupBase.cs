@@ -45,10 +45,15 @@ public class StartupBase
         var applicationSetup = new WebApplicationSetupBuilder(services, Configuration);
         OnSetupApplication(applicationSetup);
 
-        services
-            .AddAuthentication(Configuration)
-            .AddCors(Configuration)
-            .AddSwagger(Configuration);
+            services
+                .AddDefaultCorrelationId(config =>
+                {
+                    config.AddToLoggingScope = true;
+                    config.UpdateTraceIdentifier = true;
+                })
+                .AddAuthentication(Configuration)
+                .AddCors(Configuration)
+                .AddSwagger(Configuration);
 
         var mvcBuilder = applicationSetup.ControllerOptions.UsingViews ?
             services.AddControllersWithViews(options => ConfigureControllers(options, applicationSetup)) :
@@ -100,7 +105,7 @@ public class StartupBase
             .UseSwagger(Configuration)
             .UseSwaggerUI(Configuration);
 
-        app.UseAuthentication(Configuration);
+        app.UseCorrelationId();
 
         app.UseErrorHandling();
 

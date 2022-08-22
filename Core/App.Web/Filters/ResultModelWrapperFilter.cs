@@ -40,8 +40,13 @@ public class ResultModelWrapperFilter : IResultFilter
         if (value is IResultModel)
             return value;
 
+        // If the value is a string, make a wrapper-object with the value of type string;
+        if (value is string)
+        {
+            resultType = valueType;
+        }
         // If the result is some kind of IEnumerable
-        if (value is IEnumerable || valueType.IsArray)
+        else if (value is IEnumerable || valueType.IsArray)
         {
             // Get the type of the objects in the array;
             if (valueType.IsArray)
@@ -54,7 +59,8 @@ public class ResultModelWrapperFilter : IResultFilter
             // Else get the type of the objects in the IEnumerable
             else
             {
-                resultType = resultType.GetGenericArguments()[0];
+                    if(resultType.IsGenericType)
+                    resultType = resultType.GetGenericArguments()[0];
             }
 
             // Create a typed ResultListModel from the resultType found earlier.

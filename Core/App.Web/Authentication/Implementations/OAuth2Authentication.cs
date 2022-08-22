@@ -132,3 +132,4 @@ internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSe
         }
     }
 }
+
