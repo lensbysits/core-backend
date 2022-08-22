@@ -26,7 +26,7 @@ internal sealed class AnonymousAuthentication : IAuthenticationMethod
         }
     }
 
-    public void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions)
+    public void Configure(IServiceCollection services, Action<AuthorizationOptions>? authorizationOptions)
     {
         services.AddHttpContextAccessor();
     }

@@ -24,7 +24,7 @@ internal abstract class AuthenticationBase<T> : IAuthenticationMethod where T : 
 
     public virtual void ApplyMvcFilters(FilterCollection filters) { }
 
-    public virtual void Configure(IServiceCollection services, Action<AuthorizationOptions> authorizationOptions) { }
+    public virtual void Configure(IServiceCollection services, Action<AuthorizationOptions>? authorizationOptions) { }
 
     public virtual void ConfigureSwaggerAuth(SwaggerGenOptions options, SwaggerSettings swaggerSettings) { }
 

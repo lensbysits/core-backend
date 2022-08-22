@@ -1,5 +1,5 @@
 ﻿using System.Text.Encodings.Web;
-
+using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models;
 

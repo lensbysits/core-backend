@@ -3,49 +3,50 @@ using Lens.Core.Lib.Builders;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace Lens.Core.Lib.Azure.Extensions;
+
 public static class ApplicationSetupBuilderExtensions
 {
     public static IApplicationSetupBuilder AddAzureApplicationsInsightsForWeb(this IApplicationSetupBuilder applicationSetup)
     {
         applicationSetup.Services.AddApplicationInsightsTelemetry(applicationSetup.Configuration);
 
-            return applicationSetup;
-        }
+        return applicationSetup;
+    }
 
-        public static IApplicationSetupBuilder AddAzureApplicationsInsightsForWorkers(this IApplicationSetupBuilder applicationSetup)
+    public static IApplicationSetupBuilder AddAzureApplicationsInsightsForWorkers(this IApplicationSetupBuilder applicationSetup)
+    {
+        applicationSetup.Services.AddApplicationInsightsTelemetryWorkerService(applicationSetup.Configuration);
+
+        return applicationSetup;
+    }
+
+    public static IApplicationSetupBuilder AddAzureClients(this IApplicationSetupBuilder applicationSetup)
+    {
+        applicationSetup.Services.AddAzureClients(builder =>
         {
-            applicationSetup.Services.AddApplicationInsightsTelemetryWorkerService(applicationSetup.Configuration);
+            var keyvaultName = applicationSetup.Configuration["KeyVault:Vault"];
 
-            return applicationSetup;
-        }
-
-        public static IApplicationSetupBuilder AddAzureClients(this IApplicationSetupBuilder applicationSetup)
-        {
-            applicationSetup.Services.AddAzureClients(builder =>
+            if (!string.IsNullOrEmpty(keyvaultName))
             {
-                var keyvaultName = applicationSetup.Configuration["KeyVault:Vault"];
-
-                if (!string.IsNullOrEmpty(keyvaultName))
-                {
-                    builder.AddSecretClient(new Uri($"https://{keyvaultName}.vault.azure.net/"));
-                }
+                builder.AddSecretClient(new Uri($"https://{keyvaultName}.vault.azure.net/"));
+            }
 
 
-                var blobStorageProvider = applicationSetup.Configuration["BlobSettings:Provider"];
-                var blobStorageConnectionString = applicationSetup.Configuration["BlobSettings:ConnectionString"];
+            var blobStorageProvider = applicationSetup.Configuration["BlobSettings:Provider"];
+            var blobStorageConnectionString = applicationSetup.Configuration["BlobSettings:ConnectionString"];
 
-                if (!string.IsNullOrEmpty(blobStorageProvider) && blobStorageProvider.Equals("azure", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(blobStorageConnectionString))
-                {
-                    // blob storage will be added as singleton: https://docs.microsoft.com/en-us/dotnet/azure/sdk/thread-safety#client-lifetime
-                    builder.AddBlobServiceClient(blobStorageConnectionString);
-                }
+            if (!string.IsNullOrEmpty(blobStorageProvider) && blobStorageProvider.Equals("azure", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrEmpty(blobStorageConnectionString))
+            {
+                // blob storage will be added as singleton: https://docs.microsoft.com/en-us/dotnet/azure/sdk/thread-safety#client-lifetime
+                builder.AddBlobServiceClient(blobStorageConnectionString);
+            }
 
-                builder.UseCredential(new DefaultAzureCredential());
+            builder.UseCredential(new DefaultAzureCredential());
 
-                builder.ConfigureDefaults(applicationSetup.Configuration.GetSection("AzureDefaults"));
-            });
+            builder.ConfigureDefaults(applicationSetup.Configuration.GetSection("AzureDefaults"));
+        });
 
-            return applicationSetup;
-        }
+        return applicationSetup;
     }
 }

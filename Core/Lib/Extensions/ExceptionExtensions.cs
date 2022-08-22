@@ -4,14 +4,14 @@ namespace Lens.Core.Lib.Extensions;
 
 public static class ExceptionExtensions
 {
-    public static Dictionary<string, object> GetSerializableDataDictionary(this Exception e, bool includeInnerExceptionData = false)
+    public static Dictionary<string, object>? GetSerializableDataDictionary(this Exception e, bool includeInnerExceptionData = false)
     {
         if (e == null || e.Data == null || e.Data.Count == 0)
         {
             return null;
         }
 
-        Dictionary<string, object> dataResult = new Dictionary<string, object>();
+        Dictionary<string, object> dataResult = new();
 
         foreach (var k in e.Data.Keys)
         {
@@ -20,7 +20,7 @@ public static class ExceptionExtensions
                 continue;
             }
 
-            dataResult.TryAdd(k.ToString(), e.Data[k]);
+            dataResult.TryAdd(k.ToString()!, e.Data[k]!);
         }
 
         if (includeInnerExceptionData && e.InnerException != null)
@@ -43,56 +43,57 @@ public static class ExceptionExtensions
     }
 
 
-public static string GetFullExceptionData(this Exception e)
-{
-    if (e == null)
+    public static string GetFullExceptionData(this Exception e)
     {
-        return string.Empty;
-    }
-
-    StringBuilder exceptionMessage = new StringBuilder(e.Message);
-
-    exceptionMessage.Append(" (" + e.GetType().Name + "):" + Environment.NewLine);
-
-    if (e.Data != null && e.Data?.Count > 0)
-    {
-        var items = new List<string>(e.Data.Count);
-        foreach (var k in e.Data.Keys)
+        if (e == null)
         {
-            if (k == null)
+            return string.Empty;
+        }
+
+        StringBuilder exceptionMessage = new StringBuilder(e.Message);
+
+        exceptionMessage.Append(" (" + e.GetType().Name + "):" + Environment.NewLine);
+
+        if (e.Data != null && e.Data?.Count > 0)
+        {
+            var items = new List<string>(e.Data.Count);
+            foreach (var k in e.Data.Keys)
             {
-                continue;
+                if (k == null)
+                {
+                    continue;
+                }
+
+                var v = e.Data[k];
+
+                if (v != null && v.GetType().IsValueType)
+                {
+                    items.Add(string.Concat(k.ToString(), ": ", v.ToString()));
+                }
             }
 
-            var v = e.Data[k];
-
-            if (v != null && v.GetType().IsValueType)
+            if (items.AnyOrDefault())
             {
-                items.Add(string.Concat(k.ToString(), ": ", v.ToString()));
+                exceptionMessage.AppendLine(string.Concat("\tError Data: ", string.Join(", ", items)));
             }
         }
 
-        if (items.AnyOrDefault())
+        exceptionMessage.AppendLine(String.Concat("\t Source: ", e.Source ?? ""));
+        exceptionMessage.AppendLine(String.Concat("\t Stack Trace: ", e.StackTrace ?? ""));
+
+        if (e.InnerException != null)
         {
-            exceptionMessage.AppendLine(string.Concat("\tError Data: ", string.Join(", ", items)));
+            exceptionMessage.AppendLine("Inner Exception: ");
+
+
+            var fullE = GetFullExceptionData(e.InnerException);
+
+            if (!string.IsNullOrEmpty(fullE))
+            {
+                exceptionMessage.AppendLine(fullE);
+            }
         }
+
+        return exceptionMessage.ToString();
     }
-
-    exceptionMessage.AppendLine(String.Concat("\t Source: ", e.Source ?? ""));
-    exceptionMessage.AppendLine(String.Concat("\t Stack Trace: ", e.StackTrace ?? ""));
-
-    if (e.InnerException != null)
-    {
-        exceptionMessage.AppendLine("Inner Exception: ");
-
-
-        var fullE = GetFullExceptionData(e.InnerException);
-
-        if (!string.IsNullOrEmpty(fullE))
-        {
-            exceptionMessage.AppendLine(fullE);
-        }
-    }
-
-    return exceptionMessage.ToString();
 }

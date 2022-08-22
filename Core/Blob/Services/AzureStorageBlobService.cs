@@ -19,88 +19,85 @@ public class AzureStorageBlobService : BaseService<AzureStorageBlobService>, IBl
         this.blobcontainerClient = blobServiceClient.GetBlobContainerClient(_blobServiceSettings.ContainerPath);
     }
 
-        public async Task<bool> DeleteBlob(string relativePathAndName)
-        {
-            BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
-
-            return (await blobClient.DeleteIfExistsAsync()).Value;
-        }
-
-        public async Task<Stream> Download(string relativePathAndName)
-        {
-            BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
-
-            var fStream = new MemoryStream();
-            await blobClient.DownloadToAsync(fStream);
-
-            return fStream;
-        }
-
-        public async Task<BlobDownloadResultModel> DownloadWithMetadata(string relativePathAndName)
-        {
-            BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
-
-            var fStream = new MemoryStream();
-            var response = await blobClient.DownloadToAsync(fStream);
-
-            return new BlobDownloadResultModel(
-                        fStream, 
-                        response.Headers.ContentType, 
-                        response.Headers.ContentLength);
-        }
-
-        public async Task<string[]> GetBlobs()
-        {
-            var values = new List<string>();
-            await foreach (BlobItem blob in blobcontainerClient.GetBlobsAsync())
-            {
-                values.Add(blob.Name);
-            }
-
-            return values.ToArray();
-        }
-
-    public async Task<string> GetBlobUrl(string relativePathAndName)
+    public async Task<bool> DeleteBlob(string relativePathAndName)
     {
         BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
 
+        return (await blobClient.DeleteIfExistsAsync()).Value;
+    }
 
-            return blobClient.Uri.AbsoluteUri.ToString();
+    public async Task<Stream> Download(string relativePathAndName)
+    {
+        BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
+
+        var fStream = new MemoryStream();
+        await blobClient.DownloadToAsync(fStream);
+
+        return fStream;
+    }
+
+    public async Task<BlobDownloadResultModel> DownloadWithMetadata(string relativePathAndName)
+    {
+        BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
+
+        var fStream = new MemoryStream();
+        var response = await blobClient.DownloadToAsync(fStream);
+
+        return new BlobDownloadResultModel(
+                    fStream, 
+                    response.Headers.ContentType!, 
+                    response.Headers.ContentLength);
+    }
+
+    public async Task<string[]> GetBlobs()
+    {
+        var values = new List<string>();
+        await foreach (BlobItem blob in blobcontainerClient.GetBlobsAsync())
+        {
+            values.Add(blob.Name);
+        }
+
+        return values.ToArray();
+    }
+
+    public Task<string> GetBlobUrl(string relativePathAndName)
+    {
+        BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
+        return Task.FromResult(blobClient.Uri.AbsoluteUri.ToString());
     }
 
     public async Task<BlobMetadataModel> Upload(string relativePathAndName, Stream stream)
     {
         BlobClient blobClient = blobcontainerClient.GetBlobClient(relativePathAndName);
 
-            var uploadInfo = await blobClient.UploadAsync(stream);
+        var uploadInfo = await blobClient.UploadAsync(stream);
 
-            var blobMetadata = new BlobMetadataModel()
-            {
-                RelativePathAndName = relativePathAndName,
-                FullPathAndName = blobClient.Uri.AbsoluteUri
-            };
+        var blobMetadata = new BlobMetadataModel()
+        {
+            RelativePathAndName = relativePathAndName,
+            FullPathAndName = blobClient.Uri.AbsoluteUri
+        };
 
-            return blobMetadata;
+        return blobMetadata;
     }
 
     public Task MoveBlobWithinContainer(string sourceRelativePathAndName, string targetRelativePathAndName)
     {
         var containerPath = $"/{_blobServiceSettings.ContainerPath}";
-            if (sourceRelativePathAndName.StartsWith(containerPath))
-            {
-                sourceRelativePathAndName = sourceRelativePathAndName[containerPath.Length..];
+        if (sourceRelativePathAndName.StartsWith(containerPath))
+        {
+            sourceRelativePathAndName = sourceRelativePathAndName[containerPath.Length..];
         }
 
-            if (targetRelativePathAndName.StartsWith(containerPath))
-            {
-                targetRelativePathAndName = targetRelativePathAndName[containerPath.Length..];
-            }
-
-
-            BlobClient sourceBlobClient = blobcontainerClient.GetBlobClient(sourceRelativePathAndName);
-            BlobClient targetBlobClient = blobcontainerClient.GetBlobClient(targetRelativePathAndName);
-            var result = targetBlobClient.StartCopyFromUri(sourceBlobClient.Uri);
-            return sourceBlobClient.DeleteAsync();
+        if (targetRelativePathAndName.StartsWith(containerPath))
+        {
+            targetRelativePathAndName = targetRelativePathAndName[containerPath.Length..];
         }
+
+
+        BlobClient sourceBlobClient = blobcontainerClient.GetBlobClient(sourceRelativePathAndName);
+        BlobClient targetBlobClient = blobcontainerClient.GetBlobClient(targetRelativePathAndName);
+        var result = targetBlobClient.StartCopyFromUri(sourceBlobClient.Uri);
+        return sourceBlobClient.DeleteAsync();
     }
 }

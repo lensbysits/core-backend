@@ -1,4 +1,6 @@
-﻿using Lamar;
+﻿using CorrelationId;
+using CorrelationId.DependencyInjection;
+using Lamar;
 using Lamar.Scanning.Conventions;
 using Lens.Core.App.Web.Authentication;
 using Lens.Core.App.Web.Builders;

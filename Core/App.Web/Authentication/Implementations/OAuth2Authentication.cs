@@ -27,7 +27,7 @@ internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSe
 
     public override void Configure(
         IServiceCollection services,
-        Action<AuthorizationOptions> authorizationOptions)
+        Action<AuthorizationOptions>? authorizationOptions)
     {
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

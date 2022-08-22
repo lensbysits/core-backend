@@ -119,7 +119,7 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            return corsSettings!.Origins;
+            return corsSettings!.Origins!;
         }
     }
 }
