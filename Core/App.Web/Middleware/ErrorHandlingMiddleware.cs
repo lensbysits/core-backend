@@ -1,6 +1,7 @@
 ﻿using CorrelationId.Abstractions;
 using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Extensions;
+using Lens.Core.Lib.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
@@ -55,7 +56,7 @@ public class ErrorHandlingMiddleware
     }
 
     #region Private Methods
-    private HttpStatusCode GetHttpStatusCodeForException(Type exceptionType)
+    private static HttpStatusCode GetHttpStatusCodeForException(Type exceptionType)
     {
         foreach (var kv in _exceptionTypes)
         {
@@ -95,7 +96,7 @@ public class ErrorHandlingMiddleware
 
         if (_webHostEnvironment.IsDevelopment())
         {
-            result = JsonSerializer.Serialize(new ErrorResponse
+            result = JsonSerializer.Serialize(new ErrorResultModel
             {
                 Message = exceptionMessage,
                 ErrorType = exceptionType.Name,
@@ -107,7 +108,7 @@ public class ErrorHandlingMiddleware
         }
         else
         {
-            result = JsonSerializer.Serialize(new ErrorResponse
+            result = JsonSerializer.Serialize(new ErrorResultModel
             {
                 Message = exceptionMessage,
                 ErrorType = exceptionType.Name,

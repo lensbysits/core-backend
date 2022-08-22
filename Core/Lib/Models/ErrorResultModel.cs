@@ -1,7 +1,13 @@
-﻿namespace Lens.Core.App.Web;
+﻿using Lens.Core.Lib.Models;
 
-public class ErrorResponse
+namespace Lens.Core.Lib.Models;
+
+public class ErrorResultModel : ResultModel<object?>
 {
+    public ErrorResultModel()
+    {
+        ValueType = ResultModelValueType.empty;
+    }
 
     public string? Message { get; set; }
 
