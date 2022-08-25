@@ -75,6 +75,30 @@ namespace Lens.Core.App.Web
                     Version = "v1" 
                 });
 
+                foreach(var definition in swaggerSettings.ExtraDefinitions)
+                {
+                    options.SwaggerDoc(definition.GroupName, new OpenApiInfo
+                    {
+                        Title = definition.AppName,
+                        Version = definition.VersionInfo
+                    });
+                }                
+
+                options.DocInclusionPredicate((docName, api) =>
+                {
+                    // if we have a groupname on the endpoint (set by ApiExplorerSettingsAttribute)
+                    // the Groupname must equal the current docName
+                    if (!string.IsNullOrWhiteSpace(api.GroupName))
+                    {
+                        var groups = api.GroupName.ToLowerInvariant().Split('|', StringSplitOptions.RemoveEmptyEntries);
+                        return groups.Contains(docName.ToLowerInvariant());
+                    }
+
+                    // for backwards compatibility we return all endpoints
+                    // if the document is v1
+                    return docName.Equals("v1");
+                });
+
                 if (!string.IsNullOrEmpty(swaggerSettings?.ApiHostname))
                 {
                     options.AddServer(new OpenApiServer
