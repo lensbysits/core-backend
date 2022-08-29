@@ -1,8 +1,7 @@
-﻿namespace Lens.Core.Data.EF.Entities
+﻿namespace Lens.Core.Data.EF.Entities;
+
+public interface IImageEntity
 {
-    public interface IImageEntity
-    {
-        public byte[] Image { get; set; }
-        public string ImageType { get; set; }
-    }
+    public byte[]? Image { get; set; }
+    public string? ImageType { get; set; }
 }

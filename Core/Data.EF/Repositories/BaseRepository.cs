@@ -3,11 +3,7 @@ using Lens.Core.Data.EF.Entities;
 using Lens.Core.Data.Repositories;
 using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Lens.Core.Data.EF.Repositories;
 
@@ -23,13 +19,13 @@ public abstract class BaseRepository<TDbContext> : IRepository<TDbContext>
     protected TDbContext DbContext { get; }
     protected IApplicationService<BaseRepository<TDbContext>> ApplicationService { get; }
 
-    public virtual Task<TResult> Create<TResult>(object model) { return default; }
+    public virtual Task<TResult> Create<TResult>(object model) { return Task.FromResult<TResult>(default!); }
 
-    public virtual Task<IEnumerable<TResult>> Create<TResult>(IEnumerable<object> models) { return default; }
+    public virtual Task<IEnumerable<TResult>> Create<TResult>(IEnumerable<object> models) { return Task.FromResult<IEnumerable<TResult>>(default!); }
 
-    public virtual Task<TModel> Get<TModel>(Guid id) { return default; }
+    public virtual Task<TModel> Get<TModel>(Guid id) { return Task.FromResult<TModel>(default!); }
 
-    public virtual Task<IEnumerable<TModel>> Get<TModel>(Expression<Func<TModel, int, bool>> predicate = null) { return default; }
+    public virtual Task<IEnumerable<TModel>> Get<TModel>(Expression<Func<TModel, int, bool>>? predicate = null) { return Task.FromResult<IEnumerable<TModel>>(default!); }
 }
 
 public abstract class BaseRepository<TDbContext, TEntity>: BaseRepository<TDbContext>, IRepository
@@ -63,10 +59,10 @@ public abstract class BaseRepository<TDbContext, TEntity>: BaseRepository<TDbCon
                                     .Where(entity => entity.Id == id)
                                     .ProjectTo<TModel>(ApplicationService.Mapper.ConfigurationProvider)
                                     .FirstOrDefaultAsync();
-        return result;
+        return result!;
     }
 
-    public override async Task<IEnumerable<TModel>> Get<TModel>(Expression<Func<TModel, int, bool>> predicate = null)
+    public override async Task<IEnumerable<TModel>> Get<TModel>(Expression<Func<TModel, int, bool>>? predicate = null)
     {
         IQueryable<TModel> query = DbContext.Set<TEntity>()
             .ProjectTo<TModel>(ApplicationService.Mapper.ConfigurationProvider);
