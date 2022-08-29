@@ -1,42 +1,40 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Lens.Core.Lib.Services
+namespace Lens.Core.Lib.Services;
+
+public class QueuedHostedService : BackgroundService
 {
-    public class QueuedHostedService : BackgroundService
+    private readonly ILogger _logger;
+
+    public QueuedHostedService(IBackgroundTaskQueue taskQueue, ILoggerFactory loggerFactory)
     {
-        private readonly ILogger _logger;
+        TaskQueue = taskQueue;
+        _logger = loggerFactory.CreateLogger<QueuedHostedService>();
+    }
 
-        public QueuedHostedService(IBackgroundTaskQueue taskQueue, ILoggerFactory loggerFactory)
+    public IBackgroundTaskQueue TaskQueue { get; }
+
+    protected async override Task ExecuteAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Queued Hosted Service is starting.");
+
+        while (!cancellationToken.IsCancellationRequested)
         {
-            TaskQueue = taskQueue;
-            _logger = loggerFactory.CreateLogger<QueuedHostedService>();
-        }
+            var workItem = await TaskQueue.DequeueAsync(cancellationToken);
+            if (workItem == null)
+                continue;
 
-        public IBackgroundTaskQueue TaskQueue { get; }
-
-        protected async override Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Queued Hosted Service is starting.");
-
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                var workItem = await TaskQueue.DequeueAsync(cancellationToken);
-
-                try
-                {
-                    await workItem(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error occurred executing {WorkItem}.", nameof(workItem));
-                }
+                await workItem(cancellationToken);
             }
-
-            _logger.LogInformation("Queued Hosted Service is stopping.");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred executing {WorkItem}.", nameof(workItem));
+            }
         }
+
+        _logger.LogInformation("Queued Hosted Service is stopping.");
     }
 }

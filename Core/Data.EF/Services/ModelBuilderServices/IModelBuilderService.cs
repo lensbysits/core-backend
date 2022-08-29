@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
 
-namespace Lens.Core.Data.EF.Services
+namespace Lens.Core.Data.EF.Services;
+
+public interface IModelBuilderService
 {
-    public interface IModelBuilderService
-    {
-        void ConfigureBaseProperties(Type entityType, EntityTypeBuilder builder);
-    }
+    void ConfigureBaseProperties(Type entityType, EntityTypeBuilder builder);
 }

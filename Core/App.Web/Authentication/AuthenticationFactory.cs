@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 
 namespace Lens.Core.App.Web.Authentication;
 
@@ -49,7 +47,7 @@ internal static class AuthenticationFactory
         if (method == null)
         {
             method = initAuthMethod();
-            methods.Add(authenticationType, method);
+            methods.Add(authenticationType ?? string.Empty, method);
         }
 
         return method;

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Lens.Core.Lib.Models;
+﻿namespace Lens.Core.Lib.Models;
 
 public static class ResultModel
 {
@@ -28,10 +26,10 @@ public class ResultModel<TValue> : IResultModel<TValue>
 {
     public ResultModel()
     {
-        ValueType = ResultModelType.@object;
+        ValueType = ResultModelValueType.@object;
     }
 
     public string ValueType { get; protected set; }
-    public TValue Value { get; set; }
+    public TValue? Value { get; set; }
 
 }
