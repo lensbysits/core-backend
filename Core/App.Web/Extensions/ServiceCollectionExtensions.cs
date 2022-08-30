@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json.Nodes;
 
 namespace Lens.Core.App.Web
 {
@@ -133,6 +134,7 @@ namespace Lens.Core.App.Web
                 options.MapType<FileResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
                 options.MapType<FileStreamResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
                 options.MapType<FileContentResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
+                options.MapType<JsonNode>(() => new OpenApiSchema { Type = "object" });
 
                 authMethod.ConfigureSwaggerAuth(options, swaggerSettings);
             });
