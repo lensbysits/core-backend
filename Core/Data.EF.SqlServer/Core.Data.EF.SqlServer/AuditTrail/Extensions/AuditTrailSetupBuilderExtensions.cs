@@ -15,7 +15,7 @@ public static class AuditTrailSetupBuilderExtensions
         builder
             .AddProgramInitializer<AuditTrailInitializerService>()
             .AddAssemblies(typeof(AutoMapperProfile).Assembly)
-            .AddSqlServerDatabase<AuditTrailDbContext>(connectionStringName, connectionStringPassword)
+            .AddSqlServerDatabase<AuditTrailDbContext>(connectionStringName, connectionStringPassword, typeof(AuditTrailSetupBuilderExtensions).Assembly)
             .Services
                 .AddScoped<IAuditTrailService, AuditTrailService>();
 
