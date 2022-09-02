@@ -1,4 +1,4 @@
-﻿using Lens.Core.Lib.Models;
+﻿using System.Collections;
 
 namespace Lens.Core.Lib.Models;
 
@@ -19,5 +19,6 @@ public class ErrorResultModel : ResultModel<object?>
 
     public string? CorrelationId { get; set; }
 
-    public Dictionary<string, object>? Data { get; set; }
+    public IDictionary? Data { get; set; }
+    public Dictionary<string, object>? DataDetails { get; set; }
 }

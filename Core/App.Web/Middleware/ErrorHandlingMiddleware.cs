@@ -92,7 +92,7 @@ public class ErrorHandlingMiddleware
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)httpStatusCodeForException;
-        string result = string.Empty;
+        string result;
 
         if (_webHostEnvironment.IsDevelopment())
         {
@@ -103,7 +103,8 @@ public class ErrorHandlingMiddleware
                 ErrorDetails = exception.GetFullExceptionData(),
                 Stacktrace = exception.StackTrace,
                 CorrelationId = correlationId,
-                Data = exception.GetSerializableDataDictionary(true)
+                Data = exception.Data,
+                DataDetails = exception.GetSerializableDataDictionary(true)                
             });
         }
         else
@@ -113,7 +114,8 @@ public class ErrorHandlingMiddleware
                 Message = exceptionMessage,
                 ErrorType = exceptionType.Name,
                 CorrelationId = correlationId,
-                Data = exception.GetSerializableDataDictionary(true)
+                Data = exception.Data,
+                DataDetails = exception.GetSerializableDataDictionary(true)
             });
         }
         return context.Response.WriteAsync(result);
