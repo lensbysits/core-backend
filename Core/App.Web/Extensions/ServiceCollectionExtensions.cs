@@ -1,4 +1,5 @@
-﻿using Lens.Core.App.Web.Authentication;
+﻿using System.Text.Json.Nodes;
+using Lens.Core.App.Web.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -124,6 +125,7 @@ public static class ServiceCollectionExtensions
             options.MapType<FileResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
             options.MapType<FileStreamResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
             options.MapType<FileContentResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
+            options.MapType<JsonNode>(() => new OpenApiSchema { Type = "object" });
 
             if (swaggerSettings != null)
             {
