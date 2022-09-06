@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Lens.Core.App.Web.Authentication;
+﻿namespace Lens.Core.App.Web.Authentication;
 
 public class AzureAuthSettings : OAuthSettings
 {

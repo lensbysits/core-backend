@@ -24,7 +24,7 @@ public class OperationTelemetryConverter : TraceTelemetryConverter
         }
     }
 
-    private bool TryGetScalarProperty(LogEvent logEvent, string propertyName, out object value)
+    private static bool TryGetScalarProperty(LogEvent logEvent, string propertyName, out object? value)
     {
         var hasScalarValue =
             logEvent.Properties.TryGetValue(propertyName, out var someValue) &&

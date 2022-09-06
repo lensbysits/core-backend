@@ -1,20 +1,18 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
 
-namespace Lens.Core.App.Web
+namespace Lens.Core.App.Web;
+
+public abstract class ProgramBase<TStartup> : ProgramBase where TStartup: class
 {
-    public abstract class ProgramBase<TStartup> : ProgramBase where TStartup: class
-    {
-        public static Task<int> Start(string[] args) => Start(args, CreateWebHostBuilder);
+    public static Task<int> Start(string[] args) => Start(args, CreateWebHostBuilder);
 
-        protected static IHostBuilder CreateWebHostBuilder(string[] args) =>
-            CreateBaseHostBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder
-                        .UseSetting(WebHostDefaults.CaptureStartupErrorsKey, "true")
-                        .UseStartup<TStartup>();
-                });
-    }
+    protected static IHostBuilder CreateWebHostBuilder(string[] args) =>
+        CreateBaseHostBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder
+                    .UseSetting(WebHostDefaults.CaptureStartupErrorsKey, "true")
+                    .UseStartup<TStartup>();
+            });
 }

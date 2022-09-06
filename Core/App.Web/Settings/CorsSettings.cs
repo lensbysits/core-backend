@@ -1,7 +1,6 @@
-﻿namespace Lens.Core.App.Web
+﻿namespace Lens.Core.App.Web;
+
+public class CorsSettings
 {
-    public class CorsSettings
-    {
-        public string Origins { get; set; }
-    }
+    public string[]? Origins { get; set; }
 }
