@@ -31,8 +31,7 @@ public static class LoggingExtensions
                 .WriteTo.AzureApp()
                 .WriteTo.ApplicationInsights(
                             config,
-                            new OperationTelemetryConverter(),
-                            LogEventLevel.Information); //https://oleh-zheleznyak.blogspot.com/2019/08/serilog-with-application-insights.html
+                            new OperationTelemetryConverter()); //https://oleh-zheleznyak.blogspot.com/2019/08/serilog-with-application-insights.html
         }
 
         return loggerConfiguration;
