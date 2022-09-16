@@ -5,10 +5,17 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Lens.Core.Data.EF.AuditTrail.Migrations
 {
-    public partial class AddAuditTrailTimestampColumn : Migration
+    public partial class AddAuditTrailColumns : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<Guid>(
+                name: "CorrelationId",
+                schema: "audittrail",
+                table: "EntityChange",
+                type: "uniqueidentifier",
+                nullable: true);
+
             migrationBuilder.AddColumn<byte[]>(
                 name: "Timestamp",
                 schema: "audittrail",
@@ -20,6 +27,11 @@ namespace Lens.Core.Data.EF.AuditTrail.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropColumn(
+                name: "CorrelationId",
+                schema: "audittrail",
+                table: "EntityChange");
+
             migrationBuilder.DropColumn(
                 name: "Timestamp",
                 schema: "audittrail",

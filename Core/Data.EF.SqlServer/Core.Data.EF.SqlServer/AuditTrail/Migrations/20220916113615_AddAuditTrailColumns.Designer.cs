@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lens.Core.Data.EF.AuditTrail.Migrations
 {
     [DbContext(typeof(AuditTrailDbContext))]
-    [Migration("20220916105914_AddAuditTrailTimestampColumn")]
-    partial class AddAuditTrailTimestampColumn
+    [Migration("20220916113615_AddAuditTrailColumns")]
+    partial class AddAuditTrailColumns
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,6 +51,9 @@ namespace Lens.Core.Data.EF.AuditTrail.Migrations
 
                     b.Property<string>("Changes")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("EntityId")
                         .HasColumnType("nvarchar(max)");

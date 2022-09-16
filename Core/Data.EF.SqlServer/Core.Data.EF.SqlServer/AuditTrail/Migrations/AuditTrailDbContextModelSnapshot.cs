@@ -50,6 +50,9 @@ namespace Lens.Core.Data.EF.AuditTrail.Migrations
                     b.Property<string>("Changes")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("EntityId")
                         .HasColumnType("nvarchar(max)");
 
