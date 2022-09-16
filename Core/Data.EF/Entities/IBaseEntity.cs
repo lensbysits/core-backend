@@ -1,6 +1,5 @@
-﻿namespace Lens.Core.Data.EF.Entities
+﻿namespace Lens.Core.Data.EF.Entities;
+
+public interface IBaseEntity : IIdEntity, ICreatedUpdatedEntity, IRecordStateEntity
 {
-	public interface IBaseEntity : IIdEntity, ICreatedUpdatedEntity, IRecordStateEntity
-	{
-	}
 }

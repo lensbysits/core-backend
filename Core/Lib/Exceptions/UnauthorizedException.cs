@@ -1,21 +1,18 @@
-﻿using System;
+﻿namespace Lens.Core.Lib.Exceptions;
 
-namespace Lens.Core.Lib.Exceptions
+public class UnauthorizedException : Exception
 {
-    public class UnauthorizedException : Exception
+    public UnauthorizedException()
     {
-        public UnauthorizedException()
-        {
-        }
+    }
 
-        public UnauthorizedException(string message)
-            : base(message)
-        {
-        }
+    public UnauthorizedException(string message)
+        : base(message)
+    {
+    }
 
-        public UnauthorizedException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
+    public UnauthorizedException(string message, Exception inner)
+        : base(message, inner)
+    {
     }
 }

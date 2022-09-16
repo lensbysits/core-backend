@@ -7,136 +7,133 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
-using System;
-using System.Linq;
 using System.Text;
 
-namespace Lens.Core.App.Web.Authentication
+namespace Lens.Core.App.Web.Authentication;
+
+internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureAuthSettings
 {
-    internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureAuthSettings
+    private const string ScopePolicyName = "ApiScopePolicy";
+    private const string RolePolicyName = "ApiRolePolicy";
+    private const string ScopeOrRolePolicyName = "ApiScopeOrRolePolicy";
+    private readonly IConfiguration configuration;
+
+    public AzureAuthentication(T authSettings, IConfiguration configuration) : base(authSettings)
     {
-        private const string ScopePolicyName = "ApiScopePolicy";
-        private const string RolePolicyName = "ApiRolePolicy";
-        private const string ScopeOrRolePolicyName = "ApiScopeOrRolePolicy";
-        private readonly IConfiguration configuration;
+        this.configuration = configuration;
+    }
 
-        public AzureAuthentication(T authSettings, IConfiguration configuration) : base(authSettings)
+    public override void ApplyMvcFilters(FilterCollection filters)
+    {
+        base.ApplyMvcFilters(filters);
+
+        if (this.AuthSettings.RequiredScopes.Any() || this.AuthSettings.RequiredAppRoles.Any())
         {
-            this.configuration = configuration;
+            filters.Add(new AuthorizeFilter(ScopeOrRolePolicyName));
         }
+    }
 
-        public override void ApplyMvcFilters(FilterCollection filters)
+    public override void Configure(
+        IServiceCollection services,
+        Action<AuthorizationOptions>? authorizationOptions)
+    {
+
+        services.AddMicrosoftIdentityWebApiAuthentication(this.configuration, "AuthSettings");
+
+        services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
         {
-            base.ApplyMvcFilters(filters);
+            options.TokenValidationParameters.NameClaimType = "name";
 
-            if (this.AuthSettings.RequiredScopes.Any() || this.AuthSettings.RequiredAppRoles.Any())
+            if (this.AuthSettings.IncludeConfigInBearerHeader)
             {
-                filters.Add(new AuthorizeFilter(ScopeOrRolePolicyName));
+                var buildHeader = new StringBuilder("Bearer");
+                if (!string.IsNullOrEmpty(this.AuthSettings.Authority))
+                {
+                    buildHeader.AppendFormat(" authorization_uri=\"{0}authorize\"", this.AuthSettings.Authority);
+                }
+
+                if (!string.IsNullOrEmpty(this.AuthSettings.Resource))
+                {
+                    buildHeader.AppendFormat(", resource=\"{0}\"", this.AuthSettings.Resource);
+                }
+
+                options.Challenge = buildHeader.ToString().Trim();
             }
-        }
-
-        public override void Configure(
-            IServiceCollection services,
-            Action<AuthorizationOptions> authorizationOptions)
-        {
-
-            services.AddMicrosoftIdentityWebApiAuthentication(this.configuration, "AuthSettings");
-
-            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            if (this.AuthSettings.AllowedIssuers.Any())
             {
-                options.TokenValidationParameters.NameClaimType = "name";
+                // we need to override the default issuer validation in order to restrict access only for pre-configured allowed issuers
+                // otherwise all Azure tenants are considered as valid issuer
+                options.TokenValidationParameters.IssuerValidator = null;
+                options.TokenValidationParameters.ValidIssuers = this.AuthSettings.AllowedIssuers;
+                options.TokenValidationParameters.ValidateIssuer = true;
+            }
 
-                if (this.AuthSettings.IncludeConfigInBearerHeader)
-                {
-                    var buildHeader = new StringBuilder("Bearer");
-                    if (!string.IsNullOrEmpty(this.AuthSettings.Authority))
-                    {
-                        buildHeader.AppendFormat(" authorization_uri=\"{0}authorize\"", this.AuthSettings.Authority);
-                    }
+            base.RegisterAuthenticationInterceptorEventHandlers(options);
 
-                    if (!string.IsNullOrEmpty(this.AuthSettings.Resource))
-                    {
-                        buildHeader.AppendFormat(", resource=\"{0}\"", this.AuthSettings.Resource);
-                    }
+        });
 
-                    options.Challenge = buildHeader.ToString().Trim();
-                }
-                if (this.AuthSettings.AllowedIssuers.Any())
-                {
-                    // we need to override the default issuer validation in order to restrict access only for pre-configured allowed issuers
-                    // otherwise all Azure tenants are considered as valid issuer
-                    options.TokenValidationParameters.IssuerValidator = null;
-                    options.TokenValidationParameters.ValidIssuers = this.AuthSettings.AllowedIssuers;
-                    options.TokenValidationParameters.ValidateIssuer = true;
-                }
+        services.AddAuthorization(
+            options =>
+            {
+                options.AddPolicy(ScopeOrRolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger));
+                options.FallbackPolicy = DefaultPolicy;
 
-                base.RegisterAuthenticationInterceptorEventHandlers(options);
-
+                authorizationOptions?.Invoke(options);
             });
 
-            services.AddAuthorization(
-                options =>
+        services.AddScoped<IUserContext, UserContext>();
+    }
+
+    /// <summary>
+    /// Validates scope and app role claims exists and check against the configured required scope(s) and/or role(s).
+    /// Every request must contain a scope or role claim, otherwise a 401 is returned.
+    /// </summary>
+    private Action<AuthorizationPolicyBuilder> ScopeOrRolePolicy(Serilog.ILogger? logger = null)
+    {
+        return policy => policy.RequireAssertion(context =>
                 {
-                    options.AddPolicy(ScopeOrRolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger));
-                    options.FallbackPolicy = DefaultPolicy;
+                    var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
+                    var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
 
-                    authorizationOptions?.Invoke(options);
-                });
+                    var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} Found roles: {roleClaim?.Value} ";
 
-            services.AddScoped<IUserContext, UserContext>();
-        }
-
-        /// <summary>
-        /// Validates scope and app role claims exists and check against the configured required scope(s) and/or role(s).
-        /// Every request must contain a scope or role claim, otherwise a 401 is returned.
-        /// </summary>
-        private Action<AuthorizationPolicyBuilder> ScopeOrRolePolicy(Serilog.ILogger logger = null)
-        {
-            return policy => policy.RequireAssertion(context =>
+                    if (scopeClaim != null && !string.IsNullOrEmpty(scopeClaim.Value))
                     {
-                        var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
-                        var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
+                        var incommingScopes = scopeClaim.Value.Split(' ');
+                        var accessAllowed = this.AuthSettings.RequiredScopes.All(
+                            s => incommingScopes.Contains(s));
 
-                        var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} Found roles: {roleClaim?.Value} ";
-
-                        if (scopeClaim != null && !string.IsNullOrEmpty(scopeClaim.Value))
+                        if (logger != null)
                         {
-                            var incommingScopes = scopeClaim.Value.Split(' ');
-                            var accessAllowed = this.AuthSettings.RequiredScopes.All(
-                                s => incommingScopes.Contains(s));
-
-                            if (logger != null)
-                            {
-                                logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
-                                logger.Information(logStr);
-                            }
-
-                            if (accessAllowed)
-                            {
-                                return true;
-                            }
+                            logStr += (accessAllowed ? "Access Allowed by scope" : "Access NOT Allowed by scope");
+                            logger.Information(logStr);
                         }
 
-                        if (roleClaim != null && !string.IsNullOrEmpty(roleClaim.Value))
+                        if (accessAllowed)
                         {
-                            var incommingRoles = roleClaim.Value.Split(' ');
-                            var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
-                                s => incommingRoles.Contains(s));
+                            return true;
+                        }
+                    }
 
-                            if (logger != null)
-                            {
-                                logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
-                                logger.Information(logStr);
-                            }
+                    if (roleClaim != null && !string.IsNullOrEmpty(roleClaim.Value))
+                    {
+                        var incommingRoles = roleClaim.Value.Split(' ');
+                        var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
+                            s => incommingRoles.Contains(s));
 
-                            if (accessAllowed)
-                            {
-                                return true;
-                            }
+                        if (logger != null)
+                        {
+                            logStr += (accessAllowed ? "Access Allowed by role" : "Access NOT Allowed by role");
+                            logger.Information(logStr);
                         }
 
-                        return false;
-                    });
-        }
+                        if (accessAllowed)
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
     }
 }

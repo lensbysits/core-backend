@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Lens.Core.App.Web.Authentication;
 
@@ -9,7 +7,7 @@ public abstract class AuthSettings
 {
     public abstract string AuthenticationType { get; }
 
-    public List<Policy> Policies { get; set; }
+    public List<Policy>? Policies { get; set; }
 }
 
 public class Policy
@@ -17,11 +15,11 @@ public class Policy
     public static AuthorizationPolicy DefaultPolicy => new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build();
     public AuthorizationPolicyBuilder DefaultPolicyBuilder => new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser();
 
-    public string Name { get; set; }
-    public string[] Roles { get; set; }
-    public Dictionary<string, string> Claims { get; set; }
+    public string Name { get; set; } = "DefaultPolicy";
+    public string[]? Roles { get; set; }
+    public Dictionary<string, string>? Claims { get; set; }
 
-    private AuthorizationPolicy policyInstance;
+    private AuthorizationPolicy? policyInstance;
     public AuthorizationPolicy PolicyInstance
     {
         get

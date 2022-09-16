@@ -1,10 +1,9 @@
-﻿namespace Lens.Core.Lib.Models
-{
-    public interface IResultModel { }
+﻿namespace Lens.Core.Lib.Models;
 
-    public interface IResultModel<TValue> : IResultModel
-    {
-        string ValueType { get; }
-        TValue Value { get; set; }
-    }
+public interface IResultModel { }
+
+public interface IResultModel<TValue> : IResultModel
+{
+    string ValueType { get; }
+    TValue? Value { get; set; }
 }
