@@ -7,7 +7,7 @@ namespace Lens.Core.Data.EF.AuditTrail;
 
 public class AuditTrailDbContext : ApplicationDbContext
 {
-    public AuditTrailDbContext(DbContextOptions options, IUserContext userContext, IEnumerable<IModelBuilderService> modelBuilders) : base(options, userContext, modelBuilders)
+    public AuditTrailDbContext(DbContextOptions<AuditTrailDbContext> options, IUserContext userContext, IEnumerable<IModelBuilderService> modelBuilders) : base(options, userContext, modelBuilders)
     {
     }
 
