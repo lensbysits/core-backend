@@ -14,4 +14,5 @@ public class EntityChangeModel
 
     public object? Source { get; set; }
     public Action<EntityChangeModel>? ResolveId { get; set; }
+    public Guid? CorrelationId { get; set; }
 }

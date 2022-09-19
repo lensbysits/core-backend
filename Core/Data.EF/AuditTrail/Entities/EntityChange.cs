@@ -20,4 +20,5 @@ public class EntityChange : IIdEntity
     [StringLength(255)]
     public string? EntityType { get; set; }
     public string? EntityId { get; set; }
+    public Guid? CorrelationId { get; init; }
 }

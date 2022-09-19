@@ -39,12 +39,13 @@ public class UserContext : IUserContext
         return (T?)tc.ConvertFrom(value);
     }
 
-    public IEnumerable<T?>? ClaimValues<T>(string claim)
+    public ICollection<T?>? ClaimValues<T>(string claim)
     {
         TypeConverter tc = TypeDescriptor.GetConverter(typeof(T));
         var values = UserClaims?.Claims?
             .Where(c => c.Type == claim)?
-            .Select(c => (T?)tc.ConvertFrom(c.Value));
+            .Select(c => (T?)tc.ConvertFrom(c.Value))
+            .ToList();
 
         return values;
     }

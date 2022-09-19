@@ -6,14 +6,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System.Reflection;
 
 namespace Lens.Core.Data.EF;
 
 public static class DatabaseSetupBuilderExtensions
 {
-    public static IApplicationSetupBuilder AddSqlServerDatabase<TContext>(this IApplicationSetupBuilder builder,
+    public static IApplicationSetupBuilder AddSqlServerDatabase<TContext>(
+        this IApplicationSetupBuilder builder,
         string connectionStringName = "DefaultConnection",
-        string connectionStringPassword = "dbPassword") where TContext : DbContext
+        string connectionStringPassword = "dbPassword",
+        Assembly? migrationAssembly = null) where TContext : DbContext
     {
         // connect to a SQL Server database
         var connectionStringBuilder = new SqlConnectionStringBuilder(builder.Configuration.GetConnectionString(connectionStringName));
@@ -33,7 +36,11 @@ public static class DatabaseSetupBuilderExtensions
         var connectionString = connectionStringBuilder.ConnectionString;
         builder.Services.AddDbContext<TContext>(dbOptions =>
         {
-            dbOptions.UseSqlServer(connectionString);
+            dbOptions.UseSqlServer(connectionString, options =>
+            {
+                if (migrationAssembly != null)
+                    options.MigrationsAssembly(migrationAssembly.FullName);
+            });
         });
 
         builder

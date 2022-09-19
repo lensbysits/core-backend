@@ -4,6 +4,7 @@ using Lens.Core.Data.EF.AuditTrail;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lens.Core.Data.EF.AuditTrail.Migrations
 {
     [DbContext(typeof(AuditTrailDbContext))]
-    partial class AuditTrailDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220916113615_AddAuditTrailColumns")]
+    partial class AddAuditTrailColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
