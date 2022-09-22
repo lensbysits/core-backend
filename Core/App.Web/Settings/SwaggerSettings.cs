@@ -16,6 +16,10 @@ public class SwaggerSettings : OAuthClientSetting
     public string? XMLCommentsPath { get; set; }
 
     public List<SwaggerDefinition> ExtraDefinitions { get; set; }
+
+    public bool SwaggerAuthEnabled => !string.IsNullOrWhiteSpace(this.Authority)
+                                        && !string.IsNullOrWhiteSpace(this.Scope)
+                                        && !string.IsNullOrWhiteSpace(this.ScopeName);
 }
 
 public class SwaggerDefinition
