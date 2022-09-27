@@ -1,19 +1,25 @@
-﻿using Lens.Core.Data.EF.Providers;
+﻿using Lens.Core.Data.EF.Configuration;
+using Lens.Core.Data.EF.Providers;
 using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Text;
 
 namespace Lens.Core.Data.EF.Services;
 
 public abstract class DatabaseInitializerService : BaseService<DatabaseInitializerService>, IProgramInitializer
 {
     private readonly DbContext _dbContext;
+    private readonly MigrationSettings options;
 
     public DatabaseInitializerService(IApplicationService<DatabaseInitializerService> applicationService,
-        DbContext dbContext)
+        DbContext dbContext,
+        IOptions<MigrationSettings> options)
         : base(applicationService)
     {
         _dbContext = dbContext;
+        this.options = options.Value;
     }
 
     public async Task Initialize()
@@ -35,11 +41,36 @@ public abstract class DatabaseInitializerService : BaseService<DatabaseInitializ
         }
         catch (Exception ex)
         {
-            ApplicationService.Logger.LogError(ex, "An error had occured when applying db migrations.");
-            return;
+            LogException(ex);
+
+            if (this.options.BreakOnMigrationException)
+            {
+                throw;
+            }
+            else
+            {
+                return;
+            }
         }
 
         await Seed();
+    }
+
+    private void LogException(Exception ex)
+    {
+        ApplicationService.Logger.LogError(ex, "An error had occured when applying db migrations.");
+
+        if (this.options.EnableRawSqlDebug)
+        {
+            var sb = new StringBuilder();
+            foreach(var cmd in RawSqlProvider.Instance.GetSqlCommands())
+            {
+                sb.AppendLine(cmd);
+                sb.AppendLine(string.Empty.PadLeft(100, '-'));
+            }
+
+            ApplicationService.Logger.LogDebug($"Raw sql debug log:\n{sb}");
+        }
     }
 
     public async virtual Task Seed()
@@ -50,7 +81,11 @@ public abstract class DatabaseInitializerService : BaseService<DatabaseInitializ
 
 public class DatabaseInitializerService<TDbContext> : DatabaseInitializerService where TDbContext: DbContext
 {
-    public DatabaseInitializerService(IApplicationService<DatabaseInitializerService> applicationService, TDbContext dbContext) : base(applicationService, dbContext)
+    public DatabaseInitializerService(
+        IApplicationService<DatabaseInitializerService> applicationService, 
+        TDbContext dbContext,
+        IOptions<MigrationSettings> options) 
+        : base(applicationService, dbContext, options)
     {
     }
 }

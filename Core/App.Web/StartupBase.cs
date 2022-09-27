@@ -63,7 +63,7 @@ public class StartupBase
             services.AddControllers(options => ConfigureControllers(options, applicationSetup));
 
         mvcBuilder.AddJsonOptions(options => ConfigureJsonOptions(options, applicationSetup));
-        services.Configure<ApiExceptionHandlingConfig>(option => Configuration.Bind("ApiExceptionHandlingSettings", option));
+        services.Configure<ApiExceptionHandlingConfig>(option => Configuration.Bind(nameof(ApiExceptionHandlingConfig), option));
 
         applicationSetup.AddApplicationServices();
     }

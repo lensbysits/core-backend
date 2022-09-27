@@ -8,7 +8,7 @@ For backwards compatibility we introduced a flag to disable this new type of exc
 The general exception text defaults to _“Unexpected error occurred”_, but can be overridden in the appsettings.json using the following JSON
 
 ```
-"ApiExceptionHandlingSettings": {
+"ApiExceptionHandlingConfig": {
     "DisableEnhancedApiProtection": false|true,
     "GenericErrorMessage": "string",
     "GenericErrorCode": "string"
