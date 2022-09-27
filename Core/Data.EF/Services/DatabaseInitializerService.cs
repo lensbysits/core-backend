@@ -1,4 +1,5 @@
-﻿using Lens.Core.Lib.Services;
+﻿using Lens.Core.Data.EF.Providers;
+using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -19,7 +20,18 @@ public abstract class DatabaseInitializerService : BaseService<DatabaseInitializ
     {
         try
         {
+            var pending = await _dbContext.Database.GetPendingMigrationsAsync();
             await _dbContext.Database.MigrateAsync();
+            
+            // only apply raw sql when there are pending changes to prevent raw sql running everytime the API starts
+            if (pending.ToList().Count > 0)
+            {
+                var commands = RawSqlProvider.Instance.GetSqlCommands();
+                foreach(var command in commands)
+                {
+                    await _dbContext.Database.ExecuteSqlRawAsync(command);
+                }
+            }
         }
         catch (Exception ex)
         {
