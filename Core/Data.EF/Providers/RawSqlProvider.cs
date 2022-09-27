@@ -27,12 +27,10 @@
 
         public void AddCreateCommand(string fileName, string contents)
         {
-            if (this.createCommands.ContainsKey(fileName))
+            if (!this.createCommands.ContainsKey(fileName))
             {
-                return;
+                this.createCommands.Add(fileName, contents);
             }
-
-            this.createCommands.Add(fileName, contents);
         }
 
         public void AddDropCommand(string contents)
