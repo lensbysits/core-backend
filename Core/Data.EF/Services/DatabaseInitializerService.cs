@@ -1,5 +1,6 @@
 ﻿using Lens.Core.Data.EF.Configuration;
 using Lens.Core.Data.EF.Providers;
+using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -45,7 +46,7 @@ public abstract class DatabaseInitializerService : BaseService<DatabaseInitializ
 
             if (this.options.BreakOnMigrationException)
             {
-                throw;
+                throw new ApiStartupException("Migrations failed. See logs for details");
             }
             else
             {
