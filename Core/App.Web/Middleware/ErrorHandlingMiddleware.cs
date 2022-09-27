@@ -31,7 +31,6 @@ public class ErrorHandlingMiddleware
         {typeof(NullReferenceException), HttpStatusCode.BadRequest},
         {typeof(InvalidCastException), HttpStatusCode.BadRequest},
         {typeof(InvalidOperationException), HttpStatusCode.BadRequest},
-        {typeof(ValidationException), HttpStatusCode.UnprocessableEntity},
         {typeof(ArgumentException), HttpStatusCode.UnprocessableEntity},
         {typeof(ArgumentNullException), HttpStatusCode.UnprocessableEntity},
         {typeof(InvalidDataException), HttpStatusCode.UnprocessableEntity},
@@ -60,7 +59,7 @@ public class ErrorHandlingMiddleware
         }
         catch(PublicException ex)
         {
-            await HandleExceptionAsync(context, ex, (isDevelopment, message, exceptionType) =>
+            await HandleExceptionAsync(context, ex, ex.HttpStatusCode, (isDevelopment, message, exceptionType) =>
             {
                 return isDevelopment
                 ? this.GenerateDevelopmentException(ex, message, ex.ErrorCode, exceptionType)
@@ -69,7 +68,7 @@ public class ErrorHandlingMiddleware
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex, (isDevelopment, message, exceptionType) =>
+            await HandleExceptionAsync(context, ex, null, (isDevelopment, message, exceptionType) =>
             {
                 return isDevelopment
                ? this.GenerateDevelopmentException(ex, message, null, exceptionType)
@@ -94,11 +93,11 @@ public class ErrorHandlingMiddleware
         return HttpStatusCode.InternalServerError;
     }
 
-    private Task HandleExceptionAsync(HttpContext context, Exception exception, Func<bool, string, Type, ErrorResultModel> generateResponse)
+    private Task HandleExceptionAsync(HttpContext context, Exception exception, HttpStatusCode? statusCode, Func<bool, string, Type, ErrorResultModel> generateResponse)
     {
         var exceptionMessage = GetExceptionMessage(exception);
         var exceptionType = exception.GetType();
-        var httpStatusCodeForException = GetHttpStatusCodeForException(exceptionType);
+        var httpStatusCodeForException = statusCode ?? GetHttpStatusCodeForException(exceptionType);
 
         LogException(exception, exceptionMessage, exceptionType, httpStatusCodeForException);
 
