@@ -16,11 +16,11 @@ public abstract class DatabaseInitializerService : BaseService<DatabaseInitializ
 
     public DatabaseInitializerService(IApplicationService<DatabaseInitializerService> applicationService,
         DbContext dbContext,
-        IOptions<MigrationSettings> options)
+        IOptions<MigrationSettings>? options = null)
         : base(applicationService)
     {
         _dbContext = dbContext;
-        this.options = options.Value;
+        this.options = options?.Value ?? new MigrationSettings();
     }
 
     public async Task Initialize()
@@ -29,12 +29,12 @@ public abstract class DatabaseInitializerService : BaseService<DatabaseInitializ
         {
             var pending = await _dbContext.Database.GetPendingMigrationsAsync();
             await _dbContext.Database.MigrateAsync();
-            
+
             // only apply raw sql when there are pending changes to prevent raw sql running everytime the API starts
             if (pending.ToList().Count > 0)
             {
                 var commands = RawSqlProvider.Instance.GetSqlCommands();
-                foreach(var command in commands)
+                foreach (var command in commands)
                 {
                     await _dbContext.Database.ExecuteSqlRawAsync(command);
                 }
@@ -64,7 +64,7 @@ public abstract class DatabaseInitializerService : BaseService<DatabaseInitializ
         if (this.options.EnableRawSqlDebug)
         {
             var sb = new StringBuilder();
-            foreach(var cmd in RawSqlProvider.Instance.GetSqlCommands())
+            foreach (var cmd in RawSqlProvider.Instance.GetSqlCommands())
             {
                 sb.AppendLine(cmd);
                 sb.AppendLine(string.Empty.PadLeft(100, '-'));
@@ -80,12 +80,12 @@ public abstract class DatabaseInitializerService : BaseService<DatabaseInitializ
     }
 }
 
-public class DatabaseInitializerService<TDbContext> : DatabaseInitializerService where TDbContext: DbContext
+public class DatabaseInitializerService<TDbContext> : DatabaseInitializerService where TDbContext : DbContext
 {
     public DatabaseInitializerService(
-        IApplicationService<DatabaseInitializerService> applicationService, 
+        IApplicationService<DatabaseInitializerService> applicationService,
         TDbContext dbContext,
-        IOptions<MigrationSettings> options) 
+        IOptions<MigrationSettings> options)
         : base(applicationService, dbContext, options)
     {
     }
