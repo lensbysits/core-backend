@@ -1,27 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Net;
 
 namespace Lens.Core.Lib.Exceptions;
 
-public class ValidationException : System.ComponentModel.DataAnnotations.ValidationException
-{
+public class ValidationException : PublicException
+{ 
     public ValidationException(string message) : base(message)
     {
-
+        this.HttpStatusCode = HttpStatusCode.UnprocessableEntity;
     }
 
     public ValidationException() : base()
     {
+        this.HttpStatusCode = HttpStatusCode.UnprocessableEntity;
     }
 
-    public ValidationException(ValidationResult validationResult, ValidationAttribute? validatingAttribute, object? value) : base(validationResult, validatingAttribute, value)
+    public ValidationException(string errorMessage, string? errorCode = null) : base(errorMessage, errorCode)
     {
+        this.HttpStatusCode = HttpStatusCode.UnprocessableEntity;
     }
 
-    public ValidationException(string? errorMessage, ValidationAttribute? validatingAttribute, object? value) : base(errorMessage, validatingAttribute, value)
+    public ValidationException(string message, Exception innerException, string? errorCode = null) : base(message, innerException, errorCode)
     {
-    }
-
-    public ValidationException(string? message, Exception? innerException) : base(message, innerException)
-    {
+        this.HttpStatusCode = HttpStatusCode.UnprocessableEntity;
     }
 }

@@ -5,6 +5,7 @@ using Lamar.Scanning.Conventions;
 using Lens.Core.App.Web.Authentication;
 using Lens.Core.App.Web.Builders;
 using Lens.Core.App.Web.Filters;
+using Lens.Core.Lib.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -62,6 +63,7 @@ public class StartupBase
             services.AddControllers(options => ConfigureControllers(options, applicationSetup));
 
         mvcBuilder.AddJsonOptions(options => ConfigureJsonOptions(options, applicationSetup));
+        services.Configure<ApiExceptionHandlingConfig>(option => Configuration.Bind(nameof(ApiExceptionHandlingConfig), option));
 
         applicationSetup.AddApplicationServices();
     }

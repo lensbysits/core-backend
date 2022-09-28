@@ -70,22 +70,25 @@ internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSe
             return;
 
         //https://www.c-sharpcorner.com/article/enable-oauth-2-authorization-using-azure-ad-and-swagger-in-net-5-0/
-        options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+        if (swaggerSettings.SwaggerAuthEnabled)
         {
-            Type = SecuritySchemeType.OAuth2,
-            Flows = new OpenApiOAuthFlows
+            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
             {
-                AuthorizationCode = new OpenApiOAuthFlow
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows
                 {
-                    AuthorizationUrl = new Uri($"{swaggerSettings.Authority}authorize"),
-                    TokenUrl = new Uri($"{swaggerSettings.Authority}token"),
-                    Scopes = new Dictionary<string, string>
+                    AuthorizationCode = new OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = new Uri($"{swaggerSettings.Authority}authorize"),
+                        TokenUrl = new Uri($"{swaggerSettings.Authority}token"),
+                        Scopes = new Dictionary<string, string>
                             {
-                                {swaggerSettings.Scope ?? string.Empty, swaggerSettings.ScopeName ?? string.Empty }
+                                {swaggerSettings.Scope ?? string.Empty, swaggerSettings.ScopeName ?? string.Empty}
                             }
+                    }
                 }
-            }
-        });
+            });
+        }
 
         options.AddSecurityRequirement(new OpenApiSecurityRequirement
         {

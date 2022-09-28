@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Lens.Core.Data.EF.Providers;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Lens.Core.Data.EF;
 
@@ -93,7 +94,7 @@ public static class MigrationBuilderExtensions
             } while (!(line?.Equals(SqlFileHeaderMigrationUp) ?? true));
 
             var sql = reader.ReadToEnd();
-            builder.Sql(sql);
+            RawSqlProvider.Instance.AddCreateCommand(file, sql);
             reader.Close();
         }
 
@@ -133,7 +134,7 @@ public static class MigrationBuilderExtensions
                 if (!string.IsNullOrWhiteSpace(line))
                 {
                     var uncommentedSql = line[2..];
-                    builder.Sql(uncommentedSql);
+                    RawSqlProvider.Instance.AddDropCommand(uncommentedSql);
                 }
 
                 line = reader.ReadLine();
