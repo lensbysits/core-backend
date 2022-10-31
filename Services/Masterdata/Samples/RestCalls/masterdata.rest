@@ -20,16 +20,17 @@ grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecre
 GET {{api-url}}masterdata
 # Authorization: Bearer {{access_token}}
 
+@masterdataTypeId={{MasterdataTypeRequest.response.body.$.value[0].id}}
 ###
-GET {{api-url}}masterdata/type/{{MasterdataTypeRequest.response.body.$[0].id}}
+GET {{api-url}}masterdata/type/{{masterdataTypeId}}
 # Authorization: Bearer {{access_token}}
 
 ###
-GET {{api-url}}masterdata/{{MasterdataTypeRequest.response.body.$[0].id}}
+GET {{api-url}}masterdata/{{masterdataTypeId}}
 # Authorization: Bearer {{access_token}}
 
 ###
-GET {{api-url}}masterdata/{{MasterdataTypeRequest.response.body.$[1].code}}
+GET {{api-url}}masterdata/{{MasterdataTypeRequest.response.body.$.value[1].code}}
 Authorization: Bearer {{access_token}}
 
 ###
@@ -40,7 +41,7 @@ Content-Type: application/json
 < ./data/period-type.json
 
 ###
-DELETE {{api-url}}masterdata/type/{{MasterdataTypeRequest.response.body.$[1].id}}
+DELETE {{api-url}}masterdata/type/{{MasterdataTypeRequest.response.body.$.value[1].id}}
 Authorization: Bearer {{access_token}}
 
 
