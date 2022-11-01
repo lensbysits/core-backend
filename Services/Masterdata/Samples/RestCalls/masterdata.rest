@@ -15,39 +15,47 @@ grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecre
 ###
 @access_token={{tokenCall.response.body.access_token}}
 
-###
+
+### LIST ALL MASTERDATA TYPES AVAILABLE
 # @name MasterdataTypeRequest
 GET {{api-url}}masterdata
 # Authorization: Bearer {{access_token}}
 
 @masterdataTypeId={{MasterdataTypeRequest.response.body.$.value[0].id}}
-###
+@masterdataTypeCode={{MasterdataTypeRequest.response.body.$.value[0].code}}
+
+
+### GET THE DETAILS OF A SINGLE MASTERDATA TYPE
 GET {{api-url}}masterdata/type/{{masterdataTypeId}}
 # Authorization: Bearer {{access_token}}
 
-###
+
+### GET MASTERDATA BY MASTERDATA TYPE ID
 GET {{api-url}}masterdata/{{masterdataTypeId}}
 # Authorization: Bearer {{access_token}}
 
-###
-GET {{api-url}}masterdata/{{MasterdataTypeRequest.response.body.$.value[1].code}}
+
+### GET MASTERDATA BY MASTERDATA TYPE CODE
+GET {{api-url}}masterdata/{{masterdataTypeCode}}
 Authorization: Bearer {{access_token}}
 
-###
+
+### ADD A NEW MASTERDATA TYPE
 POST {{api-url}}masterdata/type
-Authorization: Bearer {{access_token}}
+##Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
-< ./data/period-type.json
+< ./data/time-unit-type.json
 
-###
-DELETE {{api-url}}masterdata/type/{{MasterdataTypeRequest.response.body.$.value[1].id}}
+
+### DELETE A MASTERDATA TYPE BY ID
+DELETE {{api-url}}masterdata/type/{{masterdataTypeId}}
 Authorization: Bearer {{access_token}}
 
 
-###
+### ADD MASTERDATA TO AN EXISTING MASTERDATE TYPE
 POST {{api-url}}masterdata
-Authorization: Bearer {{access_token}}
+#Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
@@ -72,10 +80,11 @@ Content-Type: application/json
     }
 }
 
-###
+
+### UPDATE A MASTERDATA ENTRY
 @putMasterdataId=b424ea88-4f9c-eb11-a87a-00155d0b5596
 PUT {{api-url}}masterdata/{{putMasterdataId}}
-Authorization: Bearer {{access_token}}
+#Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
@@ -85,15 +94,15 @@ Content-Type: application/json
     "weight": 300,
     "systemOnly": true
 }
-    
-###
-@masterdataId=af24ea88-4f9c-eb11-a87a-00155d0b5596
+
+
+### DELETE MASTERDATA ENTRY
+@masterdataId=8723ece2-cbb1-ec11-badb-001a7dda7105
 DELETE {{api-url}}masterdata/{{masterdataId}}
-Authorization: Bearer {{access_token}}
+#Authorization: Bearer {{access_token}}
 
 
-
-###
+### ADD A MASTERDATA TYPE INCLUDING MASTERDATA IN ONE CALL
 POST {{api-url}}masterdata/import
 # Authorization: Bearer {{access_token}}
 Content-Type: application/json
