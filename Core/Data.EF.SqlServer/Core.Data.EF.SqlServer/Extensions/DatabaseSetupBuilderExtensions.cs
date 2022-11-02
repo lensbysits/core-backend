@@ -1,4 +1,5 @@
-﻿using Lens.Core.Data.EF.Extensions;
+﻿using Lens.Core.Data.EF.Configuration;
+using Lens.Core.Data.EF.Extensions;
 using Lens.Core.Data.EF.Services;
 using Lens.Core.Lib.Builders;
 using Microsoft.Data.SqlClient;
@@ -46,7 +47,8 @@ public static class DatabaseSetupBuilderExtensions
         builder
             .AddModelBuilderService()
             .Services
-                .AddTransient<IModelBuilderService, IdModelBuilderService>();
+                .AddTransient<IModelBuilderService, IdModelBuilderService>()
+                .Configure<MigrationSettings>(options => builder.Configuration.Bind(nameof(MigrationSettings), options));
 
         return builder;
     }
