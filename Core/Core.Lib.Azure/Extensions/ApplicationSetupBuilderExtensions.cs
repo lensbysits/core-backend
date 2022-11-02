@@ -32,6 +32,7 @@ public static class ApplicationSetupBuilderExtensions
                 builder.AddSecretClient(new Uri($"https://{keyvaultName}.vault.azure.net/"));
             }
 
+            builder.UseCredential(new DefaultAzureCredential());
 
             var blobStorageProvider = applicationSetup.Configuration["BlobSettings:Provider"];
             var blobStorageConnectionString = applicationSetup.Configuration["BlobSettings:ConnectionString"];
@@ -42,7 +43,6 @@ public static class ApplicationSetupBuilderExtensions
                 builder.AddBlobServiceClient(blobStorageConnectionString);
             }
 
-            builder.UseCredential(new DefaultAzureCredential());
 
             builder.ConfigureDefaults(applicationSetup.Configuration.GetSection("AzureDefaults"));
         });

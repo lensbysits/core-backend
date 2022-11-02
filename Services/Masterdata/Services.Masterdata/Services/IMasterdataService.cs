@@ -5,7 +5,7 @@ namespace Lens.Services.Masterdata.Services;
 
 public interface IMasterdataService
 {
-    Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes();
+    Task<ICollection<MasterdataTypeListModel>> GetMasterdataTypes();
     Task<MasterdataTypeModel?> GetMasterdataType(Guid id);
     Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model);
     Task<MasterdataTypeListModel> UpdateMasterdataType(Guid masterdataTypeId, MasterdataTypeUpdateModel model);

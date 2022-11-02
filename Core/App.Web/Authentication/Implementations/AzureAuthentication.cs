@@ -75,7 +75,7 @@ internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureA
         services.AddAuthorization(
             options =>
             {
-                options.AddPolicy(ScopeOrRolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger));
+                options.AddPolicy(ScopeOrRolePolicyName, ScopeOrRolePolicy(Serilog.Log.Logger.ForContext(this.GetType())));
                 options.FallbackPolicy = DefaultPolicy;
 
                 authorizationOptions?.Invoke(options);
