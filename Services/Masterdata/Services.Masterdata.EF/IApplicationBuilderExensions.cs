@@ -14,7 +14,7 @@ public static class IApplicationBuilderExensions
     {
         builder
             .AddAssemblies(typeof(IApplicationBuilderExensions).Assembly)
-            .AddDatabase<MasterdataDbContext>()
+            .AddSqlServerDatabase<MasterdataDbContext>()
             .AddProgramInitializer<DatabaseInitializerService<MasterdataDbContext>>()
             .Services
                 .AddScoped<IMasterdataService, MasterdataService>();

@@ -1,8 +1,7 @@
-﻿namespace Lens.Core.Blob.Models
+﻿namespace Lens.Core.Blob.Models;
+
+public class BlobMetadataModel
 {
-    public class BlobMetadataModel
-    {
-        public string FullPathAndName { get; set; }
-        public string RelativePathAndName { get; set; }
-    }
+    public string? FullPathAndName { get; set; }
+    public string? RelativePathAndName { get; set; }
 }

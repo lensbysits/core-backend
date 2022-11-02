@@ -8,6 +8,7 @@ using Lens.Services.Masterdata.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Lens.Core.Data.EF.Services;
+
 namespace Lens.Services.Masterdata.EF.Services;
 
 public class MasterdataService : DataService<MasterdataService, Entities.Masterdata, MasterdataDbContext>, IMasterdataService
@@ -16,16 +17,12 @@ public class MasterdataService : DataService<MasterdataService, Entities.Masterd
     {
     }
 
-    public async Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes()
+    public async Task<ICollection<MasterdataTypeListModel>> GetMasterdataTypes()
     {
         var result = await ApplicationDbContext.MasterdataTypes
             .ProjectTo<MasterdataTypeListModel>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
 
-        return new ResultListModel<MasterdataTypeListModel>
-        {
-            Value = result,
-            Size = result.Count
-        };
+        return result;
     }
 
     public async Task<MasterdataTypeModel?> GetMasterdataType(Guid id)

@@ -6,5 +6,5 @@ public class ApiKeyAuthSettings : AuthSettings
 
     public string ApiKeyHeader { get; set; } = "X-Api-Key";
 
-    public string ApiKey { get; set; }
+    public string? ApiKey { get; set; }
 }

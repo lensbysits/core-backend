@@ -1,47 +1,92 @@
-﻿using Lens.Core.Lib.Services;
+﻿using Lens.Core.Data.EF.Configuration;
+using Lens.Core.Data.EF.Providers;
+using Lens.Core.Lib.Exceptions;
+using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using System.Text;
 
-namespace Lens.Core.Data.EF.Services
+namespace Lens.Core.Data.EF.Services;
+
+public abstract class DatabaseInitializerService : BaseService<DatabaseInitializerService>, IProgramInitializer
 {
-    public abstract class DatabaseInitializerService : BaseService<DatabaseInitializerService>, IProgramInitializer
+    private readonly DbContext _dbContext;
+    private readonly MigrationSettings options;
+
+    public DatabaseInitializerService(IApplicationService<DatabaseInitializerService> applicationService,
+        DbContext dbContext,
+        IOptions<MigrationSettings>? options = null)
+        : base(applicationService)
     {
-        private readonly DbContext _dbContext;
+        _dbContext = dbContext;
+        this.options = options?.Value ?? new MigrationSettings();
+    }
 
-        public DatabaseInitializerService(IApplicationService<DatabaseInitializerService> applicationService,
-            DbContext dbContext)
-            : base(applicationService)
+    public async Task Initialize()
+    {
+        try
         {
-            _dbContext = dbContext;
-        }
+            var pending = await _dbContext.Database.GetPendingMigrationsAsync();
+            await _dbContext.Database.MigrateAsync();
 
-        public async Task Initialize()
-        {
-            try
+            // only apply raw sql when there are pending changes to prevent raw sql running everytime the API starts
+            if (pending.ToList().Count > 0)
             {
-                await _dbContext.Database.MigrateAsync();
+                var commands = RawSqlProvider.Instance.GetSqlCommands();
+                foreach (var command in commands)
+                {
+                    await _dbContext.Database.ExecuteSqlRawAsync(command);
+                }
             }
-            catch (Exception ex)
+        }
+        catch (Exception ex)
+        {
+            LogException(ex);
+
+            if (this.options.BreakOnMigrationException)
             {
-                ApplicationService.Logger.LogError(ex, "An error had occured when applying db migrations.");
+                throw new ApiStartupException("Migrations failed. See logs for details");
+            }
+            else
+            {
                 return;
             }
-
-            await Seed();
         }
 
-        public async virtual Task Seed()
+        await Seed();
+    }
+
+    private void LogException(Exception ex)
+    {
+        ApplicationService.Logger.LogError(ex, "An error had occured when applying db migrations.");
+
+        if (this.options.EnableRawSqlDebug)
         {
-            await Task.FromResult(0);
+            var sb = new StringBuilder();
+            foreach (var cmd in RawSqlProvider.Instance.GetSqlCommands())
+            {
+                sb.AppendLine(cmd);
+                sb.AppendLine(string.Empty.PadLeft(100, '-'));
+            }
+
+            ApplicationService.Logger.LogDebug($"Raw sql debug log:\n{sb}");
         }
     }
 
-    public class DatabaseInitializerService<TDbContext> : DatabaseInitializerService where TDbContext: DbContext
+    public async virtual Task Seed()
     {
-        public DatabaseInitializerService(IApplicationService<DatabaseInitializerService> applicationService, TDbContext dbContext) : base(applicationService, dbContext)
-        {
-        }
+        await Task.FromResult(0);
+    }
+}
+
+public class DatabaseInitializerService<TDbContext> : DatabaseInitializerService where TDbContext : DbContext
+{
+    public DatabaseInitializerService(
+        IApplicationService<DatabaseInitializerService> applicationService,
+        TDbContext dbContext,
+        IOptions<MigrationSettings> options)
+        : base(applicationService, dbContext, options)
+    {
     }
 }

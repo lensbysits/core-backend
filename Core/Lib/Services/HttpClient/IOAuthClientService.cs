@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace Lens.Core.Lib.Services;
 
-namespace Lens.Core.Lib.Services
+public interface IOAuthClientService
 {
-    public interface IOAuthClientService
-    {
-        Task<string> GetBearerToken(string clientName);
-    }
+    Task<string?> GetBearerToken(string clientName);
 }

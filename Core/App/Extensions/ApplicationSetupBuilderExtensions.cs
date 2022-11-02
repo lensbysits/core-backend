@@ -4,21 +4,20 @@ using Lens.Core.Lib.Builders;
 using Lens.Core.Lib.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lens.Core.App
-{
-    public static class ApplicationSetupBuilderExtensions
-    {
-        public static IApplicationSetupBuilder AddApplicationServices(this IApplicationSetupBuilder applicationSetup)
-        {
-            applicationSetup
-                .AddAutoMapper()
-                .AddMediatR()
-                .AddBackgroundTaskQueue()
-                .Services
-                    .AddScoped(typeof(IApplicationService<>), typeof(ApplicationService<>))
-                    .AddScoped(typeof(IApplicationService<,>), typeof(ApplicationService<,>));
+namespace Lens.Core.App;
 
-            return applicationSetup;
-        }
+public static class ApplicationSetupBuilderExtensions
+{
+    public static IApplicationSetupBuilder AddApplicationServices(this IApplicationSetupBuilder applicationSetup)
+    {
+        applicationSetup
+            .AddAutoMapper()
+            .AddMediatR()
+            .AddBackgroundTaskQueue()
+            .Services
+                .AddScoped(typeof(IApplicationService<>), typeof(ApplicationService<>))
+                .AddScoped(typeof(IApplicationService<,>), typeof(ApplicationService<,>));
+
+        return applicationSetup;
     }
 }

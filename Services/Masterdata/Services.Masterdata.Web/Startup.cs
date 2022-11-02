@@ -1,4 +1,4 @@
-﻿using Lens.Core.Lib.Builders;
+﻿using Lens.Core.App.Web.Builders;
 using Lens.Services.Masterdata.EF;
 
 namespace Lens.Services.Masterdata.Web;
@@ -9,7 +9,7 @@ public class Startup : Core.App.Web.StartupBase
     {
     }
 
-    public override void OnSetupApplication(IApplicationSetupBuilder applicationSetup)
+    public override void OnSetupApplication(IWebApplicationSetupBuilder applicationSetup)
     {
         applicationSetup
             // Add app specific services.

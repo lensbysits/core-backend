@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models;
 
@@ -28,10 +28,13 @@ public class ResultModel<TValue> : IResultModel<TValue>
 {
     public ResultModel()
     {
-        ValueType = ResultModelType.@object;
+        ValueType = ResultModelValueType.@object;
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string ValueType { get; protected set; }
-    public TValue Value { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public TValue? Value { get; set; }
 
 }
