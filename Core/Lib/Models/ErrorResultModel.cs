@@ -1,4 +1,3 @@
-﻿using Lens.Core.Lib.Models;
 using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models;
@@ -34,5 +33,8 @@ public class ErrorResultModel : ResultModel<object?>
     public string? CorrelationId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public Dictionary<string, object>? Data { get; set; }
+    public IDictionary? Data { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]    
+    public Dictionary<string, object>? DataDetails { get; set; }
 }

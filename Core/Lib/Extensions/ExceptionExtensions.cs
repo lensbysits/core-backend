@@ -53,33 +53,8 @@ public static class ExceptionExtensions
         StringBuilder exceptionMessage = new StringBuilder(e.Message);
 
         exceptionMessage.Append(" (" + e.GetType().Name + "):" + Environment.NewLine);
-
-        if (e.Data != null && e.Data?.Count > 0)
-        {
-            var items = new List<string>(e.Data.Count);
-            foreach (var k in e.Data.Keys)
-            {
-                if (k == null)
-                {
-                    continue;
-                }
-
-                var v = e.Data[k];
-
-                if (v != null && v.GetType().IsValueType)
-                {
-                    items.Add(string.Concat(k.ToString(), ": ", v.ToString()));
-                }
-            }
-
-            if (items.AnyOrDefault())
-            {
-                exceptionMessage.AppendLine(string.Concat("\tError Data: ", string.Join(", ", items)));
-            }
-        }
-
-        exceptionMessage.AppendLine(String.Concat("\t Source: ", e.Source ?? ""));
-        exceptionMessage.AppendLine(String.Concat("\t Stack Trace: ", e.StackTrace ?? ""));
+        exceptionMessage.AppendLine(string.Concat("\t Source: ", e.Source ?? ""));
+        exceptionMessage.AppendLine(string.Concat("\t Stack Trace: ", e.StackTrace ?? ""));
 
         if (e.InnerException != null)
         {
