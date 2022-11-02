@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models;
