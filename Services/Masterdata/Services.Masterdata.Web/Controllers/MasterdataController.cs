@@ -20,7 +20,7 @@ public class MasterdataController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ResultListModel<MasterdataTypeListModel>> Get()
+    public async Task<ICollection<MasterdataTypeListModel>> Get()
     {
         var result = await _masterdataService.GetMasterdataTypes();
         return result;
