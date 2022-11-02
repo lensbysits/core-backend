@@ -7,6 +7,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Data.EF\Core.Data.EF.csproj" />
+    <ProjectReference Include="..\Lib\Core.Lib.csproj" />
   </ItemGroup>
 </Project>
