@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -76,6 +77,17 @@ public class StartupBase
         if (!applicationSetup.ControllerOptions.IgnoreResultModelWrapper)
         {
             options.Filters.Add(new ResultModelWrapperFilter());
+        }
+
+        foreach(var filter in applicationSetup.RequestPipelineFilterMetadata)
+        {
+            if (filter.GetType().IsAssignableFrom(typeof(IFilterMetadata)))
+            {
+                throw new InvalidOperationException($"Provider filter type {filter.GetType()} is not a IFilterMetadataType");
+            }
+            
+            options.Filters.Add(filter);
+            
         }
 
         authMethod.ApplyMvcFilters(options.Filters);
