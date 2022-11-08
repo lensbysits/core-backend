@@ -17,12 +17,12 @@ public class MasterdataService : DataService<MasterdataService, Entities.Masterd
     {
     }
 
-    public async Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes()
+    public async Task<ICollection<MasterdataTypeListModel>> GetMasterdataTypes()
     {
         var result = await ApplicationDbContext.MasterdataTypes
             .ProjectTo<MasterdataTypeListModel>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
 
-        return new ResultListModel<MasterdataTypeListModel>(result);
+        return result;
     }
 
     public async Task<MasterdataTypeModel?> GetMasterdataType(Guid id)
