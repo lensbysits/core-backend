@@ -25,7 +25,7 @@ public static class EntityExtensions
     }
 
     public static IQueryable<TEntity> GetByQueryModel<TEntity>(this IQueryable<TEntity> entities, QueryModel queryModel, Expression<Func<TEntity, bool>>? searchPredicate = null)
-       where TEntity : class, IIdEntity
+       where TEntity : class, IEntity
     {
         // apply default filters
         if (typeof(ITagsEntity).IsAssignableFrom(typeof(TEntity)) && !string.IsNullOrEmpty(queryModel.Tag))
@@ -74,14 +74,14 @@ public static class EntityExtensions
     }
 
     public static void DeleteWhere<TEntity>(this DbSet<TEntity> entities, Expression<Func<TEntity, bool>> predicate)
-        where TEntity : class, IIdEntity
+        where TEntity : class, IEntity
     {
         var entitiesToDelete = entities.Where(predicate);
         entities.DeleteRange(entitiesToDelete);
     }
 
     public static void DeleteRange<TEntity>(this DbSet<TEntity> entities, IQueryable<TEntity> entitiesToDelete)
-        where TEntity : class, IIdEntity
+        where TEntity : class, IEntity
     {
         entities.AttachRange(entitiesToDelete);
         entities.RemoveRange(entitiesToDelete);
