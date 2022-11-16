@@ -1,9 +1,9 @@
 ﻿using Lens.Core.Lib.Models;
 using Lens.Services.Masterdata.Models;
 
-namespace Lens.Services.Masterdata.Services;
+namespace Lens.Services.Masterdata.Repositories;
 
-public interface IMasterdataService
+public interface IMasterdataRepository
 {
     #region Get
     Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes();
@@ -28,7 +28,7 @@ public interface IMasterdataService
 
     #region Delete
     Task DeleteMasterdataType(Guid id);
-
+    
     Task DeleteMasterdata(Guid id);
     #endregion
 
