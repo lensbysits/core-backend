@@ -58,7 +58,7 @@ public static class MigrationBuilderExtensions
         else
         {
             // TODO: I usually replace this generic exception with `AppMigrationException`.
-            throw new Exception($"Migration .sql file not found: ${filename}");
+            throw new Exception($"Migration .sql file not found: {filename}. Only found files: {{string.Join(\" \", sqlFile)}}\"");
         }
         return builder;
     }
