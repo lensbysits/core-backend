@@ -12,8 +12,6 @@ internal class WebApplicationSetupBuilder : ApplicationSetupBuilder, IWebApplica
     public IControllerOptions Controller { get => ControllerOptions; }
     internal ControllerOptions ControllerOptions { get; } = new ControllerOptions();
 
-    public ICollection<Type> RequestPipelineFilterMetadata { get; } = new List<Type>();
-
     public WebApplicationSetupBuilder(IServiceCollection services, IConfiguration configuration) : base(services, configuration)
     {
         HealthChecks = services.AddHealthChecks();

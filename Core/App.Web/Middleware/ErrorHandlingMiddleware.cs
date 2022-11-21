@@ -138,7 +138,8 @@ public class ErrorHandlingMiddleware
             ErrorType = exceptionType.Name,
             ErrorDetails = exception.GetFullExceptionData(),
             Stacktrace = exception.StackTrace,
-            Data = exception.GetSerializableDataDictionary(true)
+            Data = exception.Data,
+            DataDetails = exception.GetSerializableDataDictionary(true)
         };
     }
 
@@ -156,7 +157,8 @@ public class ErrorHandlingMiddleware
         {
             Message = exceptionMessage,
             ErrorType = exceptionType.Name,
-            Data = exception.GetSerializableDataDictionary(true)
+            Data = exception.Data,
+            DataDetails = exception.GetSerializableDataDictionary(true)
         };
     }
 
