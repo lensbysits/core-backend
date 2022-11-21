@@ -101,6 +101,48 @@ public static class MigrationBuilderExtensions
         return builder;
     }
 
+    public static MigrationBuilder RevertFile(this MigrationBuilder builder, string dirName, string fileName)
+    {
+        if (builder == null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        string data = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppContext.BaseDirectory;
+        string path = Path.Combine(data, dirName);
+
+        // due to different file systems we need to get the files without a full path reference in the parameter
+        // so we can support both Windows and Linux file systems
+        var sqlFiles = Directory.GetFiles(path, "*.sql", SearchOption.AllDirectories);
+        var sqlFile = sqlFiles.FirstOrDefault(f => f.EndsWith(fileName));
+        if (sqlFile == null)
+        {
+            throw new Exception($"Migration .sql file not found: ${fileName}. Only found files: {string.Join(" ", sqlFile)}");
+        }
+
+        using var reader = new StreamReader(sqlFile);
+        var firstLine = reader.ReadLine();
+        if (!(firstLine?.Equals("--efcore.migration.down") ?? false))
+        {
+            throw new Exception("Headers missing for file run. Please add the 2 required headers: --efcore.migration.down and --efcore.migration.up");
+        }
+
+        var line = string.Empty;
+
+        while (!(line?.Equals(SqlFileHeaderMigrationUp) ?? true))
+        {
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                var uncommentedSql = line[2..];
+                builder.Sql(uncommentedSql);
+            }
+
+            line = reader.ReadLine();
+        }
+
+        return builder;
+    }
+
     public static MigrationBuilder RevertFiles(this MigrationBuilder builder, string dirName)
     {
         if (builder == null)
