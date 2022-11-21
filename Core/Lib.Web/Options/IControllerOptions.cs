@@ -19,4 +19,13 @@ public interface IControllerOptions
     /// Will also register services to work with razor-views.
     /// </summary>
     IControllerOptions UseViews();
+    /// <summary>
+    /// Registers a custom filter of type IFilterMetadata that will be injected in the Request Pipeline.
+    /// </summary>
+    /// <param name="filter"></param>
+    IControllerOptions AddRequestPipeLineFilter(Type filter);
+    /// <summary>
+    /// Gets all custom filters to be injected into the request pipeline.
+    /// </summary>
+    ICollection<Type> GetRequestPipeLineFilters();
 }

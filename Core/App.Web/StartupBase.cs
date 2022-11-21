@@ -79,15 +79,9 @@ public class StartupBase
             options.Filters.Add(new ResultModelWrapperFilter());
         }
 
-        foreach(var filter in applicationSetup.RequestPipelineFilterMetadata)
+        foreach(var filter in applicationSetup.Controller.GetRequestPipeLineFilters())
         {
-            if (filter.GetType().IsAssignableFrom(typeof(IFilterMetadata)))
-            {
-                throw new InvalidOperationException($"Provider filter type {filter.GetType()} is not a IFilterMetadataType");
-            }
-            
             options.Filters.Add(filter);
-            
         }
 
         authMethod.ApplyMvcFilters(options.Filters);
