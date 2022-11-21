@@ -117,7 +117,7 @@ public static class MigrationBuilderExtensions
         var sqlFile = sqlFiles.FirstOrDefault(f => f.EndsWith(fileName));
         if (sqlFile == null)
         {
-            throw new Exception($"Migration .sql file not found: ${fileName}");
+            throw new Exception($"Migration .sql file not found: ${fileName}. Only found files: {string.Join(" ", sqlFile)}");
         }
 
         using var reader = new StreamReader(sqlFile);
