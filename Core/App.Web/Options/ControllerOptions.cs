@@ -39,14 +39,9 @@ internal class ControllerOptions : IControllerOptions
         return this;
     }
 
-    public IControllerOptions AddRequestPipeLineFilter(Type filter)
+    public IControllerOptions AddRequestPipeLineFilter<T>() where T : IFilterMetadata
     {
-        if (!filter.GetType().IsAssignableFrom(typeof(IFilterMetadata)))
-        {
-            throw new InvalidOperationException("Only type IFilterMetadata is allowed to be injected into the request pipeline");
-        }
-        
-        this.requestPipelineFilterMetadata.Add(filter);
+        this.requestPipelineFilterMetadata.Add(typeof(T));
         return this;
     }
 

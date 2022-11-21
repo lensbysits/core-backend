@@ -1,4 +1,6 @@
-﻿namespace Lens.Core.App.Web.Options;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace Lens.Core.App.Web.Options;
 
 public interface IControllerOptions
 {
@@ -23,7 +25,7 @@ public interface IControllerOptions
     /// Registers a custom filter of type IFilterMetadata that will be injected in the Request Pipeline.
     /// </summary>
     /// <param name="filter"></param>
-    IControllerOptions AddRequestPipeLineFilter(Type filter);
+    IControllerOptions AddRequestPipeLineFilter<T>() where T : IFilterMetadata;
     /// <summary>
     /// Gets all custom filters to be injected into the request pipeline.
     /// </summary>
