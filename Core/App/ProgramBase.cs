@@ -106,7 +106,6 @@ public class ProgramBase
         configurationBuilder.AddJsonFile(
             $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
             optional: true);
-           // .AddEnvironmentVariables();
 
         LoggingConfigurationSetup?.Invoke(configurationBuilder);
 
