@@ -20,10 +20,15 @@ public class MasterdataController : ControllerBase
     }
 
     #region HttpGet
+    /// <summary>
+    /// List all masterdata types.
+    /// </summary>
+    /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
+    /// <returns>A list of masterdata types.</returns>
     [HttpGet("type/")]
-    public async Task<ResultListModel<MasterdataTypeListModel>> Get()
+    public async Task<ResultPagedListModel<MasterdataTypeListModel>> Get([FromQuery] QueryModel queryModel)
     {
-        var result = await _masterdataService.GetMasterdataTypes();
+        var result = await _masterdataService.GetMasterdataTypes(queryModel);
         return result;
     }
 
@@ -41,17 +46,27 @@ public class MasterdataController : ControllerBase
         return result;
     }
 
+    /// <summary>
+    /// List all masterdatas.
+    /// </summary>
+    /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
+    /// <returns>A list of masterdatas.</returns>
     [HttpGet()]
-    public async Task<IEnumerable<MasterdataModel>> GetMasterdata()
+    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata([FromQuery] QueryModel queryModel)
     {
-        var result = await _masterdataService.GetMasterdata();
+        var result = await _masterdataService.GetMasterdata(queryModel);
         return result;
     }
 
+    /// <summary>
+    /// List all masterdatas belonging to a specific masterdata type.
+    /// </summary>
+    /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
+    /// <returns>A list of masterdatas belonging to a specific masterdata type.</returns>
     [HttpGet("{masterdataType}")]
-    public async Task<IEnumerable<MasterdataModel>> GetMasterdata(string masterdataType)
+    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, [FromQuery] QueryModel queryModel)
     {
-        var result = await _masterdataService.GetMasterdata(masterdataType);
+        var result = await _masterdataService.GetMasterdata(masterdataType, queryModel);
         return result;
     }
 

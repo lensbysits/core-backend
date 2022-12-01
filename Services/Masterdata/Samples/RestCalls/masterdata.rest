@@ -1,5 +1,5 @@
 @ids-url=https://idp/
-@api-url=https://localhost:7029/api/Masterdata
+@api-url=https://localhost:7022/api/Masterdata
 
 @clientId=IdentityServerManager
 @clientSecret=default_secret

@@ -6,11 +6,11 @@ namespace Lens.Services.Masterdata.Services;
 public interface IMasterdataService
 {
     #region Get
-    Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes();
+    Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel);
     Task<MasterdataTypeModel?> GetMasterdataType(Guid id);
     Task<MasterdataTypeModel?> GetMasterdataType(string code);
-    Task<IEnumerable<MasterdataModel>> GetMasterdata();
-    Task<IEnumerable<MasterdataModel>> GetMasterdata(string masterdataType);
+    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel);
+    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel);
     Task<MasterdataModel?> GetMasterdata(string masterdataType, string value);
     #endregion
 

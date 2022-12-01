@@ -73,6 +73,22 @@ public static class EntityExtensions
         return entities;
     }
 
+    public static async Task<(IQueryable<TEntity> query, int totalSize)> ApplyPaging<TEntity>(this IQueryable<TEntity> entities, QueryModel queryModel)
+    {
+        var totalSize = await entities.CountAsync();
+
+        if (!queryModel.NoLimit)
+        {
+            var pagingQuery = entities
+                .Skip(queryModel.Offset)
+                .Take(queryModel.Limit);
+
+            return (pagingQuery, totalSize);
+        }
+
+        return (entities, totalSize);
+    }
+
     public static void DeleteWhere<TEntity>(this DbSet<TEntity> entities, Expression<Func<TEntity, bool>> predicate)
         where TEntity : class, IIdEntity
     {

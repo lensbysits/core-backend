@@ -18,9 +18,9 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     }
 
     #region Get
-    public async Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes()
+    public async Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel)
     {
-        var result = await _masterdataRepository.GetMasterdataTypes();
+        var result = await _masterdataRepository.GetMasterdataTypes(querymodel);
         return result;
     }
 
@@ -36,15 +36,15 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
         return result;
     }
 
-    public async Task<IEnumerable<MasterdataModel>> GetMasterdata()
+    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel)
     {
-        var result = await _masterdataRepository.GetMasterdata();
+        var result = await _masterdataRepository.GetMasterdata(querymodel);
         return result;
     }
 
-    public async Task<IEnumerable<MasterdataModel>> GetMasterdata(string masterdataType)
+    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel)
     {
-        var result = await _masterdataRepository.GetMasterdata(masterdataType);
+        var result = await _masterdataRepository.GetMasterdata(masterdataType, querymodel);
         return result;
     }
 

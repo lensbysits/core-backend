@@ -8,9 +8,9 @@ public class Masterdata : BaseEntity
     public Guid MasterdataTypeId { get; set; }
     public virtual MasterdataType? MasterdataType { get; set; }
 
-    [StringLength(50)]
+    [StringLength(50), Required]
     public string? Key { get; set; }
-    [StringLength(50)]
+    [StringLength(50), Required]
     public string? Value { get; set; }
     [StringLength(50)]
     public string? Name { get; set; }

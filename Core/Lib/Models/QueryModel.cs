@@ -10,7 +10,7 @@ public class QueryModel
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int Limit { get; set; } = 50;
     /// <summary>
-    /// The parameter doesn't take into account the set or default offset or limit
+    /// If set to true, the query doesn't take into account the set or default offset or limit
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool NoLimit { get; set; } = false;

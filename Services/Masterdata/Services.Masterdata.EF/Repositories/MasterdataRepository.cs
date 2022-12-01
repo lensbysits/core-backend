@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using AutoMapper.QueryableExtensions;
+using Lens.Core.Data.EF;
 using Lens.Core.Data.EF.Repositories;
 using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Services;
 using Lens.Core.Lib.Models;
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
+using System.Linq.Dynamic.Core;
 
 namespace Lens.Services.Masterdata.EF.Repositories;
 
@@ -20,11 +22,23 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
     }
      
     #region Get
-    public async Task<ResultListModel<MasterdataTypeListModel>> GetMasterdataTypes()
+    public async Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel? querymodel = null)
     {
-        var result = await this.DbContext.MasterdataTypes
-            .ProjectTo<MasterdataTypeListModel>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
-        return new ResultListModel<MasterdataTypeListModel>(result);
+        var myQueryModel = querymodel ?? new QueryModel();
+
+        var (query, totalSize) = await this.DbContext.MasterdataTypes
+            .GetByQueryModel(myQueryModel)
+            .ApplyPaging(myQueryModel);
+
+        var result = await query
+            .ProjectTo<MasterdataTypeListModel>(ApplicationService.Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return new ResultPagedListModel<MasterdataTypeListModel>(result)
+        {
+            TotalSize = totalSize,
+            OriginalQueryModel = myQueryModel
+        };
     }
 
     public async Task<MasterdataTypeModel?> GetMasterdataType(Guid id)
@@ -43,15 +57,26 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
         return result;
     }
 
-    public async Task<IEnumerable<MasterdataModel>> GetMasterdata()
+    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel? querymodel = null)
     {
-        var result = await this.DbContext.Masterdatas
-            .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
+        var myQueryModel = querymodel ?? new QueryModel();
 
-        return result;
+        var (query, totalSize) = await this.DbContext.Masterdatas
+            .GetByQueryModel(myQueryModel)
+            .ApplyPaging(myQueryModel);
+
+        var result = await query
+            .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return new ResultPagedListModel<MasterdataModel>(result)
+        {
+            TotalSize = totalSize,
+            OriginalQueryModel = myQueryModel
+        };
     }
 
-    public async Task<IEnumerable<MasterdataModel>> GetMasterdata(string masterdataType)
+    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel? querymodel = null)
     {
         Expression<Func<Entities.Masterdata, bool>> where = null!;
         if (Guid.TryParse(masterdataType, out var masterdataTypeId))
@@ -59,11 +84,22 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
         else
             where = m => m.MasterdataType!.Code == masterdataType;
 
-        var result = await this.DbContext.Masterdatas
-            .Where(where)
-            .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider).ToListAsync();
+        var myQueryModel = querymodel ?? new QueryModel();
 
-        return result;
+        var (query, totalSize) = await this.DbContext.Masterdatas
+            .Where(where)
+            .GetByQueryModel(myQueryModel)
+            .ApplyPaging(myQueryModel);
+
+        var result = await query
+            .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return new ResultPagedListModel<MasterdataModel>(result)
+        {
+            TotalSize = totalSize,
+            OriginalQueryModel = myQueryModel
+        };
     }
 
     public async Task<MasterdataModel?> GetMasterdata(string masterdataType, string value)
