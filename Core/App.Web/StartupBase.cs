@@ -109,6 +109,8 @@ public class StartupBase
             .UseSwagger(Configuration)
             .UseSwaggerUI(Configuration);
 
+        app.UseAuthentication(Configuration);
+
         app.UseCorrelationId();
 
         app.UseErrorHandling();
