@@ -6,9 +6,8 @@ namespace Lens.Services.Masterdata.Models;
 
 public class MasterdataCreateModel
 {
-    public Guid MasterdataTypeId { get; set; }
     [StringLength(50), Required]
-    public string? Key { get; set; }
+    public string Key { get; set; } = default!;
     [StringLength(50), Required]
     public string? Value { get; set; }
     [StringLength(50)]

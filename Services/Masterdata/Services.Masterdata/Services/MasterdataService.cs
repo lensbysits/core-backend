@@ -18,87 +18,58 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     }
 
     #region Get
-    public async Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel)
-    {
-        var result = await _masterdataRepository.GetMasterdataTypes(querymodel);
-        return result;
-    }
 
-    public async Task<MasterdataTypeModel?> GetMasterdataType(Guid id)
-    {
-        var result = await _masterdataRepository.GetMasterdataType(id);
-        return result;
-    }
+    public Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel)
+        => _masterdataRepository.GetMasterdataTypes(querymodel);
 
-    public async Task<MasterdataTypeModel?> GetMasterdataType(string code)
-    {
-        var result = await _masterdataRepository.GetMasterdataType(code);
-        return result;
-    }
+    public Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType)
+        => _masterdataRepository.GetMasterdataType(masterdataType);
 
-    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel)
-    {
-        var result = await _masterdataRepository.GetMasterdata(querymodel);
-        return result;
-    }
+    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel)
+        => _masterdataRepository.GetMasterdata(querymodel: querymodel);
 
-    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel)
-    {
-        var result = await _masterdataRepository.GetMasterdata(masterdataType, querymodel);
-        return result;
-    }
+    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel)
+        => _masterdataRepository.GetMasterdata(masterdataType, querymodel);
 
-    public async Task<MasterdataModel?> GetMasterdata(string masterdataType, string value)
-    {
-        var result = await _masterdataRepository.GetMasterdata(masterdataType, value);
-        return result;
-    }
-    #endregion
+    public Task<MasterdataModel?> GetMasterdata(string masterdataType, string value)
+        => _masterdataRepository.GetMasterdata(masterdataType, value);
+
+    #endregion Get
 
     #region Add/Post
-    public async Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model)
-    {
-        var result = await _masterdataRepository.AddMasterdataType(model);
-        return result;
-    }
 
-    public async Task<MasterdataModel> AddMasterdata(MasterdataCreateModel model)
-    {
-        var result = await _masterdataRepository.AddMasterdata(model);
-        return result;
-    }
-    #endregion
+    public Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model)
+        => _masterdataRepository.AddMasterdataType(model);
+
+    public Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model)
+        => _masterdataRepository.AddMasterdata(masterdataType, model);
+
+    #endregion Add/Post
 
     #region Update/Put
-    public async Task<MasterdataTypeListModel> UpdateMasterdataType(Guid masterdataTypeId, MasterdataTypeUpdateModel model)
-    {
-        var result = await _masterdataRepository.UpdateMasterdataType(masterdataTypeId, model);
-        return result;
-    }
 
-    public async Task<MasterdataModel> UpdateMasterdata(Guid masterdataId, MasterdataUpdateModel model)
-    {
-        var result = await _masterdataRepository.UpdateMasterdata(masterdataId, model);
-        return result;
-    }
-    #endregion/Put
+    public Task<MasterdataTypeListModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
+        => _masterdataRepository.UpdateMasterdataType(masterdataType, model);
+
+    public Task<MasterdataModel> UpdateMasterdata(string masterdataType, string masterdata, MasterdataUpdateModel model)
+        => _masterdataRepository.UpdateMasterdata(masterdataType, masterdata, model);
+
+    #endregion Update/Put
 
     #region Delete
-    public async Task DeleteMasterdataType(Guid id)
-    {
-        await _masterdataRepository.DeleteMasterdataType(id);
-    }
 
-    public async Task DeleteMasterdata(Guid id)
-    {
-        await _masterdataRepository.DeleteMasterdata(id);
-    }
-    #endregion
+    public Task DeleteMasterdataType(string masterdataType)
+        => _masterdataRepository.DeleteMasterdataType(masterdataType);
+
+    public Task DeleteMasterdata(string masterdataType, string masterdata)
+        => _masterdataRepository.DeleteMasterdata(masterdataType, masterdata);
+
+    #endregion Delete
 
     #region Others
-    public async Task<MasterdataTypeModel?> ImportMasterdata(MasterdataImportModel model)
-    {
-        return await _masterdataRepository.ImportMasterdata(model);
-    }
-    #endregion
+
+    public Task<MasterdataTypeModel?> ImportMasterdata(MasterdataImportModel model)
+        => _masterdataRepository.ImportMasterdata(model);
+
+    #endregion Others
 }

@@ -6,7 +6,7 @@ namespace Lens.Services.Masterdata.EF.Entities;
 public class Masterdata : BaseEntity
 {
     public Guid MasterdataTypeId { get; set; }
-    public virtual MasterdataType? MasterdataType { get; set; }
+    public virtual MasterdataType MasterdataType { get; set; } = default!;
 
     [StringLength(50), Required]
     public string? Key { get; set; }

@@ -7,29 +7,28 @@ public interface IMasterdataService
 {
     #region Get
     Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel);
-    Task<MasterdataTypeModel?> GetMasterdataType(Guid id);
-    Task<MasterdataTypeModel?> GetMasterdataType(string code);
+    Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType);
     Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel);
     Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel);
-    Task<MasterdataModel?> GetMasterdata(string masterdataType, string value);
+    Task<MasterdataModel?> GetMasterdata(string masterdataType, string masterdata);
     #endregion
 
     #region Add/Post
     Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model);
 
-    Task<MasterdataModel> AddMasterdata(MasterdataCreateModel model);
+    Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model);
     #endregion
 
     #region Update/Put
-    Task<MasterdataTypeListModel> UpdateMasterdataType(Guid masterdataTypeId, MasterdataTypeUpdateModel model);
+    Task<MasterdataTypeListModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model);
 
-    Task<MasterdataModel> UpdateMasterdata(Guid masterdataId, MasterdataUpdateModel model);
+    Task<MasterdataModel> UpdateMasterdata(string masterdataType, string masterdata, MasterdataUpdateModel model);
     #endregion
 
     #region Delete
-    Task DeleteMasterdataType(Guid id);
+    Task DeleteMasterdataType(string masterdataType);
 
-    Task DeleteMasterdata(Guid id);
+    Task DeleteMasterdata(string masterdataType, string masterdata);
     #endregion
 
     #region Others

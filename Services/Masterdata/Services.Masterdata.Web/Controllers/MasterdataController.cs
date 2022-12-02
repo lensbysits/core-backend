@@ -7,7 +7,7 @@ using Lens.Services.Masterdata.Services;
 namespace Services.Masterdata.Web.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 [AllowAnonymous]
 public class MasterdataController : ControllerBase
 {
@@ -25,36 +25,22 @@ public class MasterdataController : ControllerBase
     /// </summary>
     /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
     /// <returns>A list of masterdata types.</returns>
-    [HttpGet("type/")]
+    [HttpGet]
     public async Task<ResultPagedListModel<MasterdataTypeListModel>> Get([FromQuery] QueryModel queryModel)
     {
         var result = await _masterdataService.GetMasterdataTypes(queryModel);
         return result;
     }
 
-    [HttpGet("type/{id}")]
-    public async Task<MasterdataTypeModel?> GetMasterdataType(Guid id)
-    {
-        var result = await _masterdataService.GetMasterdataType(id);
-        return result;
-    }
-
-    [HttpGet("type/code={code}")]
-    public async Task<MasterdataTypeModel?> GetMasterdataType(string code)
-    {
-        var result = await _masterdataService.GetMasterdataType(code);
-        return result;
-    }
-
     /// <summary>
-    /// List all masterdatas.
+    /// List all masterdatas belonging to a specific masterdata type.
     /// </summary>
     /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
-    /// <returns>A list of masterdatas.</returns>
-    [HttpGet()]
-    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata([FromQuery] QueryModel queryModel)
+    /// <returns>A list of masterdatas belonging to a specific masterdata type.</returns>
+    [HttpGet("{masterdataType}/details")]
+    public async Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType)
     {
-        var result = await _masterdataService.GetMasterdata(queryModel);
+        var result = await _masterdataService.GetMasterdataType(masterdataType);
         return result;
     }
 
@@ -79,49 +65,49 @@ public class MasterdataController : ControllerBase
     #endregion
 
     #region HttpPost
-    [HttpPost("type")]
+    [HttpPost]
     public async Task<ActionResult<MasterdataTypeListModel>> Post(MasterdataTypeCreateModel model)
     {
         var result = await _masterdataService.AddMasterdataType(model);
         return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<MasterdataModel>> Post(MasterdataCreateModel model)
+    [HttpPost("{masterdataType}")]
+    public async Task<ActionResult<MasterdataModel>> Post(string masterdataType, MasterdataCreateModel model)
     {
-        var result = await _masterdataService.AddMasterdata(model);
+        var result = await _masterdataService.AddMasterdata(masterdataType, model);
         return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
     }
     #endregion
 
     #region HttpPut
-    [HttpPut("type/{id}")]
-    public async Task<MasterdataTypeListModel> Put(Guid id, MasterdataTypeUpdateModel model)
+    [HttpPut("{masterdataType}/details")]
+    public async Task<MasterdataTypeListModel> Put(string masterdataType, MasterdataTypeUpdateModel model)
     {
-        var result = await _masterdataService.UpdateMasterdataType(id, model);
+        var result = await _masterdataService.UpdateMasterdataType(masterdataType, model);
         return result;
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<MasterdataModel>> Put(Guid id, MasterdataUpdateModel model)
+    [HttpPut("{masterdataType}/{masterdata}")]
+    public async Task<ActionResult<MasterdataModel>> Put(string masterdataType, string masterdata, MasterdataUpdateModel model)
     {
-        var result = await _masterdataService.UpdateMasterdata(id, model);
+        var result = await _masterdataService.UpdateMasterdata(masterdataType, masterdata, model);
         return AcceptedAtAction(nameof(Get), new { id = result.Id }, result);
     }
     #endregion
 
     #region HttpDelete
-    [HttpDelete("type/{id}")]
-    public async Task<ActionResult> DeleteType(Guid id)
+    [HttpDelete("{masterdataType}/details")]
+    public async Task<ActionResult> DeleteType(string masterdataType)
     {
-        await _masterdataService.DeleteMasterdataType(id);
+        await _masterdataService.DeleteMasterdataType(masterdataType);
         return Ok();
     }
 
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(Guid id)
+    [HttpDelete("{masterdataType}/{masterdata}")]
+    public async Task<ActionResult> Delete(string masterdataType, string masterdata)
     {
-        await _masterdataService.DeleteMasterdata(id);
+        await _masterdataService.DeleteMasterdata(masterdataType, masterdata);
         return Ok();
     }
     #endregion
