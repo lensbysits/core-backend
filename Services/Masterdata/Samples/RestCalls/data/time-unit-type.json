@@ -2,5 +2,59 @@
     "code": "time_units",
     "name": "Time units",
     "description": "Possible values to indicate time",
-    "metadata": null
+    "masterdatas": [
+      {
+        "key": "1",
+        "value": "second",
+        "name": "Second",
+        "weight": 1
+      },
+      {
+        "key": "2",
+        "value": "minute",
+        "name": "Minute",
+        "weight": 60
+      },
+      {
+        "key": "3",
+        "value": "hour",
+        "name": "Hour",
+        "weight": 3600
+      },
+      {
+        "key": "4",
+        "value": "day",
+        "name": "Day",
+        "weight": 86400
+      },
+      {
+        "key": "5",
+        "value": "week",
+        "name": "Week",
+        "weight": 604800
+      },
+      {
+        "key": "6",
+        "value": "month",
+        "name": "Month",
+        "weight": 18144000
+      }
+
+    ],
+    "metadata": {
+      "defaults": [
+        {
+          "role": "employee",
+          "key": "2"
+        },
+        {
+          "role": "admin",
+          "key": "3"
+        },
+        {
+          "role": "client",
+          "key": "4"
+        }
+      ]
+    }
   }

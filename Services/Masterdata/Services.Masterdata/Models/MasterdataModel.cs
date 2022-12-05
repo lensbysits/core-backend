@@ -1,11 +1,11 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Lens.Core.Lib.Models;
 
 namespace Lens.Services.Masterdata.Models;
 
-public class MasterdataModel
+public class MasterdataModel : IdModel
 {
-    public Guid Id { get; set; }
     public Guid MasterdataTypeId { get; set; }
     public string? MasterdataTypeName { get; set; }
     public string? Key { get; set; }
