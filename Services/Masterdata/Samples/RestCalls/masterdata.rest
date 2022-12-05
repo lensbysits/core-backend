@@ -1,5 +1,5 @@
 @ids-url=https://idp/
-@api-url=https://localhost:7029/
+@api-url=https://localhost:7022/Masterdata
 
 @clientId=IdentityServerManager
 @clientSecret=default_secret
@@ -16,95 +16,165 @@ grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecre
 @access_token={{tokenCall.response.body.access_token}}
 
 
-### LIST ALL MASTERDATA TYPES AVAILABLE
+#############################################################
+### GET ALL MASTERDATA TYPES AVAILABLE
 # @name MasterdataTypeRequest
-GET {{api-url}}masterdata
+GET {{api-url}}
 # Authorization: Bearer {{access_token}}
 
-@masterdataTypeId={{MasterdataTypeRequest.response.body.$.value[0].id}}
-@masterdataTypeCode={{MasterdataTypeRequest.response.body.$.value[0].code}}
+### USE THIS VARIABLE IF YOU WANT TO USE ID's WHEN CALLING THE API
+# @masterdataType={{MasterdataTypeRequest.response.body.$.value[0].id}}
+
+### USE THIS VARIABLE IF YOU WANT TO USE CODEs WHEN CALLING THE API
+@masterdataType={{MasterdataTypeRequest.response.body.$.value[0].code}}
+@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[0].name}}
+@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[0].description}}
 
 
 ### GET THE DETAILS OF A SINGLE MASTERDATA TYPE
-GET {{api-url}}masterdata/type/{{masterdataTypeId}}
+GET {{api-url}}/{{masterdataType}}/details
 # Authorization: Bearer {{access_token}}
 
 
-### GET MASTERDATA BY MASTERDATA TYPE ID
-GET {{api-url}}masterdata/{{masterdataTypeId}}
+### GET ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
+# @name MasterdataRequest
+GET {{api-url}}/{{masterdataType}}
 # Authorization: Bearer {{access_token}}
 
 
-### GET MASTERDATA BY MASTERDATA TYPE CODE
-GET {{api-url}}masterdata/{{masterdataTypeCode}}
+
+### USE THIS VARIABLE IF YOU WANT TO USE ID's WHEN CALLING THE API
+# @masterdata={{MasterdataRequest.response.body.$.value[0].id}}
+
+### USE THIS VARIABLE IF YOU WANT TO USE CODEs WHEN CALLING THE API
+@masterdata={{MasterdataRequest.response.body.$.value[0].key}}
+@masterdataValue={{MasterdataRequest.response.body.$.value[0].value}}
+@masterdataName={{MasterdataRequest.response.body.$.value[0].name}}
+@masterdataDesc={{MasterdataRequest.response.body.$.value[0].description}}
+
+
+
+### GET THE DETAILS OF A SINGLE MASTERDATA
+GET {{api-url}}/{{masterdataType}}/{{masterdata}}
 Authorization: Bearer {{access_token}}
 
 
+#############################################################
+### DELETE A MASTERDATA TYPE BY ENTRY ID
+@delmasterdataType=
+DELETE {{api-url}}/{{masterdataType}}/detail
+Authorization: Bearer {{access_token}}
+
+
+### DELETE MASTERDATA BY ENTRY ID
+@delMasterdata=16
+DELETE {{api-url}}/{{masterdataType}}/{{delMasterdata}}
+# Authorization: Bearer {{access_token}}
+
+
+#############################################################
 ### ADD A NEW MASTERDATA TYPE
-POST {{api-url}}masterdata/type
+# @name AddMasterdataTypeRequest
+POST {{api-url}}/type
 ##Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
-< ./data/time-unit-type.json
+{
+    "code": "just-testing6",
+    "name": "JustTesting",
+    "description": "JustTesting desc",
+    "metadata": null
+}
+
+###
+@addmasterdataType={{AddMasterdataTypeRequest.response.body.$.value.id}}
 
 
-### DELETE A MASTERDATA TYPE BY ID
-DELETE {{api-url}}masterdata/type/{{masterdataTypeId}}
-Authorization: Bearer {{access_token}}
+### GET THE DETAILS OF THE ADDED MASTERDATA TYPE
+GET {{api-url}}/type/{{addmasterdataType}}
+# Authorization: Bearer {{access_token}}
 
 
 ### ADD MASTERDATA TO AN EXISTING MASTERDATE TYPE
-POST {{api-url}}masterdata
+# @name AddMasterdataRequest
+POST {{api-url}}/{{masterdataType}}
 #Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
-      "masterdataTypeId": "ae24ea88-4f9c-eb11-a87a-00155d0b5596",
-      "key": "1",
-      "value": "Concept",
-      "name": "Concept",
-      "description": null,
-      "weight": 50,
-      "AllowedRoles": ["admin", "user"],
-      "Metadata": {
+    "key": "16",
+    "value": "Undetermined",
+    "name": "Undetermined",
+    "description": "not sure yet",
+    "metadata": {
         "defaults": [
-        {
-            "role": "employee",
-            "key": "2"
-        },
-        {
-            "role": "admin",
-            "key": "3"
-        }
+            {
+                "role": "admin",
+                "key": "2"
+            },
+            {
+                "role": "employee",
+                "key": "3"
+            }
         ]
     }
 }
 
 
-### UPDATE A MASTERDATA ENTRY
-@putMasterdataId=b424ea88-4f9c-eb11-a87a-00155d0b5596
-PUT {{api-url}}masterdata/{{putMasterdataId}}
+### GET ALL MASTERDATAS BELONGING TO THE ADDED MASTERDATA TYPE
+GET {{api-url}}/{{addmasterdataType}}
+# Authorization: Bearer {{access_token}}
+
+
+#############################################################
+### UPDATE A MASTERDATA TYPE ENTRY
+# @name PutMasterdataTypeRequest
+@putmasterdataType={{masterdataType}}
+PUT {{api-url}}/{{putmasterdataType}}/details
 #Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
-    "value": "Nieuw",
-    "name": "Nieuw",
-    "description": null,
-    "weight": 300,
-    "systemOnly": true
+    "code": "code-{{$timestamp}}",
+    "name": "name-{{$timestamp}}",
+    "description": "desc-{{$timestamp}}"
 }
 
 
-### DELETE MASTERDATA ENTRY
-@masterdataId=8723ece2-cbb1-ec11-badb-001a7dda7105
-DELETE {{api-url}}masterdata/{{masterdataId}}
-#Authorization: Bearer {{access_token}}
+### GET THE DETAILS OF THE UPDATED MASTERDATA TYPE
+GET {{api-url}}/{{putmasterdataType}}/details
+# Authorization: Bearer {{access_token}}
 
+
+### UPDATE A MASTERDATA ENTRY
+# @name PutMasterdataRequest
+@putMasterdataId=15
+PUT {{api-url}}/{{masterdataType}}/{{putMasterdataId}}
+#Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+    "value": "value-{{$timestamp}}",
+    "name": "name-{{$timestamp}}",
+    "description": "desc-{{$timestamp}}"
+}
+
+###
+@putMasterdataWithTypeId={{PutMasterdataRequest.response.body.$.value.masterdataType}}
+
+### GET ALL MASTERDATAS BELONGING TO THE ADDED MASTERDATA TYPE
+GET {{api-url}}/{{masterdataType}}/{{putMasterdataId}}
+# Authorization: Bearer {{access_token}}
+
+
+#############################################################
+### IMPORT
 
 ### ADD A MASTERDATA TYPE INCLUDING MASTERDATA IN ONE CALL
-POST {{api-url}}masterdata/import
+POST {{api-url}}/import
 # Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
-< ./data/statusses.json
+#< ./data/statusses.json
+#< ./data/time-unit-type.json
+#< ./data/quotes.json
