@@ -1,12 +1,12 @@
 ﻿using System.Dynamic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Lens.Core.Lib.Models;
 
 namespace Lens.Services.Masterdata.Models;
 
-public class MasterdataTypeModel
+public class MasterdataTypeModel : IdModel
 {
-    public Guid Id { get; set; }
     public string? Code { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
