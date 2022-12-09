@@ -47,9 +47,10 @@ public static class MigrationBuilderExtensions
         {
             throw new ArgumentNullException(nameof(builder));
         }
-        string data = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppContext.BaseDirectory;
+        var data = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppContext.BaseDirectory;
+        var path = Path.Combine(data, dirName);
 
-        var sqlFiles = Directory.GetFiles(dirName, "*.sql", SearchOption.AllDirectories);
+        var sqlFiles = Directory.GetFiles(path, "*.sql", SearchOption.AllDirectories);
         var sqlFile = sqlFiles.FirstOrDefault(f => f.EndsWith(filename));
         if (sqlFile != null)
         {
