@@ -1,16 +1,15 @@
 ﻿using Lens.Core.Lib.Models;
 using Lens.Services.Masterdata.Models;
 
-namespace Lens.Services.Masterdata.Services;
+namespace Lens.Services.Masterdata.Repositories;
 
-public interface IMasterdataService
+public interface IMasterdataRepository
 {
     #region Get
-    Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel);
+    Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel? querymodel = null);
     Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType);
-    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel);
-    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel);
-    Task<MasterdataModel?> GetMasterdata(string masterdataType, string masterdata);
+    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string? masterdataType = null, QueryModel? querymodel = null);
+    Task<MasterdataModel?> GetMasterdata(string masterdataType, string value);
     #endregion
 
     #region Add/Post
@@ -27,7 +26,7 @@ public interface IMasterdataService
 
     #region Delete
     Task DeleteMasterdataType(string masterdataType);
-
+    
     Task DeleteMasterdata(string masterdataType, string masterdata);
     #endregion
 

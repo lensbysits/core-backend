@@ -6,7 +6,7 @@ namespace Lens.Services.Masterdata.Models;
 
 public class MasterdataUpdateModel
 {
-    [StringLength(50)]
+    [StringLength(50), Required]
     public string? Value { get; set; }
     [StringLength(50)]
     public string? Name { get; set; }
