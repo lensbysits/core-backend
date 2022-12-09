@@ -39,7 +39,7 @@ public static class AuditTrailSetupBuilderExtensions
        string connectionStringPassword = "dbPassword") where T : class, IAuditRlsIdentityProvider
     {
         builder.Services.Configure<AuditSettings>(options => builder.Configuration.Bind(nameof(AuditSettings), options));
-        builder.Services.AddTransient<IAuditRlsIdentityProvider, T>();
+        builder.Services.AddScoped<IAuditRlsIdentityProvider, T>();
         return builder.AddAuditTrailing(connectionStringName, connectionStringPassword);
     }
 }
