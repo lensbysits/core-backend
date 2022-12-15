@@ -22,8 +22,8 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     public Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel)
         => _masterdataRepository.GetMasterdataTypes(querymodel);
 
-    public Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType)
-        => _masterdataRepository.GetMasterdataType(masterdataType);
+    public Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains)
+        => _masterdataRepository.GetMasterdataType(masterdataType, domain);
 
     public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel)
         => _masterdataRepository.GetMasterdata(querymodel: querymodel);
@@ -38,7 +38,7 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     #region Add/Post
 
-    public Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model)
+    public Task<MasterdataTypeModel> AddMasterdataType(MasterdataTypeCreateModel model)
         => _masterdataRepository.AddMasterdataType(model);
 
     public Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model)
@@ -48,7 +48,7 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     #region Update/Put
 
-    public Task<MasterdataTypeListModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
+    public Task<MasterdataTypeModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
         => _masterdataRepository.UpdateMasterdataType(masterdataType, model);
 
     public Task<MasterdataModel> UpdateMasterdata(string masterdataType, string masterdata, MasterdataUpdateModel model)

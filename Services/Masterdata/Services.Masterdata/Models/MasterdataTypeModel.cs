@@ -1,37 +1,37 @@
-﻿using System.Dynamic;
+﻿using Lens.Core.Lib.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Lens.Core.Lib.Models;
 
 namespace Lens.Services.Masterdata.Models;
 
-public class MasterdataTypeModel : IdModel
+public class MasterdataTypeModel : IdModel, IMetadataModel
 {
     public string? Code { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int? MasterdatasCount { get; set; }
 
-    private string? metadataJson;
     [JsonIgnore]
-    public string? MetadataJson
-    {
+    public string? MetadataJson { get; set; }
+
+    public dynamic? Metadata 
+    { 
         get
         {
-            return metadataJson;
-        }
-        set
-        {
-            if (!string.IsNullOrEmpty(value))
+            if((Domain ?? IMetadataModel.AllDomains) == IMetadataModel.AllDomains)
             {
-                metadataJson = value;
-                Metadata = JsonSerializer.Deserialize<ExpandoObject>(value);
+                return MetadataDictionary;
+            }
+            else
+            {
+                return MetadataDictionary!.TryGetValue(Domain!, out var value) ? value : null;
             }
         }
     }
 
-    public dynamic? Metadata { get; set; }
+    public string? Domain { get; set; } = IMetadataModel.AllDomains;
 
-    public T? GetMetadata<T>() => JsonSerializer.Deserialize<T>(metadataJson ?? "{}", new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
+    private Dictionary<string, dynamic>? metadataDictionary;
+    [JsonIgnore]
+    public Dictionary<string, dynamic>? MetadataDictionary => metadataDictionary ??= JsonSerializer.Deserialize<Dictionary<string, dynamic>>(MetadataJson ?? "{}");
 }

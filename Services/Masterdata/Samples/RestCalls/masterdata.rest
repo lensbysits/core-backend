@@ -1,5 +1,5 @@
 @ids-url=https://idp/
-@api-url=https://localhost:7022/Masterdata
+@api-url=https://localhost:7029/Masterdata
 
 @clientId=IdentityServerManager
 @clientSecret=default_secret
@@ -75,23 +75,24 @@ DELETE {{api-url}}/{{masterdataType}}/{{delMasterdata}}
 #############################################################
 ### ADD A NEW MASTERDATA TYPE
 # @name AddMasterdataTypeRequest
-POST {{api-url}}/type
+POST {{api-url}}
 ##Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
-    "code": "just-testing6",
+    "code": "just-testing10",
     "name": "JustTesting",
     "description": "JustTesting desc",
     "metadata": null
 }
 
+    #"metadata": null
 ###
 @addmasterdataType={{AddMasterdataTypeRequest.response.body.$.value.id}}
 
 
 ### GET THE DETAILS OF THE ADDED MASTERDATA TYPE
-GET {{api-url}}/type/{{addmasterdataType}}
+GET {{api-url}}/{{addmasterdataType}}/details
 # Authorization: Bearer {{access_token}}
 
 
@@ -129,20 +130,20 @@ GET {{api-url}}/{{addmasterdataType}}
 #############################################################
 ### UPDATE A MASTERDATA TYPE ENTRY
 # @name PutMasterdataTypeRequest
-@putmasterdataType={{masterdataType}}
-PUT {{api-url}}/{{putmasterdataType}}/details
+PUT {{api-url}}/{{addmasterdataType}}/details
 #Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
-    "code": "code-{{$timestamp}}",
-    "name": "name-{{$timestamp}}",
-    "description": "desc-{{$timestamp}}"
+    "code": "just-testing10",
+    "name": "JustTesting",
+    "description": "JustTesting desc",
+    "metadata": { "abc": { "p": "c" } }
 }
 
 
 ### GET THE DETAILS OF THE UPDATED MASTERDATA TYPE
-GET {{api-url}}/{{putmasterdataType}}/details
+GET {{api-url}}/{{addmasterdataType}}/details
 # Authorization: Bearer {{access_token}}
 
 

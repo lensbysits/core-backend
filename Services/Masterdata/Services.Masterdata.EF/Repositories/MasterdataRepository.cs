@@ -33,11 +33,13 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
         return await pagedResult.ToPagedResultListModel<Entities.MasterdataType, MasterdataTypeListModel>(querymodel ?? QueryModel.Default, ApplicationService.Mapper.ConfigurationProvider);
     }
 
-    public async Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType)
+    public async Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains)
     {
         var result = await DbContext.MasterdataTypes
             .ProjectTo<MasterdataTypeModel>(ApplicationService.Mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(MasterdataTypeModelFilter(masterdataType));
+
+        if(result != null && !string.IsNullOrEmpty(domain)) result.Domain = domain;
 
         return result;
     }
@@ -63,14 +65,16 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
     #endregion
 
     #region Add/Post
-    public async Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model)
+    public async Task<MasterdataTypeModel> AddMasterdataType(MasterdataTypeCreateModel model)
     {
         var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(model.Code ?? string.Empty));
         if (masterdataTypeEntity != default) throw new BadRequestException($"MasterdataType with code {model.Code} already exists");
 
         var entry = DbContext.MasterdataTypes.Add(ApplicationService.Mapper.Map<Entities.MasterdataType>(model));
-        await this.DbContext.SaveChangesAsync();
-        return ApplicationService.Mapper.Map<MasterdataTypeListModel>(entry.Entity);
+        await DbContext.SaveChangesAsync();
+        var result = ApplicationService.Mapper.Map<MasterdataTypeModel>(entry);
+        if (!string.IsNullOrEmpty(model.Domain)) result.Domain = model.Domain;
+        return result;
     }
 
     public async Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model)
@@ -89,14 +93,16 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
     #endregion
 
     #region Update/Put
-    public async Task<MasterdataTypeListModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
+    public async Task<MasterdataTypeModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
     {
         var dbEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
         if (dbEntity == default) throw new NotFoundException($"MasterdataType with id/code '{masterdataType}' not found.");
 
         ApplicationService.Mapper.Map(model, dbEntity);
         await DbContext.SaveChangesAsync();
-        return ApplicationService.Mapper.Map<MasterdataTypeListModel>(dbEntity);
+        var result = ApplicationService.Mapper.Map<MasterdataTypeModel>(dbEntity);
+        if(!string.IsNullOrEmpty(model.Domain)) result.Domain = model.Domain;
+        return result;
     }
 
     public async Task<MasterdataModel> UpdateMasterdata(string masterdataType, string masterdata, MasterdataUpdateModel model)

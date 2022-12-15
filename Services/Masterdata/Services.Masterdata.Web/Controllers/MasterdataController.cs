@@ -38,9 +38,9 @@ public class MasterdataController : ControllerBase
     /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
     /// <returns>A list of masterdatas belonging to a specific masterdata type.</returns>
     [HttpGet("{masterdataType}/details")]
-    public async Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType)
+    public async Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, [FromHeader(Name = "masterdata-domain")]string? domain)
     {
-        var result = await _masterdataService.GetMasterdataType(masterdataType);
+        var result = await _masterdataService.GetMasterdataType(masterdataType, domain);
         return result;
     }
 
@@ -66,7 +66,7 @@ public class MasterdataController : ControllerBase
 
     #region HttpPost
     [HttpPost]
-    public async Task<ActionResult<MasterdataTypeListModel>> Post(MasterdataTypeCreateModel model)
+    public async Task<ActionResult<MasterdataTypeModel>> Post(MasterdataTypeCreateModel model)
     {
         var result = await _masterdataService.AddMasterdataType(model);
         return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
@@ -82,7 +82,7 @@ public class MasterdataController : ControllerBase
 
     #region HttpPut
     [HttpPut("{masterdataType}/details")]
-    public async Task<MasterdataTypeListModel> Put(string masterdataType, MasterdataTypeUpdateModel model)
+    public async Task<MasterdataTypeModel> Put(string masterdataType, MasterdataTypeUpdateModel model)
     {
         var result = await _masterdataService.UpdateMasterdataType(masterdataType, model);
         return result;
