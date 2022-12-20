@@ -2,7 +2,7 @@
 @api-url=https://localhost:7029/Masterdata
 
 @clientId=IdentityServerManager
-@clientSecret=default_secret
+@clientSecret=default_secret_this_should_not_be_commited
 
 ###
 # @name tokenCall

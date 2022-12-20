@@ -27,7 +27,10 @@ internal class AutomapperProfile : Profile
     private void UpdateMetadata(IMetadataModel source, MasterdataType destination)
     {
         // if nothing was passed in, or we have no clue on the domain, we do nothing with the metadata
-        if (source.Metadata is null || string.IsNullOrEmpty(source.Domain)) return;
+        if (source.Metadata is null || string.IsNullOrEmpty(source.Domain))
+        {
+            return;
+        }
 
         Dictionary<string, dynamic>? finalMetadataDictionary = null;
 
@@ -59,7 +62,7 @@ internal class AutomapperProfile : Profile
         }
         else
         {
-            if(source.Domain != IMetadataModel.AllDomains)
+            if (source.Domain != IMetadataModel.AllDomains)
             {
                 finalMetadataDictionary = new Dictionary<string, dynamic>() { { source.Domain, source.Metadata } };
             }
@@ -69,8 +72,10 @@ internal class AutomapperProfile : Profile
             }
         }
 
-        if(finalMetadataDictionary != null)
+        if (finalMetadataDictionary != null)
+        {
             destination!.MetadataJson = JsonSerializer.Serialize(finalMetadataDictionary);
+        }
     }
 
     private static void UpdateMetadataDictionary(string key, dynamic value, Dictionary<string, dynamic> metadataDictionary)
