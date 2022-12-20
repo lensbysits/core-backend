@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Lens.Services.Masterdata.Models;
 
-public  class MasterdataTypeCreateModel : MetadataModel
+public class MasterdataTypeCreateModel : MetadataModel
 {
     [StringLength(50), Required]
     public string? Code { get; set; }
