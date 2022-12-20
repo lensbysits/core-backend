@@ -45,12 +45,22 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     public Task<MasterdataTypeModel> AddMasterdataType(MasterdataTypeCreateModel model)
     {
         // TODO: not sure it's the best place to sanitze content!
-        model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
+        if (model.Metadata && !string.IsNullOrEmpty(model.Metadata))
+        {
+            model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
+        }
         return _masterdataRepository.AddMasterdataType(model);
     }
 
     public Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model)
-        => _masterdataRepository.AddMasterdata(masterdataType, model);
+    {
+        // TODO: not sure it's the best place to sanitze content!
+        if (model.Metadata && !string.IsNullOrEmpty(model.Metadata))
+        {
+            model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
+        }
+        return _masterdataRepository.AddMasterdata(masterdataType, model);
+    }
 
     #endregion Add/Post
 
@@ -59,12 +69,22 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     public Task<MasterdataTypeModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
     {
         // TODO: not sure it's the best place to sanitze content!
-        model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
+        if (model.Metadata && !string.IsNullOrEmpty(model.Metadata))
+        {
+            model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
+        }
         return _masterdataRepository.UpdateMasterdataType(masterdataType, model);
     }
 
     public Task<MasterdataModel> UpdateMasterdata(string masterdataType, string masterdata, MasterdataUpdateModel model)
-        => _masterdataRepository.UpdateMasterdata(masterdataType, masterdata, model);
+    {
+        // TODO: not sure it's the best place to sanitze content!
+        if (model.Metadata && !string.IsNullOrEmpty(model.Metadata))
+        {
+            model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
+        }
+        return _masterdataRepository.UpdateMasterdata(masterdataType, masterdata, model);
+    }
 
     #endregion Update/Put
 
