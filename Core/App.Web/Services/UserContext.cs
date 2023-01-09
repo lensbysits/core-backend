@@ -39,11 +39,11 @@ public class UserContext : IUserContext
         return (T?)tc.ConvertFrom(value);
     }
 
-    public ICollection<T> ClaimValues<T>(string claim)
+    public ICollection<T?> ClaimValues<T>(string claim)
     {
         if(UserClaims == null || UserClaims.Claims == null)
         {
-            return new List<T>();
+            return new List<T?>();
         }
 
         TypeConverter tc = TypeDescriptor.GetConverter(typeof(T));
@@ -53,7 +53,7 @@ public class UserContext : IUserContext
             .Where(v => v != null)
             .ToList();
 
-        return values ?? new List<T>();
+        return values;
     }
 
     public bool HasClaim(string claim)
