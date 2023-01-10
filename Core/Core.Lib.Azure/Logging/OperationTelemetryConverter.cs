@@ -1,6 +1,7 @@
 ﻿using Microsoft.ApplicationInsights.Channel;
 using Serilog.Events;
 using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
+using System;
 
 namespace Lens.Core.Lib.Azure.Logging;
 
@@ -23,7 +24,7 @@ public class OperationTelemetryConverter : TraceTelemetryConverter
         }
     }
 
-    private bool TryGetScalarProperty(LogEvent logEvent, string propertyName, out object value)
+    private static bool TryGetScalarProperty(LogEvent logEvent, string propertyName, out object? value)
     {
         var hasScalarValue =
             logEvent.Properties.TryGetValue(propertyName, out var someValue) &&

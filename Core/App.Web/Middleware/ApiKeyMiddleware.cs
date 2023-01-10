@@ -1,8 +1,6 @@
 ﻿using Lens.Core.App.Web.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Threading.Tasks;
 
 namespace Lens.Core.App.Web.Middleware;
 

@@ -2,84 +2,81 @@
 using Lens.Core.Lib.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 using httpClient = System.Net.Http.HttpClient;
 
-namespace Lens.Core.Lib.Services
+namespace Lens.Core.Lib.Services;
+
+public class OAuthClientService : IOAuthClientService
 {
-    public class OAuthClientService : IOAuthClientService
+    private readonly httpClient _httpClient;
+    private readonly ILogger<OAuthClientService> _logger;
+    private readonly OAuthClientSettings _oauthClientSettings;
+
+    public OAuthClientService(
+        httpClient httpClient,
+        ILogger<OAuthClientService> logger,
+        IOptionsSnapshot<OAuthClientSettings> authClientOptions)
     {
-        private readonly httpClient _httpClient;
-        private readonly ILogger<OAuthClientService> _logger;
-        private readonly OAuthClientSettings _oauthClientSettings;
+        _httpClient = httpClient;
+        _logger = logger;
+        _oauthClientSettings = authClientOptions.Value;
+    }
 
-        public OAuthClientService(
-            httpClient httpClient,
-            ILogger<OAuthClientService> logger,
-            IOptionsSnapshot<OAuthClientSettings> authClientOptions)
+    public async Task<string?> GetBearerToken(string clientName)
+    {
+        if (!_oauthClientSettings.TryGetValue(clientName, out var clientSettings))
         {
-            _httpClient = httpClient;
-            _logger = logger;
-            _oauthClientSettings = authClientOptions.Value;
+            throw new NotFoundException($"Settings are missing for client '{clientName}'. Please add {nameof(OAuthClientService)}:{clientName} to the settings.");
         }
 
-        public async Task<string> GetBearerToken(string clientName)
+        try
         {
-            if (!_oauthClientSettings.TryGetValue(clientName, out var clientSettings))
-            {
-                throw new NotFoundException($"Settings are missing for client '{clientName}'. Please add {nameof(OAuthClientService)}:{clientName} to the settings.");
-            }
+            return await GetToken(clientSettings);
+        }
+        catch (Exception e)
+        {
+            throw new UnauthorizedException($"An error had occured when trying to retrieve the token for the client '{clientName}'", e);
+        }
+    }
 
-            try
+    private async Task<string?> GetToken(OAuthClientSetting clientSettings)
+    {
+        var discoDocument = new DiscoveryDocumentRequest
+        {
+            Address = clientSettings.Authority,
+            Policy =
             {
-                return await GetToken(clientSettings);
+                Authority = clientSettings.Authority,
+                ValidateEndpoints = false,
+                RequireHttps = clientSettings.RequireHttps,
             }
-            catch (Exception e)
-            {
-                throw new UnauthorizedException($"An error had occured when trying to retrieve the token for the client '{clientName}'", e);
-            }
+        };
+
+        var disco = await _httpClient.GetDiscoveryDocumentAsync(discoDocument);
+
+        if (disco.IsError)
+        {
+            _logger.LogError(disco.Error);
+            return null;
         }
 
-        private async Task<string> GetToken(OAuthClientSetting clientSettings)
+        // request token
+        var response = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
         {
-            var discoDocument = new DiscoveryDocumentRequest
-            {
-                Address = clientSettings.Authority,
-                Policy =
-                {
-                    Authority = clientSettings.Authority,
-                    ValidateEndpoints = false,
-                    RequireHttps = clientSettings.RequireHttps,
-                }
-            };
+            Address = disco.TokenEndpoint,
 
-            var disco = await _httpClient.GetDiscoveryDocumentAsync(discoDocument);
-
-            if (disco.IsError)
-            {
-                _logger.LogError(disco.Error);
-                return null;
-            }
-
-            // request token
-            var response = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                Address = disco.TokenEndpoint,
-
-                ClientId = clientSettings.ClientId,
-                ClientSecret = clientSettings.ClientSecret,
-                Scope = clientSettings.Scope
-            });
+            ClientId = clientSettings.ClientId,
+            ClientSecret = clientSettings.ClientSecret,
+            Scope = clientSettings.Scope
+        });
 
 
-            if (response.IsError)
-            {
-                _logger.LogError(response.Error);
-                return null;
-            }
-
-            return response.AccessToken;
+        if (response.IsError)
+        {
+            _logger.LogError(response.Error);
+            return null;
         }
+
+        return response.AccessToken;
     }
 }

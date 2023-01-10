@@ -20,7 +20,7 @@ public class MasterdataController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ResultListModel<MasterdataTypeListModel>> Get()
+    public async Task<ICollection<MasterdataTypeListModel>> Get()
     {
         var result = await _masterdataService.GetMasterdataTypes();
         return result;
@@ -34,7 +34,7 @@ public class MasterdataController : ControllerBase
     }
 
     [HttpGet("type/{id}")]
-    public async Task<MasterdataTypeModel> GetMasterdataType(Guid id)
+    public async Task<MasterdataTypeModel?> GetMasterdataType(Guid id)
     {
         var result = await _masterdataService.GetMasterdataType(id);
         return result;
@@ -72,7 +72,7 @@ public class MasterdataController : ControllerBase
     public async Task<ActionResult<MasterdataTypeModel>> Import(MasterdataImportModel model)
     {
         var result = await _masterdataService.ImportMasterdata(model);
-        return AcceptedAtAction(nameof(Get), new { id = result.Id }, result);
+        return AcceptedAtAction(nameof(Get), new { id = result?.Id }, result);
     }
 
     [HttpDelete("type/{id}")]

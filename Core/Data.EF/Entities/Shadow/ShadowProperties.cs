@@ -1,23 +1,22 @@
-﻿namespace Lens.Core.Data.EF.Entities
+﻿namespace Lens.Core.Data.EF.Entities;
+
+public class ShadowProperties
 {
-    public class ShadowProperties
-    {
-        // TimeStamp
-        public const string Timestamp = "Timestamp";
+    // TimeStamp
+    public const string Timestamp = "Timestamp";
 
-        // ICreatedUpdatedEntity
-        public const string CreatedBy = "CreatedBy";
-        public const string CreatedOn = "CreatedOn";
-        public const string UpdatedBy = "UpdatedBy";
-        public const string UpdatedOn = "UpdatedOn";
+    // ICreatedUpdatedEntity
+    public const string CreatedBy = "CreatedBy";
+    public const string CreatedOn = "CreatedOn";
+    public const string UpdatedBy = "UpdatedBy";
+    public const string UpdatedOn = "UpdatedOn";
 
-        // IRecordStateEntity
-        public const string RecordState = "RecordState";
+    // IRecordStateEntity
+    public const string RecordState = "RecordState";
 
-        // ITenantEntity
-        public const string TenantId = "TenantId";
+    // ITenantEntity
+    public const string TenantId = "TenantId";
 
-        // ITag
-        public const string Tag = "Tag";
-    }
+    // ITag
+    public const string Tag = "Tag";
 }

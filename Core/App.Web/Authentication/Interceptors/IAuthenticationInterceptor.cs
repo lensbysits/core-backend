@@ -1,19 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System;
-using System.Threading.Tasks;
 
-namespace Lens.Core.App.Web.Authentication
+namespace Lens.Core.App.Web.Authentication;
+
+public interface IAuthenticationInterceptor
 {
-    public interface IAuthenticationInterceptor
-    {
-        Task OnAuthenticationFailed(AuthenticationFailedContext context);
+    Task OnAuthenticationFailed(AuthenticationFailedContext context);
 
-        Task OnForbidden(ForbiddenContext context);
+    Task OnForbidden(ForbiddenContext context);
 
-        Task OnMessageReceived(MessageReceivedContext context);
+    Task OnMessageReceived(MessageReceivedContext context);
 
-        Task OnTokenValidated(TokenValidatedContext context);
+    Task OnTokenValidated(TokenValidatedContext context);
 
-        Task OnChallenge(JwtBearerChallengeContext context);
-    }
+    Task OnChallenge(JwtBearerChallengeContext context);
 }
