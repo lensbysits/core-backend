@@ -26,4 +26,11 @@ public class MasterdataModel : IdModel
     }
 
     public JsonElement? Metadata { get; set; }
+
+    [JsonIgnore]
+    public string Tag
+    {
+        set => Tags = JsonSerializer.Deserialize<string[]>(value ?? "[]");
+    }
+    public string[]? Tags { get; set; }
 }

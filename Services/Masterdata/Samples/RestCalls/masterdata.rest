@@ -1,5 +1,5 @@
 @ids-url=https://idp/
-@api-url=https://localhost:7029/Masterdata
+@api-url=https://localhost:7022/Masterdata
 
 @clientId=IdentityServerManager
 @clientSecret=default_secret_this_should_not_be_commited
@@ -26,9 +26,9 @@ GET {{api-url}}
 # @masterdataType={{MasterdataTypeRequest.response.body.$.value[0].id}}
 
 ### USE THIS VARIABLE IF YOU WANT TO USE CODEs WHEN CALLING THE API
-@masterdataType={{MasterdataTypeRequest.response.body.$.value[9].code}}
-@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[9].name}}
-@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[9].description}}
+@masterdataType={{MasterdataTypeRequest.response.body.$.value[0].code}}
+@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[0].name}}
+@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[0].description}}
 
 
 ### GET THE DETAILS OF A SINGLE MASTERDATA TYPE
@@ -86,7 +86,7 @@ DELETE {{api-url}}/{{masterdataType}}/{{delMasterdata}}
 # Authorization: Bearer {{access_token}}
 
 
-    #"metadata": null
+#"metadata": null
 ###
 @addmasterdataType={{AddMasterdataTypeRequest.response.body.$.value.id}}
 
@@ -103,9 +103,9 @@ POST {{api-url}}/{{masterdataType}}
 Content-Type: application/json
 
 {
-    "key": "16",
-    "value": "Undetermined",
-    "name": "Undetermined",
+    "key": "testing",
+    "value": "Testing",
+    "name": "Testing",
     "description": "not sure yet",
     "metadata": {
         "defaults": [
@@ -119,7 +119,8 @@ Content-Type: application/json
             },
             { "someKey": "<script>alert('xss')</script>"}
         ]
-    }
+    },
+    "tags": ["color red", "very height", "top product", "premium class product"]
 }
 
 
@@ -156,7 +157,7 @@ GET {{api-url}}/{{addmasterdataType}}/details
 
 ### UPDATE A MASTERDATA ENTRY
 # @name PutMasterdataRequest
-@putMasterdataId=15
+@putMasterdataId=testing
 PUT {{api-url}}/{{masterdataType}}/{{putMasterdataId}}
 #Authorization: Bearer {{access_token}}
 Content-Type: application/json
@@ -164,7 +165,8 @@ Content-Type: application/json
 {
     "value": "value-{{$timestamp}}",
     "name": "name-{{$timestamp}}",
-    "description": "desc-{{$timestamp}}"
+    "description": "desc-{{$timestamp}}",
+    "tags": ["1color red", "2very height", "3top product", "4premium class product"]
 }
 
 ###
