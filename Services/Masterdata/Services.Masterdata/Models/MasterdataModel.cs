@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
+﻿using Lens.Core.Lib.Models;
+using System.Text.Json;
 using System.Text.Json.Serialization;
-using Lens.Core.Lib.Models;
 
 namespace Lens.Services.Masterdata.Models;
 
@@ -20,10 +20,10 @@ public class MasterdataModel : IdModel
         {
             if (!string.IsNullOrEmpty(value))
             {
-                Metadata = JsonSerializer.Deserialize<dynamic>(value);
+                Metadata = JsonSerializer.Deserialize<JsonElement>(value);
             }
         }
     }
 
-    public dynamic? Metadata { get; set; }
+    public JsonElement? Metadata { get; set; }
 }

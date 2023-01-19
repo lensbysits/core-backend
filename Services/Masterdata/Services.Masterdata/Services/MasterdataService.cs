@@ -1,4 +1,5 @@
-﻿using Lens.Core.Lib.Models;
+﻿using Ganss.Xss;
+using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
@@ -7,14 +8,17 @@ namespace Lens.Services.Masterdata.Services;
 
 public class MasterdataService : BaseService<MasterdataService>, IMasterdataService
 {
+    private readonly HtmlSanitizer htmlSanitizer;
     private readonly IMasterdataRepository _masterdataRepository;
 
     public MasterdataService(
         IApplicationService<MasterdataService> applicationService,
-        IMasterdataRepository masterdataRepository
+        IMasterdataRepository masterdataRepository,
+        HtmlSanitizer htmlSanitizer
     ) : base(applicationService)
     {
         _masterdataRepository = masterdataRepository;
+        this.htmlSanitizer = htmlSanitizer ?? throw new ArgumentNullException(nameof(htmlSanitizer));
     }
 
     #region Get
@@ -22,8 +26,8 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     public Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel)
         => _masterdataRepository.GetMasterdataTypes(querymodel);
 
-    public Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType)
-        => _masterdataRepository.GetMasterdataType(masterdataType);
+    public Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains)
+        => _masterdataRepository.GetMasterdataType(masterdataType, domain);
 
     public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel)
         => _masterdataRepository.GetMasterdata(querymodel: querymodel);
@@ -38,21 +42,33 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     #region Add/Post
 
-    public Task<MasterdataTypeListModel> AddMasterdataType(MasterdataTypeCreateModel model)
-        => _masterdataRepository.AddMasterdataType(model);
+    public Task<MasterdataTypeModel> AddMasterdataType(MasterdataTypeCreateModel model)
+    {
+        model.Sanitize(htmlSanitizer);
+        return _masterdataRepository.AddMasterdataType(model);
+    }
 
     public Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model)
-        => _masterdataRepository.AddMasterdata(masterdataType, model);
+    {
+        model.Sanitize(htmlSanitizer);
+        return _masterdataRepository.AddMasterdata(masterdataType, model);
+    }
 
     #endregion Add/Post
 
     #region Update/Put
 
-    public Task<MasterdataTypeListModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
-        => _masterdataRepository.UpdateMasterdataType(masterdataType, model);
+    public Task<MasterdataTypeModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
+    {
+        model.Sanitize(htmlSanitizer);
+        return _masterdataRepository.UpdateMasterdataType(masterdataType, model);
+    }
 
     public Task<MasterdataModel> UpdateMasterdata(string masterdataType, string masterdata, MasterdataUpdateModel model)
-        => _masterdataRepository.UpdateMasterdata(masterdataType, masterdata, model);
+    {
+        model.Sanitize(htmlSanitizer);
+        return _masterdataRepository.UpdateMasterdata(masterdataType, masterdata, model);
+    }
 
     #endregion Update/Put
 

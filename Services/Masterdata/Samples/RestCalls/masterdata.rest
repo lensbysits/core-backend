@@ -1,8 +1,8 @@
 @ids-url=https://idp/
-@api-url=https://localhost:7022/Masterdata
+@api-url=https://localhost:7029/Masterdata
 
 @clientId=IdentityServerManager
-@clientSecret=default_secret
+@clientSecret=default_secret_this_should_not_be_commited
 
 ###
 # @name tokenCall
@@ -26,9 +26,9 @@ GET {{api-url}}
 # @masterdataType={{MasterdataTypeRequest.response.body.$.value[0].id}}
 
 ### USE THIS VARIABLE IF YOU WANT TO USE CODEs WHEN CALLING THE API
-@masterdataType={{MasterdataTypeRequest.response.body.$.value[0].code}}
-@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[0].name}}
-@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[0].description}}
+@masterdataType={{MasterdataTypeRequest.response.body.$.value[9].code}}
+@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[9].name}}
+@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[9].description}}
 
 
 ### GET THE DETAILS OF A SINGLE MASTERDATA TYPE
@@ -60,8 +60,22 @@ Authorization: Bearer {{access_token}}
 
 
 #############################################################
+### ADD A NEW MASTERDATA TYPE
+# @name AddMasterdataTypeRequest
+POST {{api-url}}
+##Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+    "code": "just-testing13",
+    "name": "JustTesting",
+    "description": "JustTesting desc",
+    "metadata": { "someKey": "<script>alert('xss')</script>"}
+}
+
+#############################################################
 ### DELETE A MASTERDATA TYPE BY ENTRY ID
-@delmasterdataType=
+@delmasterdataType={{AddMasterdataTypeRequest.response.body.$.value.id}}
 DELETE {{api-url}}/{{masterdataType}}/detail
 Authorization: Bearer {{access_token}}
 
@@ -72,26 +86,13 @@ DELETE {{api-url}}/{{masterdataType}}/{{delMasterdata}}
 # Authorization: Bearer {{access_token}}
 
 
-#############################################################
-### ADD A NEW MASTERDATA TYPE
-# @name AddMasterdataTypeRequest
-POST {{api-url}}/type
-##Authorization: Bearer {{access_token}}
-Content-Type: application/json
-
-{
-    "code": "just-testing6",
-    "name": "JustTesting",
-    "description": "JustTesting desc",
-    "metadata": null
-}
-
+    #"metadata": null
 ###
 @addmasterdataType={{AddMasterdataTypeRequest.response.body.$.value.id}}
 
 
 ### GET THE DETAILS OF THE ADDED MASTERDATA TYPE
-GET {{api-url}}/type/{{addmasterdataType}}
+GET {{api-url}}/{{addmasterdataType}}/details
 # Authorization: Bearer {{access_token}}
 
 
@@ -115,7 +116,8 @@ Content-Type: application/json
             {
                 "role": "employee",
                 "key": "3"
-            }
+            },
+            { "someKey": "<script>alert('xss')</script>"}
         ]
     }
 }
@@ -129,20 +131,26 @@ GET {{api-url}}/{{addmasterdataType}}
 #############################################################
 ### UPDATE A MASTERDATA TYPE ENTRY
 # @name PutMasterdataTypeRequest
-@putmasterdataType={{masterdataType}}
-PUT {{api-url}}/{{putmasterdataType}}/details
+PUT {{api-url}}/{{addmasterdataType}}/details
 #Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
 {
-    "code": "code-{{$timestamp}}",
-    "name": "name-{{$timestamp}}",
-    "description": "desc-{{$timestamp}}"
+    "code": "just-testing10",
+    "name": "JustTesting",
+    "description": "JustTesting desc",
+    "metadata": { 
+        "abc": 
+        { 
+            "p": "c",
+            "script": "hack<script>alert('xss')</script>ing"
+        } 
+    }
 }
 
 
 ### GET THE DETAILS OF THE UPDATED MASTERDATA TYPE
-GET {{api-url}}/{{putmasterdataType}}/details
+GET {{api-url}}/{{addmasterdataType}}/details
 # Authorization: Bearer {{access_token}}
 
 
