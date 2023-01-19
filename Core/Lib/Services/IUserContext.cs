@@ -6,7 +6,7 @@ public interface IUserContext
     string? Username { get; }
 
     T? ClaimValue<T>(string claim);
-    ICollection<T?>? ClaimValues<T>(string claim);
+    ICollection<T?> ClaimValues<T>(string claim);
     bool HasClaim(string claim);
     bool IsInRole(string role);
 }

@@ -1,5 +1,6 @@
 ﻿using Lens.Core.Data.EF.Providers;
 using Microsoft.EntityFrameworkCore.Migrations;
+using System.IO;
 
 namespace Lens.Core.Data.EF;
 
@@ -40,23 +41,25 @@ public static class MigrationBuilderExtensions
         return builder;
     }
 
-    public static MigrationBuilder RunFile(this MigrationBuilder builder, string filename)
+    public static MigrationBuilder RunFile(this MigrationBuilder builder, string dirName, string filename)
     {
         if (builder == null)
         {
             throw new ArgumentNullException(nameof(builder));
         }
-        string data = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppContext.BaseDirectory;
+        var data = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppContext.BaseDirectory;
+        var path = Path.Combine(data, dirName);
 
-        var sqlFiles = Directory.GetFiles(data, filename, SearchOption.AllDirectories);
-        if (sqlFiles?.Any() ?? false)
+        var sqlFiles = Directory.GetFiles(path, "*.sql", SearchOption.AllDirectories);
+        var sqlFile = sqlFiles.FirstOrDefault(f => f.EndsWith(filename));
+        if (sqlFile != null)
         {
-            builder.Sql(File.ReadAllText(sqlFiles.First()));
+            builder.Sql(File.ReadAllText(sqlFile));
         }
         else
         {
             // TODO: I usually replace this generic exception with `AppMigrationException`.
-            throw new Exception($"Migration .sql file not found: ${filename}");
+            throw new Exception($"Migration .sql file not found: {filename}. Only found files: {{string.Join(\" \", sqlFile)}}\"");
         }
         return builder;
     }
@@ -96,6 +99,48 @@ public static class MigrationBuilderExtensions
             var sql = reader.ReadToEnd();
             RawSqlProvider.Instance.AddCreateCommand(file, sql);
             reader.Close();
+        }
+
+        return builder;
+    }
+
+    public static MigrationBuilder RevertFile(this MigrationBuilder builder, string dirName, string filename)
+    {
+        if (builder == null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        string data = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppContext.BaseDirectory;
+        string path = Path.Combine(data, dirName);
+
+        // due to different file systems we need to get the files without a full path reference in the parameter
+        // so we can support both Windows and Linux file systems
+        var sqlFiles = Directory.GetFiles(path, "*.sql", SearchOption.AllDirectories);
+        var sqlFile = sqlFiles.FirstOrDefault(f => f.EndsWith(filename));
+        if (sqlFile == null)
+        {
+            throw new Exception($"Migration .sql file not found: {filename}. Only found files: {string.Join(" ", sqlFile)}");
+        }
+
+        using var reader = new StreamReader(sqlFile);
+        var firstLine = reader.ReadLine();
+        if (!(firstLine?.Equals("--efcore.migration.down") ?? false))
+        {
+            throw new Exception("Headers missing for file run. Please add the 2 required headers: --efcore.migration.down and --efcore.migration.up");
+        }
+
+        var line = string.Empty;
+
+        while (!(line?.Equals(SqlFileHeaderMigrationUp) ?? true))
+        {
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                var uncommentedSql = line[2..];
+                builder.Sql(uncommentedSql);
+            }
+
+            line = reader.ReadLine();
         }
 
         return builder;
