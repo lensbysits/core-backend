@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Lens.Core;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -6,7 +7,7 @@ namespace Lens.Services.Masterdata.Models;
 
 public class MasterdataUpdateModel
 {
-    [StringLength(50)]
+    [StringLength(50), Required]
     public string? Value { get; set; }
     [StringLength(50)]
     public string? Name { get; set; }
@@ -18,9 +19,9 @@ public class MasterdataUpdateModel
     {
         get
         {
-            return JsonSerializer.Serialize(Metadata ?? new { });
+            return Metadata.HasValue ? JsonSerializer.Serialize(Metadata) : JsonNodeUtilities.EmptyObjectJson;
         }
     }
 
-    public dynamic? Metadata { get; set; }
+    public JsonElement? Metadata { get; set; }
 }
