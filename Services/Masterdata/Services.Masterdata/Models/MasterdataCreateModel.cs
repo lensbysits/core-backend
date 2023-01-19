@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Lens.Core;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -20,9 +21,9 @@ public class MasterdataCreateModel
     {
         get
         {
-            return JsonSerializer.Serialize(Metadata ?? new { });
+            return JsonSerializer.Serialize(Metadata) ?? JsonNodeUtilities.EmptyObjectJson;
         }
     }
 
-    public dynamic? Metadata { get; set; }
+    public JsonElement? Metadata { get; set; }
 }

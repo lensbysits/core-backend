@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models;
 
@@ -6,8 +7,8 @@ public interface IMetadataModel
 {
     public const string AllDomains = "*";
 
-    dynamic? Metadata { get; }
+    JsonElement? Metadata { get; }
     [JsonIgnore]
-    Dictionary<string, dynamic>? MetadataDictionary { get; }
+    Dictionary<string, JsonElement>? MetadataDictionary { get; }
     string? Domain { get; set; }
 }

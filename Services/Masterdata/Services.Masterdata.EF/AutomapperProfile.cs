@@ -32,27 +32,27 @@ internal class AutomapperProfile : Profile
             return;
         }
 
-        Dictionary<string, dynamic>? finalMetadataDictionary = null;
+        Dictionary<string, JsonElement>? finalMetadataDictionary = null;
 
         // if the database already contains metadata
         if (destination?.MetadataJson != null) 
         {
-            finalMetadataDictionary = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(destination.MetadataJson);
+            finalMetadataDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(destination.MetadataJson);
             if (finalMetadataDictionary != null)
             {
-                // We assume you passed in a complete metadata object (dictionary<string, dynamic)
+                // We assume you passed in a complete metadata object (dictionary<string, JsonElement)
                 // We merge this nicely with the given metadata
                 if (source.Domain == IMetadataModel.AllDomains)
                 {
                     // for each passed in keyValue
-                    string sourceMetadataJson = source.Metadata.ToString();
-                    var sourceDictionary = JsonSerializer.Deserialize<Dictionary<string, dynamic>>(sourceMetadataJson);
+                    string sourceMetadataJson = source.Metadata?.ToString() ?? string.Empty;
+                    var sourceDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(sourceMetadataJson);
                     sourceDictionary.ForEach(keyValue =>
                     {
                         UpdateMetadataDictionary(keyValue.Key, keyValue.Value, finalMetadataDictionary);
                     });
                 }
-                // an metadata object was passed in for a specific domain
+                // a metadata object was passed in for a specific domain
                 // we only update that object
                 else
                 {
@@ -62,9 +62,9 @@ internal class AutomapperProfile : Profile
         }
         else
         {
-            if (source.Domain != IMetadataModel.AllDomains)
+            if (source.Domain != IMetadataModel.AllDomains && source.Metadata.HasValue)
             {
-                finalMetadataDictionary = new Dictionary<string, dynamic>() { { source.Domain, source.Metadata } };
+                finalMetadataDictionary = new Dictionary<string, JsonElement>() { { source.Domain, source.Metadata.Value } };
             }
             else
             {
@@ -78,16 +78,16 @@ internal class AutomapperProfile : Profile
         }
     }
 
-    private static void UpdateMetadataDictionary(string key, dynamic value, Dictionary<string, dynamic> metadataDictionary)
+    private static void UpdateMetadataDictionary(string key, JsonElement? value, Dictionary<string, JsonElement> metadataDictionary)
     {
         // if the key exists
         if (metadataDictionary.ContainsKey(key))
         {
             // and if passed in value is NOT null
-            if (value is not null)
+            if (value.HasValue)
             {
                 // update the value
-                metadataDictionary[key] = value;
+                metadataDictionary[key] = value.Value;
             }
             // if the passed in value is null
             else
@@ -100,10 +100,10 @@ internal class AutomapperProfile : Profile
         else
         {
             // and if passed in value is NOT null
-            if (value is not null)
+            if (value.HasValue)
             {
                 // add the passed in key value
-                metadataDictionary.Add(key, value);
+                metadataDictionary.Add(key, value.Value);
             }
         }
     }

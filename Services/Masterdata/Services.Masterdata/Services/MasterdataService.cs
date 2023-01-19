@@ -44,21 +44,13 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     public Task<MasterdataTypeModel> AddMasterdataType(MasterdataTypeCreateModel model)
     {
-        // TODO: not sure it's the best place to sanitze content!
-        if (model.Metadata && !string.IsNullOrEmpty(model.Metadata))
-        {
-            model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
-        }
+        model.Sanitize(htmlSanitizer);
         return _masterdataRepository.AddMasterdataType(model);
     }
 
     public Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model)
     {
-        // TODO: not sure it's the best place to sanitze content!
-        if (model.Metadata && !string.IsNullOrEmpty(model.Metadata))
-        {
-            model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
-        }
+        model.Sanitize(htmlSanitizer);
         return _masterdataRepository.AddMasterdata(masterdataType, model);
     }
 
@@ -68,21 +60,13 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     public Task<MasterdataTypeModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
     {
-        // TODO: not sure it's the best place to sanitze content!
-        if (model.Metadata && !string.IsNullOrEmpty(model.Metadata))
-        {
-            model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
-        }
+        model.Sanitize(htmlSanitizer);
         return _masterdataRepository.UpdateMasterdataType(masterdataType, model);
     }
 
     public Task<MasterdataModel> UpdateMasterdata(string masterdataType, string masterdata, MasterdataUpdateModel model)
     {
-        // TODO: not sure it's the best place to sanitze content!
-        if (model.Metadata && !string.IsNullOrEmpty(model.Metadata))
-        {
-            model.Metadata = this.htmlSanitizer.Sanitize(model.Metadata);
-        }
+        model.Sanitize(htmlSanitizer);
         return _masterdataRepository.UpdateMasterdata(masterdataType, masterdata, model);
     }
 

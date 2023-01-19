@@ -26,9 +26,9 @@ GET {{api-url}}
 # @masterdataType={{MasterdataTypeRequest.response.body.$.value[0].id}}
 
 ### USE THIS VARIABLE IF YOU WANT TO USE CODEs WHEN CALLING THE API
-@masterdataType={{MasterdataTypeRequest.response.body.$.value[0].code}}
-@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[0].name}}
-@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[0].description}}
+@masterdataType={{MasterdataTypeRequest.response.body.$.value[9].code}}
+@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[9].name}}
+@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[9].description}}
 
 
 ### GET THE DETAILS OF A SINGLE MASTERDATA TYPE
@@ -60,8 +60,22 @@ Authorization: Bearer {{access_token}}
 
 
 #############################################################
+### ADD A NEW MASTERDATA TYPE
+# @name AddMasterdataTypeRequest
+POST {{api-url}}
+##Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+    "code": "just-testing13",
+    "name": "JustTesting",
+    "description": "JustTesting desc",
+    "metadata": { "someKey": "<script>alert('xss')</script>"}
+}
+
+#############################################################
 ### DELETE A MASTERDATA TYPE BY ENTRY ID
-@delmasterdataType=
+@delmasterdataType={{AddMasterdataTypeRequest.response.body.$.value.id}}
 DELETE {{api-url}}/{{masterdataType}}/detail
 Authorization: Bearer {{access_token}}
 
@@ -71,20 +85,6 @@ Authorization: Bearer {{access_token}}
 DELETE {{api-url}}/{{masterdataType}}/{{delMasterdata}}
 # Authorization: Bearer {{access_token}}
 
-
-#############################################################
-### ADD A NEW MASTERDATA TYPE
-# @name AddMasterdataTypeRequest
-POST {{api-url}}
-##Authorization: Bearer {{access_token}}
-Content-Type: application/json
-
-{
-    "code": "just-testing10",
-    "name": "JustTesting",
-    "description": "JustTesting desc",
-    "metadata": null
-}
 
     #"metadata": null
 ###
@@ -116,7 +116,8 @@ Content-Type: application/json
             {
                 "role": "employee",
                 "key": "3"
-            }
+            },
+            { "someKey": "<script>alert('xss')</script>"}
         ]
     }
 }
@@ -138,7 +139,13 @@ Content-Type: application/json
     "code": "just-testing10",
     "name": "JustTesting",
     "description": "JustTesting desc",
-    "metadata": { "abc": { "p": "c" } }
+    "metadata": { 
+        "abc": 
+        { 
+            "p": "c",
+            "script": "hack<script>alert('xss')</script>ing"
+        } 
+    }
 }
 
 

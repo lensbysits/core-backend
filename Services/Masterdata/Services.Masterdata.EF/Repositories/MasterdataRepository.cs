@@ -76,9 +76,10 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             throw new BadRequestException($"MasterdataType with code {model.Code} already exists");
         }
 
-        var entry = DbContext.MasterdataTypes.Add(ApplicationService.Mapper.Map<Entities.MasterdataType>(model));
+        masterdataTypeEntity = ApplicationService.Mapper.Map<Entities.MasterdataType>(model);
+        var entry = DbContext.MasterdataTypes.Add(masterdataTypeEntity);
         await DbContext.SaveChangesAsync();
-        var result = ApplicationService.Mapper.Map<MasterdataTypeModel>(entry);
+        var result = ApplicationService.Mapper.Map<MasterdataTypeModel>(masterdataTypeEntity);
         if (!string.IsNullOrEmpty(model.Domain))
         {
             result.Domain = model.Domain;

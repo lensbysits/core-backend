@@ -1,4 +1,5 @@
-﻿using Lens.Core.Lib.Models;
+﻿using Lens.Core;
+using Lens.Core.Lib.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,13 +15,13 @@ public class MasterdataTypeModel : IdModel, IMetadataModel
     [JsonIgnore]
     public string? MetadataJson { get; set; }
 
-    public dynamic? Metadata 
+    public JsonElement? Metadata 
     { 
         get
         {
             if((Domain ?? IMetadataModel.AllDomains) == IMetadataModel.AllDomains)
             {
-                return MetadataDictionary;
+                return MetadataJsonElement;
             }
             else
             {
@@ -31,7 +32,10 @@ public class MasterdataTypeModel : IdModel, IMetadataModel
 
     public string? Domain { get; set; } = IMetadataModel.AllDomains;
 
-    private Dictionary<string, dynamic>? metadataDictionary;
+    private Dictionary<string, JsonElement>? metadataDictionary;
     [JsonIgnore]
-    public Dictionary<string, dynamic>? MetadataDictionary => metadataDictionary ??= JsonSerializer.Deserialize<Dictionary<string, dynamic>>(MetadataJson ?? "{}");
+    public Dictionary<string, JsonElement>? MetadataDictionary => metadataDictionary ??= JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(MetadataJson ?? JsonNodeUtilities.EmptyObjectJson);
+    private JsonElement? metadataJsonElement;
+    [JsonIgnore]
+    public JsonElement? MetadataJsonElement => metadataJsonElement ??= JsonSerializer.Deserialize<JsonElement>(MetadataJson ?? JsonNodeUtilities.EmptyObjectJson);
 }
