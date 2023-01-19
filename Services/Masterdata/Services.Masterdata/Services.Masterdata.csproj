@@ -5,10 +5,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlSanitizer" Version="8.0.601" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\Core\Lib\Core.Lib.csproj" />
   </ItemGroup>
 
