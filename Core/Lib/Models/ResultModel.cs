@@ -32,9 +32,11 @@ public class ResultModel<TValue> : IResultModel<TValue>
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("valueType")]
     public string ValueType { get; protected set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("value")]
     public TValue? Value { get; set; }
 
 }

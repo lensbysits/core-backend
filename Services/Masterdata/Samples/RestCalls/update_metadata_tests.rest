@@ -1,0 +1,41 @@
+
+@api-url=https://localhost:7029/Masterdata
+
+### GET ALL MASTERDATA TYPES AVAILABLE
+# @name MasterdataTypeRequest
+GET {{api-url}}
+
+@masterdataType={{MasterdataTypeRequest.response.body.$.value[6].code}}
+
+### GET THE DETAILS OF A SINGLE MASTERDATA TYPE
+GET {{api-url}}/{{masterdataType}}/details
+
+
+### GET THE DETAILS OF A SINGLE MASTERDATA TYPE
+GET {{api-url}}/{{masterdataType}}/details
+masterdata-domain: dummy
+
+### UPDATE A MASTERDATA TYPE ENTRY FOR A SPECIFIC DOMAIN
+PUT {{api-url}}/{{masterdataType}}/details
+#Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+    "code": "just-testing10",
+    "name": "JustTesting",
+    "description": "JustTesting desc",
+    "metadata": { "abc": { "p": "B" } },
+    "domain": "xyz"
+}
+
+### UPDATE A MASTERDATA TYPE ENTRY FOR A ALL DOMAIN
+PUT {{api-url}}/{{masterdataType}}/details
+#Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+    "code": "just-testing10",
+    "name": "JustTesting",
+    "description": "JustTesting desc",
+    "metadata": { "abc": { "p": "B" }, "xyz": { "d": "def" } }
+}
