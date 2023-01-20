@@ -81,7 +81,7 @@ Authorization: Bearer {{access_token}}
 
 
 ### DELETE MASTERDATA BY ENTRY ID
-@delMasterdata=16
+@delMasterdata=testing
 DELETE {{api-url}}/{{masterdataType}}/{{delMasterdata}}
 # Authorization: Bearer {{access_token}}
 
@@ -104,9 +104,9 @@ Content-Type: application/json
 
 {
     "key": "testing",
-    "value": "Testing",
-    "name": "Testing",
-    "description": "not sure yet",
+    "value": "Testing-value",
+    "name": "Testing-name",
+    "description": "Testing-desc",
     "metadata": {
         "defaults": [
             {
