@@ -8,6 +8,7 @@ using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Immutable;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
@@ -84,8 +85,9 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
                 tags.AddRange(item.Tags);
             }
         }
+        //tags.Sort();
 
-        var result = tags.Distinct();
+        var result = tags.Distinct().OrderBy(x => x);
         return new ResultPagedListModel<string>(result)
         {
             TotalSize = result.Count(),
