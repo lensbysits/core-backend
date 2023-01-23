@@ -11,6 +11,7 @@ namespace Lens.Services.Masterdata.UnitTests
         {
             _fixture = fixture;
         }
+
         [Theory]
         [InlineData("123", "Name", "Description", "{ \"someKey\": \"some value\" }", "123", "Name", "Description", "{ \"someKey\": \"some value\" }")]
         [InlineData("123", "Name", "This is bad: <script>alert('xss')</script>, should be sanitized", "{ \"someKey\": \"some value\" }", "123", "Name", "This is bad: , should be sanitized", "{ \"someKey\": \"some value\" }")]
@@ -40,6 +41,47 @@ namespace Lens.Services.Masterdata.UnitTests
                 });
 
             var result = await _fixture.MasterdataService.AddMasterdataType(model);
+            Assert.True(true);
+        }
+
+        [Theory]
+        [InlineData("test-key", "test-value", "Name", "Description", "{ \"someKey\": \"some value\" }", new string[0], "test-key", "test-value", "Name", "Description", "{ \"someKey\": \"some value\" }", new string[0])]
+        [InlineData("test-key", "test-value", "Name", "Description", "{}", new string[] {"test1", "test2"}, "test-key", "test-value", "Name", "Description", "{}", new string [] { "test1", "test3" })]
+        [InlineData("test-key", "test-value", "Name", "Description", "{}", new string[] { "test1a", "test2a", "test3a" }, "test-key", "test-value", "Name", "Description", "{}", new string[] { "test3a", "test2a", "test1a" })]
+        public async Task SanitizeMasterdataCreateModelTest(string key, string value, string name, string description, string metadata, string[] tags,
+                                                                string expectedKey, string expectedValue, string expectedName, string expectedDescription, string expectedMetadata, string[] expectedTags)
+        {
+            var masterdataType = "testing-code";
+            var metaDataNode = JsonSerializer.Deserialize<dynamic>(metadata);
+
+            var model = new MasterdataCreateModel
+            {
+                Key = key,
+                Value = value,
+                Name = name,
+                Description = description,
+                Metadata = metaDataNode,
+                Tags = tags
+            };
+
+            _fixture.MasterdataRepositoryMock.Setup((repository) => repository.AddMasterdata(masterdataType, It.IsAny<MasterdataCreateModel>()))
+                .Callback<string, MasterdataCreateModel>((masterdataType, callbackModel) =>
+                {
+                    callbackModel.Key.Should().Be(expectedKey);
+                    callbackModel.Value.Should().Be(expectedValue);
+                    callbackModel.Name.Should().Be(expectedName);
+                    callbackModel.Description.Should().Be(expectedDescription);
+                    callbackModel.Metadata?.ToString().Should().Be(expectedMetadata);
+
+                    var inputTags = callbackModel.Tags ?? Array.Empty<string>();
+                    Array.Sort(inputTags);
+                    var outputTags = expectedTags;
+                    Array.Sort(outputTags);
+                    String.Join("", inputTags).Should().Be(String.Join("", outputTags));
+
+                });
+
+            var result = await _fixture.MasterdataService.AddMasterdata(masterdataType, model);
             Assert.True(true);
         }
     }

@@ -103,10 +103,10 @@ POST {{api-url}}/{{masterdataType}}
 Content-Type: application/json
 
 {
-    "key": "testing",
-    "value": "Testing-value",
-    "name": "Testing-name",
-    "description": "Testing-desc",
+    "key": "testing3",
+    "value": "Testing3-value",
+    "name": "Testing3-name",
+    "description": "Testing3-desc",
     "metadata": {
         "defaults": [
             {
@@ -121,6 +121,7 @@ Content-Type: application/json
         ]
     },
     "tags": ["color red", "very height", "top product", "premium class product"]
+    //"tags": ["color <script>alert('xss')</script>red", "very <strong>code</strong>height", "top product<script>alert('xss')</script>", "premium <script>alert('xss')</script>class <i>italic text</i>product"]
 }
 
 
@@ -157,7 +158,7 @@ GET {{api-url}}/{{addmasterdataType}}/details
 
 ### UPDATE A MASTERDATA ENTRY
 # @name PutMasterdataRequest
-@putMasterdataId=testing
+@putMasterdataId=testing2
 PUT {{api-url}}/{{masterdataType}}/{{putMasterdataId}}
 #Authorization: Bearer {{access_token}}
 Content-Type: application/json
@@ -167,6 +168,7 @@ Content-Type: application/json
     "name": "name-{{$timestamp}}",
     "description": "desc-{{$timestamp}}",
     "tags": ["1color red", "2very height", "3top product", "4premium class product"]
+    //"tags": ["1color <script>alert('xss')</script>red", "2very <strong>code</strong>height", "3top product<script>alert('xss')</script>", "4premium <script>alert('xss')</script>class <i>italic text</i>product"]
 }
 
 ###

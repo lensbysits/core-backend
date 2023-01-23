@@ -20,6 +20,7 @@ internal class AutomapperProfile : Profile
             .AfterMap(UpdateMetadata);
 
         CreateMap<Entities.Masterdata, MasterdataModel>();
+        CreateMap<Entities.Masterdata, MasterdataTagModel>();
         CreateMap<MasterdataCreateModel, Entities.Masterdata>();
         CreateMap<MasterdataUpdateModel, Entities.Masterdata>();
     }

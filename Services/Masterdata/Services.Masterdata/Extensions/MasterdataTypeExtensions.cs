@@ -1,5 +1,7 @@
 ﻿using Ganss.Xss;
 using Lens.Services.Masterdata.Models;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace Lens.Services.Masterdata;
@@ -50,6 +52,19 @@ public static class MasterdataTypeExtensions
                 model.Metadata = JsonSerializer.Deserialize<JsonElement>(metadataString);
             }
         }
+        if (model.Tags != null)
+        {
+            var tags = new List<string>();
+            foreach (var item in model.Tags)
+            {
+                var itemClean = htmlSanitizer.Sanitize(item);
+                if (!string.IsNullOrEmpty(itemClean))
+                {
+                    tags.Add(itemClean);
+                }
+            }
+            model.Tags = tags.Distinct().ToArray();
+        }
     }
     public static void Sanitize(this MasterdataUpdateModel model, IHtmlSanitizer htmlSanitizer)
     {
@@ -64,6 +79,19 @@ public static class MasterdataTypeExtensions
                 metadataString = htmlSanitizer.Sanitize(metadataString);
                 model.Metadata = JsonSerializer.Deserialize<JsonElement>(metadataString);
             }
+        }
+        if (model.Tags != null)
+        {
+            var tags = new List<string>();
+            foreach (var item in model.Tags)
+            {
+                var itemClean = htmlSanitizer.Sanitize(item);
+                if (!string.IsNullOrEmpty(itemClean))
+                {
+                    tags.Add(itemClean);
+                }
+            }
+            model.Tags = tags.Distinct().ToArray();
         }
     }
 }

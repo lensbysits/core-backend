@@ -65,6 +65,33 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
 
         return result;
     }
+
+    public async Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null)
+    {
+        var pagedResult = await DbContext.Masterdatas
+            .GetByQueryModel(querymodel ?? QueryModel.Default, MasterdataFilter(masterdataType))
+            .ApplyPaging(querymodel ?? QueryModel.Default);
+
+        var dbresult = await pagedResult.query
+            .ProjectTo<MasterdataTagModel>(ApplicationService.Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        var tags = new List<string>();
+        foreach (var item in dbresult)
+        {
+            if (item.Tags != null)
+            {
+                tags.AddRange(item.Tags);
+            }
+        }
+
+        var result = tags.Distinct();
+        return new ResultPagedListModel<string>(result)
+        {
+            TotalSize = result.Count(),
+            OriginalQueryModel = querymodel
+        };
+    }
     #endregion
 
     #region Add/Post
