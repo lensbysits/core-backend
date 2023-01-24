@@ -54,16 +54,7 @@ public static class MasterdataTypeExtensions
         }
         if (model.Tags != null)
         {
-            var tags = new List<string>();
-            foreach (var item in model.Tags)
-            {
-                var itemClean = htmlSanitizer.Sanitize(item);
-                if (!string.IsNullOrEmpty(itemClean))
-                {
-                    tags.Add(itemClean);
-                }
-            }
-            model.Tags = tags.Distinct().ToArray();
+            model.Tags = SanitizeTags(model.Tags, htmlSanitizer);
         }
     }
     public static void Sanitize(this MasterdataUpdateModel model, IHtmlSanitizer htmlSanitizer)
@@ -82,16 +73,21 @@ public static class MasterdataTypeExtensions
         }
         if (model.Tags != null)
         {
-            var tags = new List<string>();
-            foreach (var item in model.Tags)
-            {
-                var itemClean = htmlSanitizer.Sanitize(item);
-                if (!string.IsNullOrEmpty(itemClean))
-                {
-                    tags.Add(itemClean);
-                }
-            }
-            model.Tags = tags.Distinct().ToArray();
+            model.Tags = SanitizeTags(model.Tags, htmlSanitizer);
         }
+    }
+
+    private static string[] SanitizeTags(string[] tags, IHtmlSanitizer htmlSanitizer)
+    {
+        var tagsClean = new List<string>();
+        foreach (var item in tags)
+        {
+            var itemClean = htmlSanitizer.Sanitize(item);
+            if (!string.IsNullOrEmpty(itemClean))
+            {
+                tagsClean.Add(itemClean);
+            }
+        }
+        return tagsClean.Distinct().ToArray();
     }
 }

@@ -167,8 +167,8 @@ Content-Type: application/json
     "value": "value-{{$timestamp}}",
     "name": "name-{{$timestamp}}",
     "description": "desc-{{$timestamp}}",
-    "tags": ["1color red", "2very height", "3top product", "4premium class product"]
-    //"tags": ["1color <script>alert('xss')</script>red", "2very <strong>code</strong>height", "3top product<script>alert('xss')</script>", "4premium <script>alert('xss')</script>class <i>italic text</i>product"]
+    //"tags": ["1color red", "2very height", "3top product", "4premium class product"]
+    "tags": ["1color <script>alert('xss')</script>red", "2very <strong>code</strong>height", "3top product<script>alert('xss')</script>", "4premium <script>alert('xss')</script>class <i>italic text</i>product"]
 }
 
 ###
