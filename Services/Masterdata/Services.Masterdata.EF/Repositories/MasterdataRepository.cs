@@ -1,4 +1,5 @@
 ﻿using AutoMapper.QueryableExtensions;
+using Dapper;
 using Lens.Core.Data.EF;
 using Lens.Core.Data.EF.Repositories;
 using Lens.Core.Lib.Exceptions;
@@ -69,28 +70,24 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
 
     public async Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null)
     {
-        var pagedResult = await DbContext.Masterdatas
-            .GetByQueryModel(querymodel ?? QueryModel.Default, MasterdataFilter(masterdataType))
-            .ApplyPaging(querymodel ?? QueryModel.Default);
+        var masterdataTypeFilter = string.IsNullOrEmpty(masterdataType)
+                    ? "1 = 1"
+                    : Guid.TryParse(masterdataType, out _)
+                        ? $"MasterdataTypeId"
+                        : $"MasterdataTypes.Code";
 
-        var dbresult = await pagedResult.query
-            .ProjectTo<MasterdataTagModel>(ApplicationService.Mapper.ConfigurationProvider)
-            .ToListAsync();
-
-        var tags = new List<string>();
-        foreach (var item in dbresult)
+        var sql = @$"SELECT DISTINCT Tags.value AS Tag
+                    FROM Masterdatas
+                    INNER JOIN MasterdataTypes ON MasterdataTypes.Id = Masterdatas.MasterdataTypeId
+                    CROSS APPLY OPENJSON(Tag, '$') Tags
+                    WHERE Tag IS NOT NULL 
+                    AND {masterdataTypeFilter} = '{masterdataType}'
+                    ORDER BY Tags.value";
+        
+        var tags = await DbContext.Database.GetDbConnection().QueryAsync<string>(sql);
+        return new ResultPagedListModel<string>(tags)
         {
-            if (item.Tags != null)
-            {
-                tags.AddRange(item.Tags);
-            }
-        }
-        //tags.Sort();
-
-        var result = tags.Distinct().OrderBy(x => x);
-        return new ResultPagedListModel<string>(result)
-        {
-            TotalSize = result.Count(),
+            TotalSize = tags.Count(),
             OriginalQueryModel = querymodel
         };
     }

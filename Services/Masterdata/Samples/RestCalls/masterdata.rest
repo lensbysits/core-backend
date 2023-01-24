@@ -1,5 +1,5 @@
 @ids-url=https://idp/
-@api-url=https://localhost:7022/Masterdata
+@api-url=https://localhost:7029/Masterdata
 
 @clientId=IdentityServerManager
 @clientSecret=default_secret_this_should_not_be_commited
@@ -103,10 +103,10 @@ POST {{api-url}}/{{masterdataType}}
 Content-Type: application/json
 
 {
-    "key": "testing3",
-    "value": "Testing3-value",
-    "name": "Testing3-name",
-    "description": "Testing3-desc",
+    "key": "testing4",
+    "value": "Testing4-value",
+    "name": "Testing4-name",
+    "description": "Testing4-desc",
     "metadata": {
         "defaults": [
             {
@@ -120,7 +120,7 @@ Content-Type: application/json
             { "someKey": "<script>alert('xss')</script>"}
         ]
     },
-    "tags": ["color red", "very height", "top product", "premium class product"]
+    "tags": ["color blue", "not so height", "top product", "premium class product"]
     //"tags": ["color <script>alert('xss')</script>red", "very <strong>code</strong>height", "top product<script>alert('xss')</script>", "premium <script>alert('xss')</script>class <i>italic text</i>product"]
 }
 
@@ -190,3 +190,8 @@ Content-Type: application/json
 #< ./data/statusses.json
 #< ./data/time-unit-type.json
 #< ./data/quotes.json
+
+
+#############################################################
+### GET TAGS
+GET {{api-url}}/{{masterdataType}}/tags
