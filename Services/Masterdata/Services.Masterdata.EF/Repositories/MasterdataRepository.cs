@@ -9,8 +9,6 @@ using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Immutable;
-using System.Data.Entity.Core.Common.CommandTrees;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 

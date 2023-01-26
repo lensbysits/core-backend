@@ -1,7 +1,6 @@
 ﻿using Ganss.Xss;
+using Lens.Core.Lib;
 using Lens.Services.Masterdata.Models;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace Lens.Services.Masterdata;
@@ -54,7 +53,7 @@ public static class MasterdataTypeExtensions
         }
         if (model.Tags != null)
         {
-            model.Tags = SanitizeTags(model.Tags, htmlSanitizer);
+            model.Tags = model.Tags.Sanitize(htmlSanitizer);
         }
     }
     public static void Sanitize(this MasterdataUpdateModel model, IHtmlSanitizer htmlSanitizer)
@@ -73,21 +72,7 @@ public static class MasterdataTypeExtensions
         }
         if (model.Tags != null)
         {
-            model.Tags = SanitizeTags(model.Tags, htmlSanitizer);
+            model.Tags = model.Tags.Sanitize(htmlSanitizer);
         }
-    }
-
-    private static string[] SanitizeTags(string[] tags, IHtmlSanitizer htmlSanitizer)
-    {
-        var tagsClean = new List<string>();
-        foreach (var item in tags)
-        {
-            var itemClean = htmlSanitizer.Sanitize(item);
-            if (!string.IsNullOrEmpty(itemClean))
-            {
-                tagsClean.Add(itemClean);
-            }
-        }
-        return tagsClean.Distinct().ToArray();
     }
 }
