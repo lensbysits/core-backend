@@ -1,4 +1,5 @@
 ﻿using AutoMapper.QueryableExtensions;
+using Dapper;
 using Lens.Core.Data.EF;
 using Lens.Core.Data.EF.Repositories;
 using Lens.Core.Lib.Exceptions;
@@ -8,7 +9,6 @@ using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Entity.Core.Common.CommandTrees;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
@@ -64,6 +64,30 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider).FirstOrDefaultAsync();
 
         return result;
+    }
+
+    public async Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null)
+    {
+        var masterdataTypeFilter = string.IsNullOrEmpty(masterdataType)
+                    ? "1 = 1"
+                    : Guid.TryParse(masterdataType, out _)
+                        ? $"MasterdataTypeId"
+                        : $"MasterdataTypes.Code";
+
+        var sql = @$"SELECT DISTINCT Tags.value AS Tag
+                    FROM Masterdatas
+                    INNER JOIN MasterdataTypes ON MasterdataTypes.Id = Masterdatas.MasterdataTypeId
+                    CROSS APPLY OPENJSON(Tag, '$') Tags
+                    WHERE Tag IS NOT NULL 
+                    AND {masterdataTypeFilter} = '{masterdataType}'
+                    ORDER BY Tags.value";
+        
+        var tags = await DbContext.Database.GetDbConnection().QueryAsync<string>(sql);
+        return new ResultPagedListModel<string>(tags)
+        {
+            TotalSize = tags.Count(),
+            OriginalQueryModel = querymodel
+        };
     }
     #endregion
 

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Lens.Services.Masterdata.EF.Entities;
 
-public class Masterdata : BaseEntity
+public class Masterdata : BaseEntity, ITagsEntity
 {
     public Guid MasterdataTypeId { get; set; }
     public virtual MasterdataType MasterdataType { get; set; } = default!;
@@ -17,4 +17,7 @@ public class Masterdata : BaseEntity
     [StringLength(1024)]
     public string? Description { get; set; }
     public string? MetadataJson { get; set; }
+
+    [StringLength(2048)]
+    public string? Tag { get; set; }
 }

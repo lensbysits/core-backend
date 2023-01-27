@@ -26,9 +26,9 @@ GET {{api-url}}
 # @masterdataType={{MasterdataTypeRequest.response.body.$.value[0].id}}
 
 ### USE THIS VARIABLE IF YOU WANT TO USE CODEs WHEN CALLING THE API
-@masterdataType={{MasterdataTypeRequest.response.body.$.value[9].code}}
-@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[9].name}}
-@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[9].description}}
+@masterdataType={{MasterdataTypeRequest.response.body.$.value[0].code}}
+@masterdataTypeName={{MasterdataTypeRequest.response.body.$.value[0].name}}
+@masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[0].description}}
 
 
 ### GET THE DETAILS OF A SINGLE MASTERDATA TYPE
@@ -81,12 +81,12 @@ Authorization: Bearer {{access_token}}
 
 
 ### DELETE MASTERDATA BY ENTRY ID
-@delMasterdata=16
+@delMasterdata=testing
 DELETE {{api-url}}/{{masterdataType}}/{{delMasterdata}}
 # Authorization: Bearer {{access_token}}
 
 
-    #"metadata": null
+#"metadata": null
 ###
 @addmasterdataType={{AddMasterdataTypeRequest.response.body.$.value.id}}
 
@@ -103,10 +103,10 @@ POST {{api-url}}/{{masterdataType}}
 Content-Type: application/json
 
 {
-    "key": "16",
-    "value": "Undetermined",
-    "name": "Undetermined",
-    "description": "not sure yet",
+    "key": "testing4",
+    "value": "Testing4-value",
+    "name": "Testing4-name",
+    "description": "Testing4-desc",
     "metadata": {
         "defaults": [
             {
@@ -119,7 +119,9 @@ Content-Type: application/json
             },
             { "someKey": "<script>alert('xss')</script>"}
         ]
-    }
+    },
+    "tags": ["color blue", "not so height", "top product", "premium class product"]
+    //"tags": ["color <script>alert('xss')</script>red", "very <strong>code</strong>height", "top product<script>alert('xss')</script>", "premium <script>alert('xss')</script>class <i>italic text</i>product"]
 }
 
 
@@ -156,7 +158,7 @@ GET {{api-url}}/{{addmasterdataType}}/details
 
 ### UPDATE A MASTERDATA ENTRY
 # @name PutMasterdataRequest
-@putMasterdataId=15
+@putMasterdataId=testing2
 PUT {{api-url}}/{{masterdataType}}/{{putMasterdataId}}
 #Authorization: Bearer {{access_token}}
 Content-Type: application/json
@@ -164,7 +166,9 @@ Content-Type: application/json
 {
     "value": "value-{{$timestamp}}",
     "name": "name-{{$timestamp}}",
-    "description": "desc-{{$timestamp}}"
+    "description": "desc-{{$timestamp}}",
+    //"tags": ["1color red", "2very height", "3top product", "4premium class product"]
+    "tags": ["1color <script>alert('xss')</script>red", "2very <strong>code</strong>height", "3top product<script>alert('xss')</script>", "4premium <script>alert('xss')</script>class <i>italic text</i>product"]
 }
 
 ###
@@ -186,3 +190,8 @@ Content-Type: application/json
 #< ./data/statusses.json
 #< ./data/time-unit-type.json
 #< ./data/quotes.json
+
+
+#############################################################
+### GET TAGS
+GET {{api-url}}/{{masterdataType}}/tags

@@ -33,10 +33,11 @@ public class MasterdataController : ControllerBase
     }
 
     /// <summary>
-    /// List all masterdatas belonging to a specific masterdata type.
+    /// Show the details of a masterdata type.
     /// </summary>
-    /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
-    /// <returns>A list of masterdatas belonging to a specific masterdata type.</returns>
+    /// <param name="masterdataType">The masterdata type (Id or Code).</param>
+    /// <param name="domain">Application domain.</param>
+    /// <returns>The details for a masterdata type.</returns>
     [HttpGet("{masterdataType}/details")]
     public async Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, [FromHeader(Name = "masterdata-domain")]string? domain)
     {
@@ -47,6 +48,7 @@ public class MasterdataController : ControllerBase
     /// <summary>
     /// List all masterdatas belonging to a specific masterdata type.
     /// </summary>
+    /// <param name="masterdataType">The masterdata type (Id or Code).</param>
     /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
     /// <returns>A list of masterdatas belonging to a specific masterdata type.</returns>
     [HttpGet("{masterdataType}")]
@@ -56,10 +58,29 @@ public class MasterdataController : ControllerBase
         return result;
     }
 
+    /// <summary>
+    /// Show the details of a masterdata item.
+    /// </summary>
+    /// <param name="masterdataType">The masterdata type.</param>
+    /// <param name="value">The masterdata item identifier (Id or Key).</param>
+    /// <returns>The details for a masterdata item belonging to a specific masterdata type.</returns>
     [HttpGet("{masterdataType}/{value}")]
     public async Task<MasterdataModel?> GetMasterdata(string masterdataType, string value)
     {
         var result = await _masterdataService.GetMasterdata(masterdataType, value);
+        return result;
+    }
+
+    /// <summary>
+    /// List all tags associated with a specific masterdata type.
+    /// </summary>
+    /// <param name="masterdataType">The masterdata type (Id or Code).</param>
+    /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
+    /// <returns>A list of tags associated with a specific masterdata type.</returns>
+    [HttpGet("{masterdataType}/tags")]
+    public async Task<ResultPagedListModel<string>> GetTags(string masterdataType, [FromQuery] QueryModel queryModel)
+    {
+        var result = await _masterdataService.GetTags(masterdataType, queryModel);
         return result;
     }
     #endregion
