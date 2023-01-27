@@ -79,10 +79,10 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
                     INNER JOIN MasterdataTypes ON MasterdataTypes.Id = Masterdatas.MasterdataTypeId
                     CROSS APPLY OPENJSON(Tag, '$') Tags
                     WHERE Tag IS NOT NULL 
-                    AND {masterdataTypeFilter} = '{masterdataType}'
+                    AND {masterdataTypeFilter} = @masterdataType
                     ORDER BY Tags.value";
         
-        var tags = await DbContext.Database.GetDbConnection().QueryAsync<string>(sql);
+        var tags = await DbContext.Database.GetDbConnection().QueryAsync<string>(sql, new { masterdataType });
         return new ResultPagedListModel<string>(tags)
         {
             TotalSize = tags.Count(),
