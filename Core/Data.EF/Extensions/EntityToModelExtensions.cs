@@ -28,7 +28,7 @@ public static class EntityToModelExtensions
     }
 
     public static async Task<IEnumerable<TModel>> ToModel<TEntity, TModel>(this IQueryable<TEntity> entities, IMapper mapper, Expression<Func<TEntity, bool>>? predicate = null)
-        where TEntity : class, IIdEntity
+        where TEntity : class, IEntity
     {
         if (predicate != null)
         {
@@ -41,7 +41,7 @@ public static class EntityToModelExtensions
     }
 
     public static async Task<ResultPagedListModel<TModel>> ToResultList<TEntity, TModel>(this IQueryable<TEntity> entities, QueryModel queryModel, IMapper mapper)
-        where TEntity : class, IIdEntity
+        where TEntity : class, IEntity
     {
         var resultQuery = entities.ProjectTo<TModel>(mapper.ConfigurationProvider);
         var resultList = queryModel.NoLimit

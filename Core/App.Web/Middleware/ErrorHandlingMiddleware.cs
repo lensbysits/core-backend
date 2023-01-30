@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Data;
 using System.Net;
 using System.Text.Json;
 
@@ -29,6 +30,7 @@ public class ErrorHandlingMiddleware
         {typeof(FormatException), HttpStatusCode.BadRequest},
         {typeof(DivideByZeroException), HttpStatusCode.BadRequest},
         {typeof(NullReferenceException), HttpStatusCode.BadRequest},
+        {typeof(NoNullAllowedException), HttpStatusCode.BadRequest},
         {typeof(InvalidCastException), HttpStatusCode.BadRequest},
         {typeof(InvalidOperationException), HttpStatusCode.BadRequest},
         {typeof(ArgumentException), HttpStatusCode.UnprocessableEntity},
