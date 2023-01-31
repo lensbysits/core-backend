@@ -1,12 +1,11 @@
-﻿using System.Reflection;
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models;
 
 public class QueryModel
 {
-    public static QueryModel Default => new QueryModel();
+    public static QueryModel Default => new();
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int Offset { get; set; } = 0;
