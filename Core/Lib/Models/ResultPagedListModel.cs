@@ -55,11 +55,8 @@ public class ResultPagedListModel<TValue> : ResultListModel<TValue>
                 var orderBy = value.OrderBy?.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 PageSize = value.Limit;
                 PageIndex = value.Offset / value.Limit;
-                if (orderBy?.Length > 0)
-                {
-                    SortingProperty = orderBy?[0];
-                    SortingDirection = orderBy?.Length > 1 ? orderBy[1] : SortingDirections.Ascending;
-                }
+                SortingProperty = value.SortingProperty;
+                SortingDirection = value.SortingDirection;
             }
         }
     }

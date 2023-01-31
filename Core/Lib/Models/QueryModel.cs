@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Reflection;
+using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models;
@@ -36,6 +37,12 @@ public class QueryModel
     // Sort by fields:
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? OrderBy { get; set; }
+
+    private (string? field, string direction)? sorting;
+    [JsonIgnore]
+    public string? SortingProperty => (sorting ??= this.GetSorting()).field;
+    [JsonIgnore]
+    public string SortingDirection => (sorting ??= this.GetSorting()).direction;
 
     public virtual string QueryString
     {
