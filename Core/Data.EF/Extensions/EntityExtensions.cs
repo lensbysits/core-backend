@@ -5,6 +5,7 @@ using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Models;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -31,10 +32,27 @@ public static class EntityExtensions
        where TEntity : class, IEntity
     {
         // apply default filters
-        if (typeof(ITagsEntity).IsAssignableFrom(typeof(TEntity)) && !string.IsNullOrEmpty(queryModel.Tag))
+        if (typeof(ITagsEntity).IsAssignableFrom(typeof(TEntity)))
         {
-            entities = entities
-                .Where(entity => EFCore.Property<string>(entity, ShadowProperties.Tag).Contains($"\"{queryModel.Tag}\""));
+            if (!string.IsNullOrEmpty(queryModel.Tags))
+            {
+                List<string> tags = queryModel.Tags.Split(",").ToList();
+                if (tags.Any())
+                {
+                    Expression<Func<TEntity, bool>> tagWhere = (e) => false;
+                    foreach (var tag in tags)
+                    {
+                        tagWhere = tagWhere.Or(e => EFCore.Property<string>(e, ShadowProperties.Tag).Contains($"\"{tag}\""));
+                    }
+                    entities = entities
+                        .Where(tagWhere);
+                }
+            }
+            if (!string.IsNullOrEmpty(queryModel.Tag))
+            {
+                entities = entities
+                    .Where(entity => EFCore.Property<string>(entity, ShadowProperties.Tag).Contains($"\"{queryModel.Tag}\""));
+            }
         }
 
         if (typeof(ICreatedUpdatedEntity).IsAssignableFrom(typeof(TEntity)))

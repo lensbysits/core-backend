@@ -2,4 +2,5 @@
 
 public interface ITagsEntity
 {
+    string? Tag { get; set; }
 }
