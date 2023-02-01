@@ -39,13 +39,13 @@ public static class EntityExtensions
                 List<string> tags = queryModel.Tags.Split(",").ToList();
                 if (tags.Any())
                 {
-                    Expression<Func<TEntity, bool>> tagWhere = (e) => false;
+                    List<Expression<Func<TEntity, bool>>> tagWhere = new();
                     foreach (var tag in tags)
                     {
-                        tagWhere = tagWhere.Or(e => EFCore.Property<string>(e, ShadowProperties.Tag).Contains($"\"{tag}\""));
+                        tagWhere.Add(e => EFCore.Property<string>(e, ShadowProperties.Tag).Contains($"\"{tag}\""));
                     }
                     entities = entities
-                        .Where(tagWhere);
+                        .Where(tagWhere.ToOrCompositePredicate());
                 }
             }
             if (!string.IsNullOrEmpty(queryModel.Tag))
@@ -138,7 +138,7 @@ public static class EntityExtensions
     }
 
     public static Expression<Func<TEntity, bool>> ToAndCompositePredicate<TEntity>(this IEnumerable<Expression<Func<TEntity, bool>>> expressions)
-        where TEntity : class, IIdEntity
+        where TEntity : class, IEntity
     {
         ExpressionStarter<TEntity>? predicate = null;
         foreach (var expression in expressions)
@@ -150,9 +150,9 @@ public static class EntityExtensions
     }
 
     public static Expression<Func<TEntity, bool>> ToOrCompositePredicate<TEntity>(this IEnumerable<Expression<Func<TEntity, bool>>> expressions)
-        where TEntity : class, IIdEntity
+        where TEntity : class, IEntity
     {
-        ExpressionStarter<TEntity> predicate = null;
+        ExpressionStarter<TEntity>? predicate = null;
         foreach (var expression in expressions)
         {
             predicate = (predicate == null) ? PredicateBuilder.New(expression) : predicate.Or(expression);
