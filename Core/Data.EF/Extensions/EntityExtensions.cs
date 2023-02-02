@@ -36,17 +36,13 @@ public static class EntityExtensions
         {
             if (!string.IsNullOrEmpty(queryModel.Tags))
             {
-                List<string> tags = queryModel.Tags.Split(",").ToList();
-                if (tags.Any())
-                {
-                    List<Expression<Func<TEntity, bool>>> tagWhere = new();
-                    foreach (var tag in tags)
-                    {
-                        tagWhere.Add(e => EFCore.Property<string>(e, ShadowProperties.Tag).Contains($"\"{tag}\""));
-                    }
-                    entities = entities
-                        .Where(tagWhere.ToOrCompositePredicate());
-                }
+                var tagWhere = queryModel.Tags.Split(",")
+                    .Select(tag => {
+                        Expression<Func<TEntity, bool>> expr = entity => EFCore.Property<string>(entity, ShadowProperties.Tag).Contains($"\"{tag}\"");
+                        return expr;
+                    });
+                entities = entities
+                    .Where(tagWhere.ToOrCompositePredicate());
             }
             if (!string.IsNullOrEmpty(queryModel.Tag))
             {
