@@ -18,7 +18,7 @@ public class QueryModel
     public bool NoLimit { get; set; } = false;
 
     // Filter by fields:
-    [Obsolete("Tag is deprecated and might be remove in a future version of the framework. Please use the Tags instead.")]
+    [Obsolete("Tag is deprecated and might be remove in a future version of the framework. Please use the Tags instead. Deprecatated started from 2023.feb.06.")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? Tag { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
