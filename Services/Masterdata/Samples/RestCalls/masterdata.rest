@@ -1,5 +1,5 @@
 @ids-url=https://idp/
-@api-url=https://localhost:7029/Masterdata
+@api-url=https://localhost:7022/Masterdata
 
 @clientId=IdentityServerManager
 @clientSecret=default_secret_this_should_not_be_commited
@@ -36,11 +36,17 @@ GET {{api-url}}/{{masterdataType}}/details
 # Authorization: Bearer {{access_token}}
 
 
+### GET ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE FILTERED BY TAGS
+# @name MasterdataRequest
+#GET {{api-url}}/{{masterdataType}}/?Tags=color%20red
+GET {{api-url}}/{{masterdataType}}/?Tags=color%20red,very%20height
+# Authorization: Bearer {{access_token}}
+
+
 ### GET ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
 # @name MasterdataRequest
 GET {{api-url}}/{{masterdataType}}
 # Authorization: Bearer {{access_token}}
-
 
 
 ### USE THIS VARIABLE IF YOU WANT TO USE ID's WHEN CALLING THE API
@@ -51,7 +57,6 @@ GET {{api-url}}/{{masterdataType}}
 @masterdataValue={{MasterdataRequest.response.body.$.value[0].value}}
 @masterdataName={{MasterdataRequest.response.body.$.value[0].name}}
 @masterdataDesc={{MasterdataRequest.response.body.$.value[0].description}}
-
 
 
 ### GET THE DETAILS OF A SINGLE MASTERDATA
