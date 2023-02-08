@@ -30,6 +30,10 @@ public class ResultPagedListModel<TValue> : ResultListModel<TValue>
     /// </summary>
     public int PageNumber => PageIndex + 1;
     /// <summary>
+    /// Return the total number of page.
+    /// </summary>
+    public int PageTotal => (TotalSize ?? 0) / (PageSize ?? 1) + 1;
+    /// <summary>
     /// The name of the property the backend should sort on.
     /// </summary>
     public string? SortingProperty { get; set; }

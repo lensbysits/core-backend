@@ -25,9 +25,8 @@ public interface IControllerOptions
     /// Registers a custom filter of type IFilterMetadata that will be injected in the Request Pipeline.
     /// </summary>
     /// <param name="filter"></param>
-    IControllerOptions AddRequestPipeLineFilter<T>() where T : IFilterMetadata;
+    IControllerOptions AddRequestPipeLineFilter<T>(T? filter = null) where T : class, IFilterMetadata;
     /// <summary>
     /// Gets all custom filters to be injected into the request pipeline.
     /// </summary>
-    ICollection<Type> GetRequestPipeLineFilters();
 }
