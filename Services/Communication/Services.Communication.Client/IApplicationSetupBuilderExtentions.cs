@@ -1,10 +1,10 @@
 ﻿using Lens.Core.Lib;
 using Lens.Core.Lib.Builders;
-using Lens.Services.Communication.Web.Client.Services;
-using Lens.Services.Communication.Web.Client.Settings;
+using Lens.Services.Communication.Client.Services;
+using Lens.Services.Communication.Client.Settings;
 using Microsoft.Extensions.Configuration;
 
-namespace Lens.Services.Communication.Web.Client;
+namespace Lens.Services.Communication.Client;
 
 public static class IApplicationSetupBuilderExtentions
 {

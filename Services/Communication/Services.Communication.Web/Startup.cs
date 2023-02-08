@@ -11,6 +11,10 @@ public class Startup : Core.App.Web.StartupBase
 
     public override void OnSetupApplication(IWebApplicationSetupBuilder applicationSetup)
     {
+        applicationSetup.Controller
+            .UseViews()
+            .JsonSerializeEnumsAsStrings();
+
         applicationSetup
             // Add app specific services.
             .AddCommunicationServices();

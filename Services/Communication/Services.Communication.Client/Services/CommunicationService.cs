@@ -3,7 +3,7 @@ using Lens.Services.Communication.Models;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace Lens.Services.Communication.Web.Client.Services
+namespace Lens.Services.Communication.Client.Services
 {
     public class CommunicationService : BaseService<CommunicationService>, ICommunicationService
     {
