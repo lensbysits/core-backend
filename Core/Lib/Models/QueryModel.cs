@@ -1,4 +1,6 @@
-﻿using System.Text.Encodings.Web;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 
 namespace Lens.Core.Lib.Models;
@@ -41,7 +43,7 @@ public class QueryModel
     [JsonIgnore]
     public string? SortingProperty => (sorting ??= this.GetSorting()).field;
     [JsonIgnore]
-    public string SortingDirection => (sorting ??= this.GetSorting()).direction;
+    public string? SortingDirection => (sorting ??= this.GetSorting()).direction;
 
     public virtual string QueryString
     {
