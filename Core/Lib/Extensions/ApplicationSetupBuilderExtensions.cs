@@ -15,10 +15,12 @@ public static class ApplicationSetupBuilderExtensions
 
     public static IApplicationSetupBuilder AddOAuthClient(this IApplicationSetupBuilder applicationSetup)
     {
-        applicationSetup.Services
-            .AddTransient<ApiBearerTokenHandler>()
-            .Configure<OAuthClientSettings>(applicationSetup.Configuration.GetSection(nameof(OAuthClientSettings)))
-            .AddScoped<IOAuthClientService, OAuthClientService>();
+        if (!applicationSetup.Services.Any(d => d.ServiceType == typeof(IOAuthClientService)))
+        {
+            applicationSetup.Services
+                .Configure<OAuthClientSettings>(applicationSetup.Configuration.GetSection(nameof(OAuthClientSettings)))
+                .AddScoped<IOAuthClientService, OAuthClientService>();
+        }
 
         return applicationSetup;
     }
@@ -31,6 +33,11 @@ public static class ApplicationSetupBuilderExtensions
         where TClient : class
         where TImplementation : class, TClient
     {
+        if (!applicationSetup.Services.Any(d => d.ServiceType == typeof(ApiBearerTokenHandler)))
+        {
+            applicationSetup.Services.AddTransient<ApiBearerTokenHandler>();
+        }
+        
         applicationSetup.Services
             .AddHttpClient<TClient, TImplementation>()
                 .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUri ?? string.Empty))
@@ -83,8 +90,8 @@ public static class ApplicationSetupBuilderExtensions
     {
         builder.Services
             .AddHttpClient<TClient, TImplementation>()
-                .ConfigureHttpClient(configureClient ?? (client => { }))
-                .AddHttpMessageHandler<THttpMessageHandler>();
+            .ConfigureHttpClient(configureClient ?? (client => { }))
+            .AddHttpMessageHandler<THttpMessageHandler>();
 
         return builder;
     }
