@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
+using System.Text.Json;
 
 namespace Lens.Core.App.Web.Options;
 
@@ -26,6 +27,8 @@ public interface IControllerOptions
     /// </summary>
     /// <param name="filter"></param>
     IControllerOptions AddRequestPipeLineFilter<T>(T? filter = null) where T : class, IFilterMetadata;
+    IControllerOptions JsonSerializerConfig(Action<JsonSerializerOptions>? jsonSerializerOptions);
+
     /// <summary>
     /// Gets all custom filters to be injected into the request pipeline.
     /// </summary>

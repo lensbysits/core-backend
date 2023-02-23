@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
+using System.Text.Json;
 
 namespace Lens.Core.App.Web.Options;
 
@@ -10,7 +11,9 @@ internal class ControllerOptions : IControllerOptions
     public bool IgnoreResultModelWrapper { get; private set; } = false;
     public bool JsonEnumsAsStrings { get; private set; } = false;
     public bool JsonIgnoreNullProperties { get; private set; } = false;
+    public Action<JsonSerializerOptions>? JsonSerializerOptions { get; private set; }
     public bool UsingViews { get; private set; } = false;
+
 
     public ControllerOptions()
     {
@@ -33,6 +36,12 @@ internal class ControllerOptions : IControllerOptions
     public IControllerOptions JsonSerializeIgnoreNullProperties()
     {
         JsonIgnoreNullProperties = true;
+        return this;
+    }
+
+    public IControllerOptions JsonSerializerConfig(Action<JsonSerializerOptions>? jsonSerializerOptions)
+    {
+        JsonSerializerOptions = jsonSerializerOptions;
         return this;
     }
 

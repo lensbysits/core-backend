@@ -106,6 +106,8 @@ public class StartupBase
         {
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         }
+
+        applicationSetup.ControllerOptions.JsonSerializerOptions?.Invoke(options.JsonSerializerOptions);
     }
 
     public virtual void OnSetupApplication(IWebApplicationSetupBuilder applicationSetup) { }
