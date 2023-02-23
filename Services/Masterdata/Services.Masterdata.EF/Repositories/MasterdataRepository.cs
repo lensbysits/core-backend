@@ -130,7 +130,33 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
         await DbContext.SaveChangesAsync();
         return ApplicationService.Mapper.Map<MasterdataModel>(masterdataEntity);
     }
-    #endregion
+
+    public async Task<MasterdataKeyModel> AddMasterdataKeys(string masterdataType, string masterdata, MasterdataKeyCreateModel model)
+    {
+        var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
+        if (masterdataTypeEntity == default)
+        {
+            throw new NotFoundException($"MasterdataType with id/code {masterdataType} not found.");
+        }
+
+        var masterdataEntity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
+        if (masterdataEntity == default)
+        {
+            throw new NotFoundException($"Masterdata with id/key {masterdata} not found.");
+        }
+
+        var masterdataKeyEntity = await DbContext.MasterdataKeys.FirstOrDefaultAsync(MasterdataKeyFilter(masterdata, model.Domain, model.Key));
+        if (masterdataKeyEntity != default)
+        {
+            throw new NotFoundException($"MasterdataKey with domain/key {model.Domain}/{model.Key} for masterdata {masterdata} already exists.");
+        }
+
+        masterdataKeyEntity = ApplicationService.Mapper.Map<Entities.MasterdataKey>(model);
+        masterdataEntity.MasterdataKeys.Add(masterdataKeyEntity);
+        await DbContext.SaveChangesAsync();
+        return ApplicationService.Mapper.Map<MasterdataKeyModel>(masterdataKeyEntity);
+    }
+        #endregion
 
     #region Update/Put
     public async Task<MasterdataTypeModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)
@@ -239,6 +265,30 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
                         : m => m.Key == masterdata);
     }
 
+    private static Expression<Func<Entities.MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string domain, string key)
+    {
+        var filter = new List<Expression<Func<Entities.MasterdataKey, bool>>> { };
+
+        if (!string.IsNullOrEmpty(masterdata) && Guid.TryParse(masterdata, out var masterdataId)) {
+            filter.Add(m => m.MasterdataId == masterdataId);
+        }
+        if (!string.IsNullOrEmpty(domain))
+        {
+            filter.Add(m => m.Domain == domain);
+        }
+        if (!string.IsNullOrEmpty(key))
+        {
+            filter.Add(m => m.Key == key);
+        }
+
+        ExpressionStarter<Entities.MasterdataKey>? predicate = null;
+        foreach (var expression in filter)
+        {
+            predicate = (predicate == null) ? PredicateBuilder.New(expression) : predicate.And(expression);
+        }
+        return predicate;
+    }
+
     private static Expression<Func<MasterdataTypeModel, bool>> MasterdataTypeModelFilter(string masterdataType)
     {
         return string.IsNullOrEmpty(masterdataType)
@@ -256,6 +306,5 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
                         ? m => m.Id == id
                         : m => m.Code == masterdataType;
     }
-
     #endregion filter helpers
 }

@@ -278,3 +278,48 @@ Content-Type: application/json
 #< ./data/statusses.json
 #< ./data/time-unit-type.json
 #< ./data/quotes.json
+
+
+#############################################################
+### MASTERDATA KEYS
+
+### testing vars
+@masterdataKeyCustomUsedType=testing-type
+@masterdataKeyCustomUsedMasterdata=testing-data
+
+
+### ALL MASTERDATA TYPES AVAILABLE
+GET {{api-url}}
+# Authorization: Bearer {{access_token}}
+
+
+### SINGLE MASTERDATA TYPE DETAILS
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/details
+# Authorization: Bearer {{access_token}}
+
+
+### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
+# @name MasterdataRequest
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}
+# Authorization: Bearer {{access_token}}
+
+
+### GET THE DETAILS OF A SINGLE MASTERDATA
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}
+# Authorization: Bearer {{access_token}}
+
+
+### ADD MASTERDATA KEY TO AN EXISTING MASTERDATA
+# @name MasterdataKeyRequest4Add
+POST {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys
+# Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+    "domain": "[testing-key domain]",
+    "key": "[testing-key key]"
+}
+
+###
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}
+# Authorization: Bearer {{access_token}}

@@ -18,6 +18,8 @@ public interface IMasterdataService
     Task<MasterdataTypeModel> AddMasterdataType(MasterdataTypeCreateModel model);
 
     Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model);
+
+    Task<MasterdataKeyModel> AddMasterdataKeys(string masterdataType, string masterdata, MasterdataKeyCreateModel model);
     #endregion
 
     #region Update/Put

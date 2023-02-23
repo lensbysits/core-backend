@@ -33,4 +33,6 @@ public class MasterdataModel : IdModel
         set => Tags = JsonSerializer.Deserialize<string[]>(value ?? "[]");
     }
     public string[]? Tags { get; set; }
+
+    public int? MasterdataKeysCount { get; set; }
 }

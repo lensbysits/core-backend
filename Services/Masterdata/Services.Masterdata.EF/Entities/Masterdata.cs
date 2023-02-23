@@ -20,4 +20,6 @@ public class Masterdata : BaseEntity, ITagsEntity
 
     [StringLength(2048)]
     public string? Tag { get; set; }
+
+    public virtual ICollection<MasterdataKey> MasterdataKeys { get; set; } = new HashSet<MasterdataKey>();
 }
