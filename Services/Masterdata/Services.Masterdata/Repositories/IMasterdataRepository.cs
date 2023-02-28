@@ -29,7 +29,11 @@ public interface IMasterdataRepository
 
     #region Delete
     Task DeleteMasterdataType(string masterdataType);
-    
+
+    Task DeleteMasterdataKeys(string masterdataType, string masterdata);
+
+    Task DeleteMasterdataKeys(string masterdataType, string masterdata, string alternativeKeyId);
+
     Task DeleteMasterdata(string masterdataType, string masterdata);
     #endregion
 

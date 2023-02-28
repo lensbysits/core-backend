@@ -1,6 +1,7 @@
 ﻿using AutoMapper.QueryableExtensions;
 using Dapper;
 using Lens.Core.Data.EF;
+using Lens.Core.Data.EF.Entities;
 using Lens.Core.Data.EF.Repositories;
 using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Models;
@@ -9,6 +10,7 @@ using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
@@ -204,10 +206,49 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
         await DbContext.SaveChangesAsync();
     }
 
+    public async Task DeleteMasterdataKeys(string masterdataType, string masterdata)
+    {
+        var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
+        if (masterdataTypeEntity == default)
+        {
+            throw new NotFoundException($"MasterdataType with id/code {masterdataType} not found.");
+        }
+
+        var masterdataEntity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
+        if (masterdataEntity == default)
+        {
+            throw new NotFoundException($"Masterdata with id/key {masterdata} not found.");
+        }
+
+        await DbContext.MasterdataKeys.Where(MasterdataKeyFilter(masterdata)).ExecuteDeleteAsync();
+    }
+
+    public async Task DeleteMasterdataKeys(string masterdataType, string masterdata, string alternativeKeyId)
+    {
+        var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
+        if (masterdataTypeEntity == default)
+        {
+            throw new NotFoundException($"MasterdataType with id/code {masterdataType} not found.");
+        }
+
+        var masterdataEntity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
+        if (masterdataEntity == default)
+        {
+            throw new NotFoundException($"Masterdata with id/key {masterdata} not found.");
+        }
+
+        var entity = await DbContext.MasterdataKeys.FirstOrDefaultAsync(MasterdataKeyFilter(masterdata, alternativeKeyId));
+        if (entity == default)
+        {
+            return;
+        }
+
+        DbContext.Remove(entity);
+        await DbContext.SaveChangesAsync();
+    }
+
     public async Task DeleteMasterdata(string masterdataType, string masterdata)
     {
-        //await base.SoftDelete(id); // TODO - not working!
-
         var entity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
         if (entity == default)
         {
@@ -244,7 +285,6 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
     #endregion
 
     #region filter helpers
-
     private static Expression<Func<Entities.Masterdata, bool>> MasterdataFilter(string? masterdataType)
     {
         return string.IsNullOrEmpty(masterdataType)
@@ -258,35 +298,13 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
     {
         var filter = MasterdataFilter(masterdataType);
 
-        return filter.And(string.IsNullOrEmpty(masterdata)
-            ? m => false
-            : Guid.TryParse(masterdata, out var masterdataId)
-                        ? m => m.Id == masterdataId
-                        : m => m.Key == masterdata);
-    }
-
-    private static Expression<Func<Entities.MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string domain, string key)
-    {
-        var filter = new List<Expression<Func<Entities.MasterdataKey, bool>>> { };
-
-        if (!string.IsNullOrEmpty(masterdata) && Guid.TryParse(masterdata, out var masterdataId)) {
-            filter.Add(m => m.MasterdataId == masterdataId);
-        }
-        if (!string.IsNullOrEmpty(domain))
-        {
-            filter.Add(m => m.Domain == domain);
-        }
-        if (!string.IsNullOrEmpty(key))
-        {
-            filter.Add(m => m.Key == key);
-        }
-
-        ExpressionStarter<Entities.MasterdataKey>? predicate = null;
-        foreach (var expression in filter)
-        {
-            predicate = (predicate == null) ? PredicateBuilder.New(expression) : predicate.And(expression);
-        }
-        return predicate;
+        return filter.And(
+            string.IsNullOrEmpty(masterdata)
+                ? m => false
+                : Guid.TryParse(masterdata, out var masterdataId)
+                    ? m => m.Id == masterdataId
+                    : m => m.Key == masterdata
+        );
     }
 
     private static Expression<Func<MasterdataTypeModel, bool>> MasterdataTypeModelFilter(string masterdataType)
@@ -305,6 +323,36 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
                     : Guid.TryParse(masterdataType, out var id)
                         ? m => m.Id == id
                         : m => m.Code == masterdataType;
+    }
+
+    private static Expression<Func<Entities.MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata)
+    {
+        return !string.IsNullOrEmpty(masterdata) && Guid.TryParse(masterdata, out var masterdataId)
+                    ? m => m.MasterdataId == masterdataId
+                    : m => false;
+    }
+    private static Expression<Func<Entities.MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string? alternativeIdOrDomain)
+    {
+        var filter = MasterdataKeyFilter(masterdata);
+
+        return filter.And(
+            string.IsNullOrEmpty(alternativeIdOrDomain)
+                ? m => false
+                : Guid.TryParse(alternativeIdOrDomain, out var alternativeId)
+                    ? m => m.Id == alternativeId
+                    : m => m.Domain == alternativeIdOrDomain
+        );
+    }
+
+    private static Expression<Func<Entities.MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string? alternativeIdOrDomain, string? alternativeKey)
+    {
+        var filter = MasterdataKeyFilter(masterdata, alternativeIdOrDomain);
+
+        return filter.And(
+            string.IsNullOrEmpty(alternativeKey)
+            ? m => false
+            : m => m.Key == alternativeKey
+        );
     }
     #endregion filter helpers
 }
