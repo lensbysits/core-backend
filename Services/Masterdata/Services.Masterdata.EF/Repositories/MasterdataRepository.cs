@@ -228,7 +228,8 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
             throw new NotFoundException($"Masterdata with id/key {masterdata} not found.");
         }
 
-        await DbContext.MasterdataKeys.Where(MasterdataKeyFilter(masterdata)).ExecuteDeleteAsync();
+        DbContext.MasterdataKeys.DeleteWhere(MasterdataKeyFilter(masterdata));
+        await DbContext.SaveChangesAsync();
     }
 
     public async Task DeleteMasterdataKeys(string masterdataType, string masterdata, string alternativeKeyId)

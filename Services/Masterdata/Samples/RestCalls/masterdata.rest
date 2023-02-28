@@ -287,7 +287,7 @@ Content-Type: application/json
 @masterdataKeyCustomUsedType=testing-type
 @masterdataKeyCustomUsedMasterdata=testing-data2 key
 @masterdataKeyCustomUsedMasterdataId=1594A6B1-90B7-ED11-9D14-04421A02152C
-@masterdataKeyCustom4DeleteId=8f6224bb-90b7-ed11-9d14-04421a02152c
+@masterdataKeyCustom4DeleteId=FDE720FB-92B7-ED11-9D14-04421A02152C
 
 
 ### ALL MASTERDATA TYPES AVAILABLE
