@@ -6,6 +6,7 @@ using Lens.Core.Data.EF.Repositories;
 using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
+using Lens.Services.Masterdata.EF.Entities;
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
 using LinqKit;
@@ -66,6 +67,15 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider).FirstOrDefaultAsync();
 
         return result;
+    }
+
+    public async Task<ResultPagedListModel<MasterdataKeyModel>> GetMasterdataKeys(string masterdataType, string masterdata, QueryModel? querymodel = null)
+    {
+        var pagedResult = await DbContext.MasterdataKeys
+            .GetByQueryModel(querymodel ?? QueryModel.Default, MasterdataKeyFilter(masterdata))
+            .ApplyPaging(querymodel ?? QueryModel.Default);
+
+        return await pagedResult.ToPagedResultListModel<MasterdataKey, MasterdataKeyModel>(querymodel ?? QueryModel.Default, ApplicationService.Mapper.ConfigurationProvider);
     }
 
     public async Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null)

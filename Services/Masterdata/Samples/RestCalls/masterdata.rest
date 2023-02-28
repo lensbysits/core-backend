@@ -285,9 +285,9 @@ Content-Type: application/json
 
 ### testing vars
 @masterdataKeyCustomUsedType=testing-type
-@masterdataKeyCustomUsedMasterdata=testing-data
-@masterdataKeyCustomUsedMasterdataId=C96A5E8B-76AD-ED11-9D09-04421A02152C
-@masterdataKeyCustom4DeleteId=1A2FA380-76B7-ED11-9D14-04421A02152C
+@masterdataKeyCustomUsedMasterdata=testing-data2 key
+@masterdataKeyCustomUsedMasterdataId=1594A6B1-90B7-ED11-9D14-04421A02152C
+@masterdataKeyCustom4DeleteId=8f6224bb-90b7-ed11-9d14-04421a02152c
 
 
 ### ALL MASTERDATA TYPES AVAILABLE
@@ -311,6 +311,11 @@ GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterd
 # Authorization: Bearer {{access_token}}
 
 
+### ALL MASTERDATA KEYS BELONGING TO A MASTERDATA ITEM
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+# Authorization: Bearer {{access_token}}
+
+
 ### ADD MASTERDATA KEY TO AN EXISTING MASTERDATA
 # @name MasterdataKeyRequest4Add
 POST {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys
@@ -323,7 +328,7 @@ Content-Type: application/json
 }
 
 ###
-GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
 # Authorization: Bearer {{access_token}}
 
 
@@ -336,5 +341,5 @@ DELETE {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMast
 # Authorization: Bearer {{access_token}}
 
 ###
-GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
 # Authorization: Bearer {{access_token}}

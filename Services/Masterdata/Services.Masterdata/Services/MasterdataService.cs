@@ -38,6 +38,9 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     public Task<MasterdataModel?> GetMasterdata(string masterdataType, string value)
         => _masterdataRepository.GetMasterdata(masterdataType, value);
 
+    public Task<ResultPagedListModel<MasterdataKeyModel>> GetMasterdataKeys(string masterdataType, string value, QueryModel querymodel)
+        => _masterdataRepository.GetMasterdataKeys(masterdataType, value, querymodel);
+
     public Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel querymodel)
         => _masterdataRepository.GetTags(masterdataType, querymodel);
     #endregion Get
