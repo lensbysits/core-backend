@@ -115,7 +115,7 @@ public class MasterdataController : ControllerBase
     }
 
     [HttpPost("{masterdataType}/{masterdata}/keys")]
-    public async Task<ActionResult<MasterdataModel>> Post(string masterdataType, string masterdata, MasterdataKeyCreateModel model)
+    public async Task<ActionResult<MasterdataKeyModel>> Post(string masterdataType, string masterdata, MasterdataKeyCreateModel model)
     {
         var result = await _masterdataService.AddMasterdataKeys(masterdataType, masterdata, model);
         return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
