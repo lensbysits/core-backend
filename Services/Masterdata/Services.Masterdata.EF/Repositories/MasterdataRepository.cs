@@ -1,23 +1,21 @@
 ﻿using AutoMapper.QueryableExtensions;
 using Dapper;
 using Lens.Core.Data.EF;
-using Lens.Core.Data.EF.Entities;
 using Lens.Core.Data.EF.Repositories;
 using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
-using Lens.Services.Masterdata.EF.Entities;
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
 namespace Lens.Services.Masterdata.EF.Repositories;
+using Entities;
 
-public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities.Masterdata>, IMasterdataRepository
+public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterdata>, IMasterdataRepository
 {
     public MasterdataRepository(
         MasterdataDbContext dbContext,
@@ -33,7 +31,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             .GetByQueryModel(querymodel ?? QueryModel.Default)
             .ApplyPaging(querymodel ?? QueryModel.Default);
 
-        return await pagedResult.ToPagedResultListModel<Entities.MasterdataType, MasterdataTypeListModel>(querymodel ?? QueryModel.Default, ApplicationService.Mapper.ConfigurationProvider);
+        return await pagedResult.ToPagedResultListModel<MasterdataType, MasterdataTypeListModel>(querymodel ?? QueryModel.Default, ApplicationService.Mapper.ConfigurationProvider);
     }
 
     public async Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains)
@@ -56,7 +54,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             .GetByQueryModel(querymodel ?? QueryModel.Default, MasterdataFilter(masterdataType))
             .ApplyPaging(querymodel ?? QueryModel.Default);
 
-        return await pagedResult.ToPagedResultListModel<Entities.Masterdata, MasterdataModel>(querymodel ?? QueryModel.Default, ApplicationService.Mapper.ConfigurationProvider);
+        return await pagedResult.ToPagedResultListModel<Masterdata, MasterdataModel>(querymodel ?? QueryModel.Default, ApplicationService.Mapper.ConfigurationProvider);
     }
 
     public async Task<MasterdataModel?> GetMasterdata(string masterdataType, string masterdata)
@@ -112,7 +110,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             throw new BadRequestException($"MasterdataType with code {model.Code} already exists");
         }
 
-        masterdataTypeEntity = ApplicationService.Mapper.Map<Entities.MasterdataType>(model);
+        masterdataTypeEntity = ApplicationService.Mapper.Map<MasterdataType>(model);
         var entry = DbContext.MasterdataTypes.Add(masterdataTypeEntity);
         await DbContext.SaveChangesAsync();
         var result = ApplicationService.Mapper.Map<MasterdataTypeModel>(masterdataTypeEntity);
@@ -137,7 +135,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             throw new NotFoundException($"Masterdata with id/key {model.Key} already exists.");
         }
 
-        masterdataEntity = ApplicationService.Mapper.Map<Entities.Masterdata>(model);
+        masterdataEntity = ApplicationService.Mapper.Map<Masterdata>(model);
         masterdataTypeEntity.Masterdatas.Add(masterdataEntity);
         await DbContext.SaveChangesAsync();
         return ApplicationService.Mapper.Map<MasterdataModel>(masterdataEntity);
@@ -163,7 +161,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             throw new NotFoundException($"MasterdataKey with domain/key {model.Domain}/{model.Key} for masterdata {masterdata} already exists.");
         }
 
-        masterdataKeyEntity = ApplicationService.Mapper.Map<Entities.MasterdataKey>(model);
+        masterdataKeyEntity = ApplicationService.Mapper.Map<MasterdataKey>(model);
         masterdataEntity.MasterdataKeys.Add(masterdataKeyEntity);
         await DbContext.SaveChangesAsync();
         return ApplicationService.Mapper.Map<MasterdataKeyModel>(masterdataKeyEntity);
@@ -281,11 +279,11 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
             Metadata = model.Metadata
         };
 
-        var entry = DbContext.MasterdataTypes.Add(ApplicationService.Mapper.Map<Entities.MasterdataType>(newType));
+        var entry = DbContext.MasterdataTypes.Add(ApplicationService.Mapper.Map<MasterdataType>(newType));
 
         foreach (var masterdataModel in model.Masterdatas)
         {
-            entry.Entity.Masterdatas.Add(ApplicationService.Mapper.Map<Entities.Masterdata>(masterdataModel));
+            entry.Entity.Masterdatas.Add(ApplicationService.Mapper.Map<Masterdata>(masterdataModel));
         }
 
         await DbContext.SaveChangesAsync();
@@ -295,7 +293,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
     #endregion
 
     #region filter helpers
-    private static Expression<Func<Entities.Masterdata, bool>> MasterdataFilter(string? masterdataType)
+    private static Expression<Func<Masterdata, bool>> MasterdataFilter(string? masterdataType)
     {
         return string.IsNullOrEmpty(masterdataType)
                     ? m => false
@@ -304,7 +302,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
                         : m => m.MasterdataType.Code == masterdataType;
     }
 
-    private static Expression<Func<Entities.Masterdata, bool>> MasterdataFilter(string? masterdataType, string masterdata)
+    private static Expression<Func<Masterdata, bool>> MasterdataFilter(string? masterdataType, string masterdata)
     {
         var filter = MasterdataFilter(masterdataType);
 
@@ -326,7 +324,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
                         : m => m.Code == masterdataType;
     }
 
-    private static Expression<Func<Entities.MasterdataType, bool>> MasterdataTypeFilter(string masterdataType)
+    private static Expression<Func<MasterdataType, bool>> MasterdataTypeFilter(string masterdataType)
     {
         return string.IsNullOrEmpty(masterdataType)
                     ? m => false
@@ -335,13 +333,13 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
                         : m => m.Code == masterdataType;
     }
 
-    private static Expression<Func<Entities.MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata)
+    private static Expression<Func<MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata)
     {
         return !string.IsNullOrEmpty(masterdata) && Guid.TryParse(masterdata, out var masterdataId)
                     ? m => m.MasterdataId == masterdataId
                     : m => false;
     }
-    private static Expression<Func<Entities.MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string? alternativeIdOrDomain)
+    private static Expression<Func<MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string? alternativeIdOrDomain)
     {
         var filter = MasterdataKeyFilter(masterdata);
 
@@ -354,7 +352,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Entities
         );
     }
 
-    private static Expression<Func<Entities.MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string? alternativeIdOrDomain, string? alternativeKey)
+    private static Expression<Func<MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string? alternativeIdOrDomain, string? alternativeKey)
     {
         var filter = MasterdataKeyFilter(masterdata, alternativeIdOrDomain);
 
