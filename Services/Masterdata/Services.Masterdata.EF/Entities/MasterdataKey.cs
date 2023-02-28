@@ -8,6 +8,8 @@ public class MasterdataKey : BaseEntity
     [Required]
     public Guid MasterdataId { get; set; }
 
+    public virtual Masterdata Masterdata { get; set; } = default!;
+
     [StringLength(255), Required]
     public string? Domain { get; set; }
 
