@@ -168,7 +168,9 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         var result = new List<MasterdataKeyModel>();
         foreach (var singleEntity in model)
         {
-            if (!masterdataCurrentKeys.Exists(x => (x.Domain == singleEntity.Domain && x.Key == singleEntity.Key)))
+            if (!masterdataCurrentKeys.Exists(
+                x => (x.Domain == singleEntity.Domain && x.Key == singleEntity.Key)
+            ))
             {
                 var singleEntityMapped = ApplicationService.Mapper.Map<MasterdataKey>(singleEntity);
                 masterdataEntity.MasterdataKeys.Add(singleEntityMapped);
@@ -227,6 +229,18 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         await DbContext.SaveChangesAsync();
     }
 
+    public async Task DeleteMasterdata(string masterdataType, string masterdata)
+    {
+        var entity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
+        if (entity == default)
+        {
+            return;
+        }
+
+        DbContext.Remove(entity);
+        await DbContext.SaveChangesAsync();
+    }
+
     public async Task DeleteMasterdataKeys(string masterdataType, string masterdata)
     {
         var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
@@ -260,18 +274,6 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         }
 
         var entity = await DbContext.MasterdataKeys.FirstOrDefaultAsync(MasterdataKeyFilter(masterdata, alternativeKeyId));
-        if (entity == default)
-        {
-            return;
-        }
-
-        DbContext.Remove(entity);
-        await DbContext.SaveChangesAsync();
-    }
-
-    public async Task DeleteMasterdata(string masterdataType, string masterdata)
-    {
-        var entity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
         if (entity == default)
         {
             return;
