@@ -141,7 +141,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         return ApplicationService.Mapper.Map<MasterdataModel>(masterdataEntity);
     }
 
-    public async Task<MasterdataKeyModel> AddMasterdataKeys(string masterdataType, string masterdata, MasterdataKeyCreateModel model)
+    public async Task<ICollection<MasterdataKeyModel>> AddMasterdataKeys(string masterdataType, string masterdata, ICollection<MasterdataKeyCreateModel> model)
     {
         var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
         if (masterdataTypeEntity == default)
@@ -155,18 +155,31 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
             throw new NotFoundException($"Masterdata with id/key {masterdata} not found.");
         }
 
-        var masterdataKeyEntity = await DbContext.MasterdataKeys.FirstOrDefaultAsync(MasterdataKeyFilter(masterdata, model.Domain, model.Key));
-        if (masterdataKeyEntity != default)
+        var masterdataCurrentKeys = DbContext.MasterdataKeys
+            .Where(MasterdataKeyFilter(masterdata))
+            .OrderBy(x => x.Domain)
+            .Select(x => new MasterdataKeyCreateModel()
+            {
+                Domain = x.Domain!,
+                Key = x.Key!
+            })
+            .ToList();
+
+        var result = new List<MasterdataKeyModel>();
+        foreach (var singleEntity in model)
         {
-            throw new NotFoundException($"MasterdataKey with domain/key {model.Domain}/{model.Key} for masterdata {masterdata} already exists.");
+            if (!masterdataCurrentKeys.Exists(x => (x.Domain == singleEntity.Domain && x.Key == singleEntity.Key)))
+            {
+                var singleEntityMapped = ApplicationService.Mapper.Map<MasterdataKey>(singleEntity);
+                masterdataEntity.MasterdataKeys.Add(singleEntityMapped);
+                result.Add(ApplicationService.Mapper.Map<MasterdataKeyModel>(singleEntityMapped));
+            }
         }
 
-        masterdataKeyEntity = ApplicationService.Mapper.Map<MasterdataKey>(model);
-        masterdataEntity.MasterdataKeys.Add(masterdataKeyEntity);
         await DbContext.SaveChangesAsync();
-        return ApplicationService.Mapper.Map<MasterdataKeyModel>(masterdataKeyEntity);
+        return result;
     }
-        #endregion
+    #endregion
 
     #region Update/Put
     public async Task<MasterdataTypeModel> UpdateMasterdataType(string masterdataType, MasterdataTypeUpdateModel model)

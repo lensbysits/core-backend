@@ -20,7 +20,7 @@ public interface IMasterdataService
 
     Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model);
 
-    Task<MasterdataKeyModel> AddMasterdataKeys(string masterdataType, string masterdata, MasterdataKeyCreateModel model);
+    Task<ICollection<MasterdataKeyModel>> AddMasterdataKeys(string masterdataType, string masterdata, ICollection<MasterdataKeyCreateModel> model);
     #endregion
 
     #region Update/Put

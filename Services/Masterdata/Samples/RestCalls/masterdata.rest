@@ -318,14 +318,28 @@ GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterd
 
 ### ADD MASTERDATA KEY TO AN EXISTING MASTERDATA
 # @name MasterdataKeyRequest4Add
-POST {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys
+POST {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
 # Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
+[
 {
-    "domain": "[testing-key domain]",
-    "key": "[testing-key key]"
+    "domain": "[testing-key domain]x",
+    "key": "[testing-key key]x"
+},
+{
+    "domain": "[testing-key domain]x1",
+    "key": "[testing-key key]x1"
+},
+{
+    "domain": "[testing-key domain]x2",
+    "key": "[testing-key key]x2"
+},
+{
+    "domain": "[testing-key domain]x3",
+    "key": "[testing-key key]x3"
 }
+]
 
 ###
 GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
