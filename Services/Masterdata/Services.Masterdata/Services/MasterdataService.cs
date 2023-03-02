@@ -94,7 +94,7 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     public Task DeleteMasterdataKeys(string masterdataType, string masterdata)
         => _masterdataRepository.DeleteMasterdataKeys(masterdataType, masterdata);
 
-    public Task DeleteMasterdataKeys(string masterdataType, string masterdata, string alternativeKeyId)
+    public Task DeleteMasterdataKeys(string masterdataType, string masterdata, Guid alternativeKeyId)
         => _masterdataRepository.DeleteMasterdataKeys(masterdataType, masterdata, alternativeKeyId);
     #endregion Delete
 

@@ -40,7 +40,7 @@ public interface IMasterdataRepository
 
     Task DeleteMasterdataKeys(string masterdataType, string masterdata);
 
-    Task DeleteMasterdataKeys(string masterdataType, string masterdata, string alternativeKeyId);
+    Task DeleteMasterdataKeys(string masterdataType, string masterdata, Guid alternativeKeyId);
     #endregion
 
     #region Others

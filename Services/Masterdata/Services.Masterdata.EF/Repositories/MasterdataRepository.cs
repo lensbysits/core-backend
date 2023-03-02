@@ -259,7 +259,7 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         await DbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteMasterdataKeys(string masterdataType, string masterdata, string alternativeKeyId)
+    public async Task DeleteMasterdataKeys(string masterdataType, string masterdata, Guid alternativeKeyId)
     {
         var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
         if (masterdataTypeEntity == default)
@@ -273,7 +273,11 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
             throw new NotFoundException($"Masterdata with id/key {masterdata} not found.");
         }
 
-        var entity = await DbContext.MasterdataKeys.FirstOrDefaultAsync(MasterdataKeyFilter(masterdata, alternativeKeyId));
+        var entity = await DbContext.MasterdataKeys.FirstOrDefaultAsync(
+            MasterdataKeyFilter(masterdata).And(
+                m => m.Id == alternativeKeyId
+            )
+        );
         if (entity == default)
         {
             return;
@@ -354,29 +358,6 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         return !string.IsNullOrEmpty(masterdata) && Guid.TryParse(masterdata, out var masterdataId)
                     ? m => m.MasterdataId == masterdataId
                     : m => false;
-    }
-    private static Expression<Func<MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string? alternativeIdOrDomain)
-    {
-        var filter = MasterdataKeyFilter(masterdata);
-
-        return filter.And(
-            string.IsNullOrEmpty(alternativeIdOrDomain)
-                ? m => false
-                : Guid.TryParse(alternativeIdOrDomain, out var alternativeId)
-                    ? m => m.Id == alternativeId
-                    : m => m.Domain == alternativeIdOrDomain
-        );
-    }
-
-    private static Expression<Func<MasterdataKey, bool>> MasterdataKeyFilter(string? masterdata, string? alternativeIdOrDomain, string? alternativeKey)
-    {
-        var filter = MasterdataKeyFilter(masterdata, alternativeIdOrDomain);
-
-        return filter.And(
-            string.IsNullOrEmpty(alternativeKey)
-            ? m => false
-            : m => m.Key == alternativeKey
-        );
     }
     #endregion filter helpers
 }
