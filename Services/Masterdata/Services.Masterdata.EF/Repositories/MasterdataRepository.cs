@@ -76,6 +76,40 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         return await pagedResult.ToPagedResultListModel<MasterdataKey, MasterdataKeyModel>(querymodel ?? QueryModel.Default, ApplicationService.Mapper.ConfigurationProvider);
     }
 
+    public async Task<ResultPagedListModel<string>> GetDomains(string masterdataType, string masterdata, QueryModel? querymodel = null)
+    {
+        Expression<Func<MasterdataKey, bool>> masterdataTypeFilter = string.IsNullOrEmpty(masterdataType)
+                    ? m => false
+                    : Guid.TryParse(masterdataType, out var masterdataTypeId)
+                        ? m => m.Masterdata.MasterdataTypeId == masterdataTypeId
+                        : m => m.Masterdata.MasterdataType.Code == masterdataType;
+
+        Expression<Func<MasterdataKey, bool>> masterdataFilter = string.IsNullOrEmpty(masterdata)
+                    ? m => false
+                    : Guid.TryParse(masterdata, out var masterdataId)
+                        ? m => m.MasterdataId != masterdataId
+                        : m => m.Masterdata.Key != masterdata;
+
+        var pagedResult = await DbContext.MasterdataKeys
+            .GetByQueryModel(querymodel ?? QueryModel.Default)
+            .Include(mk => mk.Masterdata)
+            .ThenInclude(mk => mk.MasterdataType)
+            .Where(masterdataFilter)
+            .Where(masterdataTypeFilter)
+            .Select(mk => mk.Domain)
+            .Distinct()
+            .ApplyPaging(querymodel ?? QueryModel.Default);
+
+        var domains = await pagedResult.query
+            .ToListAsync();
+
+        return new ResultPagedListModel<string>(domains)
+        {
+            TotalSize = domains.Count(),
+            OriginalQueryModel = querymodel
+        };
+    }
+
     public async Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null)
     {
         var masterdataTypeFilter = string.IsNullOrEmpty(masterdataType)

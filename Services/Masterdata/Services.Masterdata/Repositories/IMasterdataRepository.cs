@@ -15,7 +15,9 @@ public interface IMasterdataRepository
     Task<MasterdataModel?> GetMasterdata(string masterdataType, string value);
     
     Task<ResultPagedListModel<MasterdataKeyModel>> GetMasterdataKeys(string masterdataType, string value, QueryModel? querymodel = null);
-    
+
+    Task<ResultPagedListModel<string>> GetDomains(string masterdataType, string value, QueryModel? querymodel = null);
+
     Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null);
     #endregion
 

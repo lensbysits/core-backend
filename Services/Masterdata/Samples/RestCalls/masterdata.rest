@@ -285,8 +285,8 @@ Content-Type: application/json
 
 ### testing vars
 @masterdataKeyCustomUsedType=testing-type
-@masterdataKeyCustomUsedMasterdata=testing-data2 key
-@masterdataKeyCustomUsedMasterdataId=1594A6B1-90B7-ED11-9D14-04421A02152C
+@masterdataKeyCustomUsedMasterdata=testing-data key
+@masterdataKeyCustomUsedMasterdataId=CED7BF98-57B9-ED11-9D16-04421A02152C
 @masterdataKeyCustom4DeleteId=b834b633-15b8-ed11-9d15-04421a02152c
 
 
@@ -356,4 +356,9 @@ DELETE {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMast
 
 ###
 GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+# Authorization: Bearer {{access_token}}
+
+
+### ALL DOMAINS USED ON ALL MASTERDATA ITEMS BELONGING TO A MASTERDATA TYPE
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys/domains
 # Authorization: Bearer {{access_token}}

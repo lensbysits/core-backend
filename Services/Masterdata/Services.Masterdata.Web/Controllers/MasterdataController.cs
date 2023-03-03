@@ -86,6 +86,20 @@ public class MasterdataController : ControllerBase
     }
 
     /// <summary>
+    /// List all domains from all alternative keys associated with all masterdata items beloging to a masterdata type.
+    /// </summary>
+    /// <param name="masterdataType">The masterdata type (Id or Code).</param>
+    /// <param name="value">The masterdata item identifier (Id or Key).</param>
+    /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
+    /// <returns>A list of all domains from all alternative keys associated with all masterdata items beloging to a masterdata type.</returns>
+    [HttpGet("{masterdataType}/{value}/keys/domains")]
+    public async Task<ResultPagedListModel<string>> GetDomains(string masterdataType, string value, [FromQuery] QueryModel queryModel)
+    {
+        var result = await _masterdataService.GetDomains(masterdataType, value, queryModel);
+        return result;
+    }
+
+    /// <summary>
     /// List all tags associated with a specific masterdata type.
     /// </summary>
     /// <param name="masterdataType">The masterdata type (Id or Code).</param>
