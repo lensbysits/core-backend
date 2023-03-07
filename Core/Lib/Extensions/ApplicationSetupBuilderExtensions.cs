@@ -37,11 +37,11 @@ public static class ApplicationSetupBuilderExtensions
         {
             applicationSetup.Services.AddTransient<ApiBearerTokenHandler>();
         }
-        
-        applicationSetup.Services
-            .AddHttpClient<TClient, TImplementation>()
-                .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUri ?? string.Empty))
-                .AddHttpMessageHandler(services =>
+
+        applicationSetup
+            .AddHttpClientService<TClient, TImplementation>(
+                client => client.BaseAddress = new Uri(baseUri ?? string.Empty),
+                services =>
                 {
                     var handler = services.GetRequiredService<ApiBearerTokenHandler>();
                     handler.ClientName = clientName;
@@ -60,10 +60,7 @@ public static class ApplicationSetupBuilderExtensions
         where TClient : class
         where TImplementation : class, TClient
     {
-        _ = applicationSetup.Services
-            .AddHttpClient<TClient, TImplementation>()
-                .ConfigureHttpClient(client => client.BaseAddress = new Uri(baseUri ?? string.Empty));
-
+        applicationSetup.AddHttpClientService<TClient, TImplementation>(client => client.BaseAddress = new Uri(baseUri ?? string.Empty));
         return applicationSetup;
     }
 
@@ -71,11 +68,12 @@ public static class ApplicationSetupBuilderExtensions
     /// Add a HttpClient Service that gets a bearer-token from the configured IdentityServer
     /// </summary>
     public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation>(this IApplicationSetupBuilder builder, 
-        Action<HttpClient>? configureClient = null)
+        Action<HttpClient>? configureClient = null,
+        Func<IServiceProvider, DelegatingHandler>? httpMessageHandlerFactory = null)
         where TClient : class
         where TImplementation : class, TClient
     {
-        builder.AddHttpClientService<TClient, TImplementation, ApiBearerTokenHandler>(configureClient);
+        builder.AddHttpClientService<TClient, TImplementation, ApiBearerTokenHandler>(configureClient, httpMessageHandlerFactory);
 
         return builder;
     }
@@ -83,17 +81,29 @@ public static class ApplicationSetupBuilderExtensions
     /// <summary>
     /// Add a HttpClient Service that gets a bearer-token from the configured IdentityServer
     /// </summary>
-    public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation, THttpMessageHandler>(this IApplicationSetupBuilder builder, Action<HttpClient>? configureClient = null)
+    public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation, THttpMessageHandler>(
+        this IApplicationSetupBuilder applicationSetup, 
+        Action<HttpClient>? configureClient = null,
+        Func<IServiceProvider, DelegatingHandler>? httpMessageHandlerFactory = null)
         where TClient : class
         where TImplementation : class, TClient
         where THttpMessageHandler : DelegatingHandler
     {
-        builder.Services
+        var httpClientBuilder = applicationSetup.Services
             .AddHttpClient<TClient, TImplementation>()
-            .ConfigureHttpClient(configureClient ?? (client => { }))
-            .AddHttpMessageHandler<THttpMessageHandler>();
+            .ConfigureHttpClient(configureClient ?? (client => { }));
 
-        return builder;
+        if (httpMessageHandlerFactory == null)
+        {
+            httpClientBuilder.AddHttpMessageHandler<THttpMessageHandler>();
+        }
+        else
+        {
+            httpClientBuilder.AddHttpMessageHandler(httpMessageHandlerFactory);
+        }
+
+
+        return applicationSetup;
     }
 
     public static IApplicationSetupBuilder AddBackgroundTaskQueue(this IApplicationSetupBuilder applicationSetup)
