@@ -75,4 +75,12 @@ public static class MasterdataTypeExtensions
             model.Tags = model.Tags.Sanitize(htmlSanitizer);
         }
     }
+    public static void Sanitize(this ICollection<MasterdataKeyCreateModel> model, IHtmlSanitizer htmlSanitizer)
+    {
+        foreach (var entry in model)
+        {
+            entry.Key = !string.IsNullOrEmpty(entry.Key) ? htmlSanitizer.Sanitize(entry.Key) : entry.Key;
+            entry.Domain = !string.IsNullOrEmpty(entry.Domain) ? htmlSanitizer.Sanitize(entry.Domain) : entry.Domain;
+        }
+    }
 }

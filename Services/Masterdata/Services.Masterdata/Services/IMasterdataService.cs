@@ -7,10 +7,19 @@ public interface IMasterdataService
 {
     #region Get
     Task<ResultPagedListModel<MasterdataTypeListModel>> GetMasterdataTypes(QueryModel querymodel);
+    
     Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains);
+    
     Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel);
+    
     Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel);
+    
     Task<MasterdataModel?> GetMasterdata(string masterdataType, string masterdata);
+    
+    Task<ResultPagedListModel<MasterdataKeyModel>> GetMasterdataKeys(string masterdataType, string masterdata, QueryModel querymodel);
+
+    Task<ResultPagedListModel<string>> GetDomains(string masterdataType, string masterdata, QueryModel querymodel);
+
     Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel querymodel);
     #endregion
 
@@ -18,6 +27,8 @@ public interface IMasterdataService
     Task<MasterdataTypeModel> AddMasterdataType(MasterdataTypeCreateModel model);
 
     Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model);
+
+    Task<ICollection<MasterdataKeyModel>> AddMasterdataKeys(string masterdataType, string masterdata, ICollection<MasterdataKeyCreateModel> model);
     #endregion
 
     #region Update/Put
@@ -30,6 +41,10 @@ public interface IMasterdataService
     Task DeleteMasterdataType(string masterdataType);
 
     Task DeleteMasterdata(string masterdataType, string masterdata);
+
+    Task DeleteMasterdataKeys(string masterdataType, string masterdata);
+
+    Task DeleteMasterdataKeys(string masterdataType, string masterdata, Guid alternativeKeyId);
     #endregion
 
     #region Others

@@ -278,3 +278,87 @@ Content-Type: application/json
 #< ./data/statusses.json
 #< ./data/time-unit-type.json
 #< ./data/quotes.json
+
+
+#############################################################
+### MASTERDATA-KEYS
+
+### testing vars
+@masterdataKeyCustomUsedType=testing-type
+@masterdataKeyCustomUsedMasterdata=testing-data key
+@masterdataKeyCustomUsedMasterdataId=CED7BF98-57B9-ED11-9D16-04421A02152C
+@masterdataKeyCustom4DeleteId=b834b633-15b8-ed11-9d15-04421a02152c
+
+
+### ALL MASTERDATA TYPES AVAILABLE
+GET {{api-url}}
+# Authorization: Bearer {{access_token}}
+
+
+### SINGLE MASTERDATA TYPE DETAILS
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/details
+# Authorization: Bearer {{access_token}}
+
+
+### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
+# @name MasterdataRequest
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}
+# Authorization: Bearer {{access_token}}
+
+
+### GET THE DETAILS OF A SINGLE MASTERDATA
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}
+# Authorization: Bearer {{access_token}}
+
+
+### ALL MASTERDATA KEYS BELONGING TO A MASTERDATA ITEM
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+# Authorization: Bearer {{access_token}}
+
+
+### ADD MASTERDATA KEY TO AN EXISTING MASTERDATA
+# @name MasterdataKeyRequest4Add
+POST {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+# Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+[
+{
+    "domain": "[testing-key domain]x",
+    "key": "[testing-key key]x"
+},
+{
+    "domain": "[testing-key domain]x1",
+    "key": "[testing-key key]x1"
+},
+{
+    "domain": "[testing-key domain]x2",
+    "key": "[testing-key key]x2"
+},
+{
+    "domain": "[testing-key domain]x3",
+    "key": "[testing-key key]x3"
+}
+]
+
+###
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+# Authorization: Bearer {{access_token}}
+
+
+### DELETE A MASTERDATA-KEY BY ENTRY ID
+DELETE {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys/{{masterdataKeyCustom4DeleteId}}
+# Authorization: Bearer {{access_token}}
+
+### DELETE ALL MASTERDATA-KEYS BELONGING TO A MASTERDATA ITEM
+DELETE {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+# Authorization: Bearer {{access_token}}
+
+###
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+# Authorization: Bearer {{access_token}}
+
+
+### ALL DOMAINS USED ON ALL MASTERDATA ITEMS BELONGING TO A MASTERDATA TYPE
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys/domains
+# Authorization: Bearer {{access_token}}

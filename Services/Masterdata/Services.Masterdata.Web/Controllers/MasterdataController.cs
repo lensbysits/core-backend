@@ -72,6 +72,34 @@ public class MasterdataController : ControllerBase
     }
 
     /// <summary>
+    /// List all alternative keys belonging to a masterdata item.
+    /// </summary>
+    /// <param name="masterdataType">The masterdata type.</param>
+    /// <param name="value">The masterdata item identifier (Id or Key).</param>
+    /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
+    /// <returns>A list of alternative keys belonging to a masterdata item.</returns>
+    [HttpGet("{masterdataType}/{value}/keys")]
+    public async Task<ResultPagedListModel<MasterdataKeyModel>> GetMasterdataKeys(string masterdataType, string value, [FromQuery] QueryModel queryModel)
+    {
+        var result = await _masterdataService.GetMasterdataKeys(masterdataType, value, queryModel);
+        return result;
+    }
+
+    /// <summary>
+    /// List all domains from all alternative keys associated with all masterdata items beloging to a masterdata type.
+    /// </summary>
+    /// <param name="masterdataType">The masterdata type (Id or Code).</param>
+    /// <param name="value">The masterdata item identifier (Id or Key).</param>
+    /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
+    /// <returns>A list of all domains from all alternative keys associated with all masterdata items beloging to a masterdata type.</returns>
+    [HttpGet("{masterdataType}/{value}/keys/domains")]
+    public async Task<ResultPagedListModel<string>> GetDomains(string masterdataType, string value, [FromQuery] QueryModel queryModel)
+    {
+        var result = await _masterdataService.GetDomains(masterdataType, value, queryModel);
+        return result;
+    }
+
+    /// <summary>
     /// List all tags associated with a specific masterdata type.
     /// </summary>
     /// <param name="masterdataType">The masterdata type (Id or Code).</param>
@@ -98,6 +126,13 @@ public class MasterdataController : ControllerBase
     {
         var result = await _masterdataService.AddMasterdata(masterdataType, model);
         return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
+    }
+
+    [HttpPost("{masterdataType}/{masterdata}/keys")]
+    public async Task<ICollection<MasterdataKeyModel>> Post(string masterdataType, string masterdata, [FromBody] ICollection<MasterdataKeyCreateModel> model)
+    {
+        var result = await _masterdataService.AddMasterdataKeys(masterdataType, masterdata, model);
+        return result;
     }
     #endregion
 
@@ -129,6 +164,20 @@ public class MasterdataController : ControllerBase
     public async Task<ActionResult> Delete(string masterdataType, string masterdata)
     {
         await _masterdataService.DeleteMasterdata(masterdataType, masterdata);
+        return Ok();
+    }
+
+    [HttpDelete("{masterdataType}/{masterdata}/keys")]
+    public async Task<ActionResult> DeleteMasterdataKeys(string masterdataType, string masterdata)
+    {
+        await _masterdataService.DeleteMasterdataKeys(masterdataType, masterdata);
+        return Ok();
+    }
+
+    [HttpDelete("{masterdataType}/{masterdata}/keys/{alternativeKeyId}")]
+    public async Task<ActionResult> DeleteMasterdataKeys(string masterdataType, string masterdata, Guid alternativeKeyId)
+    {
+        await _masterdataService.DeleteMasterdataKeys(masterdataType, masterdata, alternativeKeyId);
         return Ok();
     }
     #endregion

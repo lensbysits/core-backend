@@ -14,6 +14,7 @@ public class MasterdataDbContext : ApplicationDbContext
 
     public virtual DbSet<MasterdataType> MasterdataTypes { get; set; } = null!;
     public virtual DbSet<Entities.Masterdata> Masterdatas { get; set; } = null!;
+    public virtual DbSet<Entities.MasterdataKey> MasterdataKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,5 +25,8 @@ public class MasterdataDbContext : ApplicationDbContext
 
         modelBuilder.Entity<Entities.Masterdata>()
             .HasIndex(m => new { m.MasterdataTypeId, m.Key }).IsUnique();
+
+        modelBuilder.Entity<Entities.MasterdataKey>()
+            .HasIndex(m => new { m.MasterdataId, m.Domain, m.Key }).IsUnique();
     }
 }
