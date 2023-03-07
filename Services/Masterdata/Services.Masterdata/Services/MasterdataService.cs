@@ -64,7 +64,7 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     public Task<ICollection<MasterdataKeyModel>> AddMasterdataKeys(string masterdataType, string masterdata, ICollection<MasterdataKeyCreateModel> model)
     {
-        //model.Sanitize(htmlSanitizer);
+        model.Sanitize(htmlSanitizer);
         return _masterdataRepository.AddMasterdataKeys(masterdataType, masterdata, model);
     }
 
