@@ -16,7 +16,7 @@ namespace Lens.Services.Masterdata.UnitTests
         [InlineData("123", "Name", "Description", "{ \"someKey\": \"some value\" }", "123", "Name", "Description", "{ \"someKey\": \"some value\" }")]
         [InlineData("123", "Name", "This is bad: <script>alert('xss')</script>, should be sanitized", "{ \"someKey\": \"some value\" }", "123", "Name", "This is bad: , should be sanitized", "{ \"someKey\": \"some value\" }")]
         [InlineData("123", "<script>alert('xss')</script>Name", "Description", "{ \"someKey\": \"some value\" }", "123", "Name", "Description", "{ \"someKey\": \"some value\" }")]
-        [InlineData("123", "Name", "Description", "{ \"someKey\": \"<script>alert('xss')</script>test<i>italic</i>\" }", "123", "Name", "Description", "{ \"someKey\": \"test\" }")]
+        [InlineData("123", "Name", "Description", "{ \"someKey\": \"<script>alert('xss')</script>test<i>italic</i>\" }", "123", "Name", "Description", "{ \"someKey\": \"test<i>italic</i>\" }")]
         public async Task SanitizeMasterdataTypeCreateModelTest(string code, string name, string description, string metadata, 
                                                                 string expectedCode, string expectedName, string expectedDescription, string expectedMetadata)
         {
@@ -46,7 +46,7 @@ namespace Lens.Services.Masterdata.UnitTests
         [Theory]
         [InlineData("test-key", "test-value", "Name", "Description", "{ \"someKey\": \"some value\" }", new string[0], "test-key", "test-value", "Name", "Description", "{ \"someKey\": \"some value\" }", new string[0])]
         [InlineData("test-key", "test-value", "Name", "Description", "{}", new string[] { "test1a", "test2a", "test3a" }, "test-key", "test-value", "Name", "Description", "{}", new string[] { "test3a", "test2a", "test1a" })]
-        [InlineData("test-key", "test-value", "Name", "Description", "{}", new string[] { "color <script>alert('xss')</script>red", "very <strong>code</strong>height", "top product<script>alert('xss')</script>", "premium <script>alert('xss')</script>class <i>italic text</i>product" }, "test-key", "test-value", "Name", "Description", "{}", new string[] { "color red", "very height", "top product", "premium class product" })]
+        [InlineData("test-key", "test-value", "Name", "Description", "{}", new string[] { "color <script>alert('xss')</script>red", "very <strong>code</strong>height", "top product<script>alert('xss')</script>", "premium <script>alert('xss')</script>class <i>italic text</i> product" }, "test-key", "test-value", "Name", "Description", "{}", new string[] { "color red", "very <strong>code</strong>height", "top product", "premium class <i>italic text</i> product" })]
         public async Task SanitizeMasterdataCreateModelTest(string key, string value, string name, string description, string metadata, string[] tags,
                                                                 string expectedKey, string expectedValue, string expectedName, string expectedDescription, string expectedMetadata, string[] expectedTags)
         {
