@@ -21,8 +21,8 @@ grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecre
 #############################################################
 
 ### testing vars
-@masterdataMainUsedType=testing-type
-@masterdataMain4Get=testing-data
+@masterdataMainUsedType=countries
+@masterdataMain4Get=KH
 
 ### ALL MASTERDATA TYPES AVAILABLE
 GET {{api-url}}
@@ -34,14 +34,14 @@ GET {{api-url}}/{{masterdataMainUsedType}}/details
 # Authorization: Bearer {{access_token}}
 
 
-### GET THE DETAILS OF A SINGLE MASTERDATA
-GET {{api-url}}/{{masterdataMainUsedType}}/{{masterdataMain4Get}}
+### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
+# @name MasterdataRequest
+GET {{api-url}}/{{masterdataMainUsedType}}/?noLimit=true
 # Authorization: Bearer {{access_token}}
 
 
-### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
-# @name MasterdataRequest
-GET {{api-url}}/{{masterdataMainUsedType}}
+### GET THE DETAILS OF A SINGLE MASTERDATA
+GET {{api-url}}/{{masterdataMainUsedType}}/{{masterdataMain4Get}}
 # Authorization: Bearer {{access_token}}
 
 
@@ -273,6 +273,7 @@ Content-Type: application/json
 #< ./data/statusses.json
 #< ./data/time-unit-type.json
 #< ./data/quotes.json
+< ./data/countries.json
 
 
 #############################################################
