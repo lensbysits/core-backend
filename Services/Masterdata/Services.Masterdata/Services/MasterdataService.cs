@@ -46,6 +46,10 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     public Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel querymodel)
         => _masterdataRepository.GetTags(masterdataType, querymodel);
+
+    public Task<ResultListModel<MasterdataRelatedModel>> GetMasterdataRelated(string masterdataType, string masterdata)
+        => _masterdataRepository.GetMasterdataRelated(masterdataType, masterdata);
+
     #endregion Get
 
     #region Add/Post
@@ -66,6 +70,11 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     {
         model.Sanitize(htmlSanitizer);
         return _masterdataRepository.AddMasterdataKeys(masterdataType, masterdata, model);
+    }
+
+    public Task<ICollection<MasterdataRelatedModel>> AddMasterdataRelated(string masterdataType, string masterdata, ICollection<MasterdataRelatedCreateModel> model)
+    {
+        return _masterdataRepository.AddMasterdataRelated(masterdataType, masterdata, model);
     }
 
     #endregion Add/Post

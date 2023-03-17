@@ -125,13 +125,30 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
                     WHERE Tag IS NOT NULL 
                     AND {masterdataTypeFilter} = @masterdataType
                     ORDER BY Tags.value";
-        
+
         var tags = await DbContext.Database.GetDbConnection().QueryAsync<string>(sql, new { masterdataType });
         return new ResultPagedListModel<string>(tags)
         {
             TotalSize = tags.Count(),
             OriginalQueryModel = querymodel
         };
+    }
+
+    public async Task<ResultListModel<MasterdataRelatedModel>> GetMasterdataRelated(string masterdataType, string masterdata)
+    {
+        var result = await DbContext.MasterdataRelated
+            .Include(r => r.ChildMasterdata.MasterdataType)
+            .Where(MasterdataRelatedFilter(masterdataType, masterdata))
+            .Select(r => new MasterdataRelatedModel
+            {
+                MasterdataId = r.ChildMasterdataId,
+                MasterdataName = r.ChildMasterdata.Name,
+                MasterdataTypeId = r.ChildMasterdata.MasterdataTypeId,
+                MasterdataTypeName = r.ChildMasterdata.MasterdataType.Name
+            })
+            .ToListAsync();
+
+        return new ResultListModel<MasterdataRelatedModel>(result);
     }
     #endregion
 
@@ -213,6 +230,43 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         }
 
         await DbContext.SaveChangesAsync();
+        return result;
+    }
+
+    public async Task<ICollection<MasterdataRelatedModel>> AddMasterdataRelated(string masterdataType, string masterdata, ICollection<MasterdataRelatedCreateModel> model)
+    {
+        var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
+        if (masterdataTypeEntity == default)
+        {
+            throw new NotFoundException($"MasterdataType with id/code {masterdataType} not found.");
+        }
+
+        var masterdataEntity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
+        if (masterdataEntity == default)
+        {
+            throw new NotFoundException($"Masterdata with id/key {masterdata} not found.");
+        }
+
+        var masterdataCurrentRelated = await DbContext.MasterdataRelated
+            .Where(MasterdataRelatedFilter(masterdataType, masterdata))
+            .ToListAsync();
+
+        var newEntities = model
+            .Where(m => !masterdataCurrentRelated.Any(related => related.ChildMasterdataId == m.MasterdataId))
+            .Select(m => new MasterdataRelated { ParentMasterdataId = masterdataEntity.Id, ChildMasterdataId = m.MasterdataId })
+            .ToList();
+
+        DbContext.AddRange(newEntities);
+        await DbContext.SaveChangesAsync();
+
+        var result = newEntities.Select(n =>
+            new MasterdataRelatedModel
+            {
+                MasterdataId = n.ChildMasterdataId,
+                MasterdataTypeId = masterdataTypeEntity.Id,
+                MasterdataTypeName = masterdataTypeEntity.Name
+            }).ToList();
+
         return result;
     }
     #endregion
@@ -356,6 +410,15 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
                         : m => m.MasterdataType.Code == masterdataType;
     }
 
+    private static Expression<Func<MasterdataRelated, bool>> MasterdataRelatedFilter(string? masterdataType)
+    {
+        return string.IsNullOrEmpty(masterdataType)
+                    ? m => false
+                    : Guid.TryParse(masterdataType, out var masterdataTypeId)
+                        ? m => m.ParentMasterdata.MasterdataTypeId == masterdataTypeId
+                        : m => m.ParentMasterdata.MasterdataType.Code == masterdataType;
+    }
+
     private static Expression<Func<Masterdata, bool>> MasterdataFilter(string? masterdataType, string masterdata)
     {
         var filter = MasterdataFilter(masterdataType);
@@ -366,6 +429,19 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
                 : Guid.TryParse(masterdata, out var masterdataId)
                     ? m => m.Id == masterdataId
                     : m => m.Key == masterdata
+        );
+    }
+
+    private static Expression<Func<MasterdataRelated, bool>> MasterdataRelatedFilter(string? masterdataType, string masterdata)
+    {
+        var filter = MasterdataRelatedFilter(masterdataType);
+
+        return filter.And(
+            string.IsNullOrEmpty(masterdata)
+                ? m => false
+                : Guid.TryParse(masterdata, out var masterdataId)
+                    ? m => m.ParentMasterdata.Id == masterdataId
+                    : m => m.ParentMasterdata.Key == masterdata
         );
     }
 
@@ -393,5 +469,6 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
                     ? m => m.MasterdataId == masterdataId
                     : m => false;
     }
+
     #endregion filter helpers
 }

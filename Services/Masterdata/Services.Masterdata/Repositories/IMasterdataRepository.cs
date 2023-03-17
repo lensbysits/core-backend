@@ -19,6 +19,9 @@ public interface IMasterdataRepository
     Task<ResultPagedListModel<string>> GetDomains(string masterdataType, string value, QueryModel? querymodel = null);
 
     Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null);
+
+    Task<ResultListModel<MasterdataRelatedModel>> GetMasterdataRelated(string masterdataType, string masterdata);
+
     #endregion
 
     #region Add/Post
@@ -27,6 +30,9 @@ public interface IMasterdataRepository
     Task<MasterdataModel> AddMasterdata(string masterdataType, MasterdataCreateModel model);
 
     Task<ICollection<MasterdataKeyModel>> AddMasterdataKeys(string masterdataType, string masterdata, ICollection<MasterdataKeyCreateModel> model);
+
+    Task<ICollection<MasterdataRelatedModel>> AddMasterdataRelated(string masterdataType, string masterdata, ICollection<MasterdataRelatedCreateModel> model);
+
     #endregion
 
     #region Update/Put

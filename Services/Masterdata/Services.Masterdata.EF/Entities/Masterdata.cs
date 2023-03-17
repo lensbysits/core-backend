@@ -1,5 +1,6 @@
 ﻿using Lens.Core.Data.EF.Entities;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Lens.Services.Masterdata.EF.Entities;
 
@@ -22,4 +23,8 @@ public class Masterdata : BaseEntity, ITagsEntity
     public string? Tag { get; set; }
 
     public virtual ICollection<MasterdataKey> MasterdataKeys { get; set; } = new HashSet<MasterdataKey>();
+
+    public virtual ICollection<MasterdataRelated> ParentMasterdata { get; set; } = new HashSet<MasterdataRelated>();
+
+    public virtual ICollection<MasterdataRelated> ChildMasterdata { get; set; } = new HashSet<MasterdataRelated>();
 }

@@ -111,6 +111,14 @@ public class MasterdataController : ControllerBase
         var result = await _masterdataService.GetTags(masterdataType, queryModel);
         return result;
     }
+
+    [HttpGet("{masterdataType}/{masterdata}/related")]
+    public async Task<ResultListModel<MasterdataRelatedModel>> GetRelated(string masterdataType, string masterdata)
+    {
+        var result = await _masterdataService.GetMasterdataRelated(masterdataType, masterdata);
+        return result;
+    }
+
     #endregion
 
     #region HttpPost
@@ -129,9 +137,16 @@ public class MasterdataController : ControllerBase
     }
 
     [HttpPost("{masterdataType}/{masterdata}/keys")]
-    public async Task<ICollection<MasterdataKeyModel>> Post(string masterdataType, string masterdata, [FromBody] ICollection<MasterdataKeyCreateModel> model)
+    public async Task<ICollection<MasterdataKeyModel>> PostKeys(string masterdataType, string masterdata, [FromBody] ICollection<MasterdataKeyCreateModel> model)
     {
         var result = await _masterdataService.AddMasterdataKeys(masterdataType, masterdata, model);
+        return result;
+    }
+
+    [HttpPost("{masterdataType}/{masterdata}/related")]
+    public async Task<ICollection<MasterdataRelatedModel>> PostRelated(string masterdataType, string masterdata, [FromBody] ICollection<MasterdataRelatedCreateModel> model)
+    {
+        var result = await _masterdataService.AddMasterdataRelated(masterdataType, masterdata, model);
         return result;
     }
     #endregion

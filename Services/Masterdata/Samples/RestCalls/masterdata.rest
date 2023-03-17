@@ -284,8 +284,8 @@ Content-Type: application/json
 ### MASTERDATA-KEYS
 
 ### testing vars
-@masterdataKeyCustomUsedType=testing-type
-@masterdataKeyCustomUsedMasterdata=testing-data key
+@masterdataKeyCustomUsedType=UOM
+@masterdataKeyCustomUsedMasterdata=53753f3d-f4b0-ed11-baff-001a7dda7110
 @masterdataKeyCustomUsedMasterdataId=CED7BF98-57B9-ED11-9D16-04421A02152C
 @masterdataKeyCustom4DeleteId=b834b633-15b8-ed11-9d15-04421a02152c
 
@@ -332,6 +332,7 @@ Content-Type: application/json
     "key": "[testing-key key]x1"
 },
 {
+
     "domain": "[testing-key domain]x2",
     "key": "[testing-key key]x2"
 },
@@ -362,3 +363,33 @@ GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterd
 ### ALL DOMAINS USED ON ALL MASTERDATA ITEMS BELONGING TO A MASTERDATA TYPE
 GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys/domains
 # Authorization: Bearer {{access_token}}
+
+
+#############################################################
+### MASTERDATA Related Items
+
+### testing vars
+@masterdataRelatedCustomUsedType=status
+@masterdataRelatedCustomUsedMasterdata=15
+
+
+### ADD MASTERDATA Related Items TO AN EXISTING MASTERDATA
+# @name MasterdataRelatedRequest4Add
+POST {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
+# Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+[
+    {
+        "masterdataId": "53753f3d-f4b0-ed11-baff-001a7dda7110"
+    },
+    {
+        "masterdataId": "c0fc6b5b-f4b0-ed11-baff-001a7dda7110"
+    },
+    {
+        "masterdataId": "068957b9-d1ae-ed11-baff-001a7dda7110"
+    }
+]
+
+### ALL RELATED USED ON ALL MASTERDATA ITEMS BELONGING TO A MASTERDATA TYPE
+GET {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
