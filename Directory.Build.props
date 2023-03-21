@@ -5,8 +5,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.2.0-beta002</Version>
+    <Version>0.9.0</Version>
     <Company>Lens BV</Company>
     <Authors>Lens Dev Team</Authors>
     <RootNamespace>Lens.$(MSBuildProjectName)</RootNamespace>
