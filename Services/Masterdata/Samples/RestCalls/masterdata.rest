@@ -345,9 +345,9 @@ GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterd
 #############################################################
 
 ### testing vars
-@masterdataRelatedCustomUsedType=status
-@masterdataRelatedCustomUsedMasterdata=15
-@masterdataRelatedCustomRelatedType=uom
+@masterdataRelatedCustomUsedType=time_units
+@masterdataRelatedCustomUsedMasterdata=5
+@masterdataRelatedCustomRelatedType=time_units
 
 
 ### ADD MASTERDATA Related Items TO AN EXISTING MASTERDATA
@@ -358,7 +358,10 @@ Content-Type: application/json
 
 [
     {
-        "masterdataId": "0dafd445-3bca-ed11-bb04-001a7dda7110"
+        "masterdataId": "eec7f6f1-cb71-ed11-9cbd-48e7daf5481e"
+    },
+    {
+        "masterdataId": "eac7f6f1-cb71-ed11-9cbd-48e7daf5481e"
     }
 ]
 
