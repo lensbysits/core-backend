@@ -374,6 +374,31 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         DbContext.Remove(entity);
         await DbContext.SaveChangesAsync();
     }
+
+    public async Task DeleteMasterdataRelated(string masterdataType, string masterdata, List<Guid> relatedMasterdataIds)
+    {
+        var masterdataTypeEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
+        if (masterdataTypeEntity == default)
+        {
+            throw new NotFoundException($"MasterdataType with id/code {masterdataType} not found.");
+        }
+
+        var masterdataEntity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
+        if (masterdataEntity == default)
+        {
+            throw new NotFoundException($"Masterdata with id/key {masterdata} not found.");
+        }
+
+        var itemsToDelete = await DbContext.MasterdataRelated.Where(md =>
+                md.ParentMasterdataId == masterdataEntity.Id &&
+                md.ParentMasterdata.MasterdataTypeId == masterdataTypeEntity.Id &&
+                relatedMasterdataIds.Contains(md.ChildMasterdataId))
+            .ToListAsync();
+
+        DbContext.RemoveRange(itemsToDelete);
+        await DbContext.SaveChangesAsync();
+    }
+
     #endregion
 
     #region Others

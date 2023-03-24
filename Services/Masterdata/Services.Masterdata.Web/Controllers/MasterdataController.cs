@@ -195,6 +195,14 @@ public class MasterdataController : ControllerBase
         await _masterdataService.DeleteMasterdataKeys(masterdataType, masterdata, alternativeKeyId);
         return Ok();
     }
+
+    [HttpDelete("{masterdataType}/{masterdata}/related")]
+    public async Task<ActionResult> DeleteRelated(string masterdataType, string masterdata, [FromBody]List<Guid> relatedMasterdataIds)
+    {
+        await _masterdataService.DeleteMasterdataRelated(masterdataType, masterdata, relatedMasterdataIds);
+        return Ok();
+    }
+
     #endregion
 
     #region Others

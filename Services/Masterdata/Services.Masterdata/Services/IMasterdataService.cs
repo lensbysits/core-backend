@@ -49,6 +49,9 @@ public interface IMasterdataService
     Task DeleteMasterdataKeys(string masterdataType, string masterdata);
 
     Task DeleteMasterdataKeys(string masterdataType, string masterdata, Guid alternativeKeyId);
+
+    Task DeleteMasterdataRelated(string masterdataType, string masterdata, List<Guid> relatrelatedMasterdataIdsedIds);
+
     #endregion
 
     #region Others

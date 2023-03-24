@@ -21,8 +21,8 @@ grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecre
 #############################################################
 
 ### testing vars
-@masterdataMainUsedType=countries
-@masterdataMain4Get=KH
+@masterdataMainUsedType=status
+@masterdataMain4Get=
 
 ### ALL MASTERDATA TYPES AVAILABLE
 GET {{api-url}}
@@ -346,7 +346,7 @@ GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterd
 
 ### testing vars
 @masterdataRelatedCustomUsedType=status
-@masterdataRelatedCustomUsedMasterdata=6
+@masterdataRelatedCustomUsedMasterdata=15
 
 
 ### ADD MASTERDATA Related Items TO AN EXISTING MASTERDATA
@@ -369,3 +369,11 @@ Content-Type: application/json
 
 ### ALL RELATED USED ON ALL MASTERDATA ITEMS BELONGING TO A MASTERDATA TYPE
 GET {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
+
+### DELETE RELATED
+DELETE {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
+Content-Type: application/json
+
+[
+    "068957b9-d1ae-ed11-baff-001a7dda7110"
+]
