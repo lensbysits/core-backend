@@ -20,7 +20,7 @@ public interface IMasterdataRepository
 
     Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null);
 
-    Task<ResultListModel<MasterdataRelatedModel>> GetMasterdataRelated(string masterdataType, string masterdata);
+    Task<ResultListModel<MasterdataModel>> GetMasterdataRelated(string masterdataType, string masterdata, string? relatedMasterdataType = null, bool includeDescendants = false);
 
     #endregion
 

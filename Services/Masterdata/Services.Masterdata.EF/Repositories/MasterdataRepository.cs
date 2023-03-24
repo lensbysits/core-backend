@@ -113,10 +113,10 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
     public async Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel? querymodel = null)
     {
         var masterdataTypeFilter = string.IsNullOrEmpty(masterdataType)
-                    ? "1 = 1"
-                    : Guid.TryParse(masterdataType, out _)
-                        ? $"MasterdataTypeId"
-                        : $"MasterdataTypes.Code";
+                                    ? "1 = 1"
+                                    : Guid.TryParse(masterdataType, out _)
+                                        ? $"MasterdataTypeId"
+                                        : $"MasterdataTypes.Code";
 
         var sql = @$"SELECT DISTINCT Tags.value AS Tag
                     FROM Masterdatas
@@ -134,21 +134,39 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         };
     }
 
-    public async Task<ResultListModel<MasterdataRelatedModel>> GetMasterdataRelated(string masterdataType, string masterdata)
+    public async Task<ResultListModel<MasterdataModel>> GetMasterdataRelated(string masterdataType, string masterdata, string? relatedMasterdataType = null, bool includeDescendants = false)
     {
-        var result = await DbContext.MasterdataRelated
-            .Include(r => r.ChildMasterdata.MasterdataType)
-            .Where(MasterdataRelatedFilter(masterdataType, masterdata))
-            .Select(r => new MasterdataRelatedModel
-            {
-                MasterdataId = r.ChildMasterdataId,
-                MasterdataName = r.ChildMasterdata.Name,
-                MasterdataTypeId = r.ChildMasterdata.MasterdataTypeId,
-                MasterdataTypeName = r.ChildMasterdata.MasterdataType.Name
-            })
+        var masterdataRoot = await DbContext.Masterdatas.Where(MasterdataFilter(masterdataType, masterdata)).FirstOrDefaultAsync();
+        if (masterdataRoot == null)
+        {
+            return new ResultListModel<MasterdataModel>();
+        }
+
+        var ids = new List<Guid> { masterdataRoot.Id };
+
+        if (includeDescendants)
+        {
+            DynamicParameters parameters = new DynamicParameters();
+            parameters.Add("rootId", masterdataRoot.Id);
+            var mdTree = await DbContext.Database.GetDbConnection()
+                .QueryAsync("spGetMasterdataRecursiveTree", parameters, commandType: System.Data.CommandType.StoredProcedure);
+            ids = mdTree.Select(d => d.Id).Cast<Guid>().ToList();
+        }
+
+        var qry = DbContext.MasterdataRelated
+            .Where(md => ids.Contains(md.ParentMasterdataId));
+
+        if (!string.IsNullOrEmpty(relatedMasterdataType))
+        {
+            qry = qry.Where(MasterdataRelatedChildFilter(relatedMasterdataType));
+        }
+
+        var result = await qry
+            .Select(r => r.ChildMasterdata)
+            .ProjectTo<MasterdataModel>(ApplicationService.Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return new ResultListModel<MasterdataRelatedModel>(result);
+        return new ResultListModel<MasterdataModel>(result);
     }
     #endregion
 
@@ -435,13 +453,22 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
                         : m => m.MasterdataType.Code == masterdataType;
     }
 
-    private static Expression<Func<MasterdataRelated, bool>> MasterdataRelatedFilter(string? masterdataType)
+    private static Expression<Func<MasterdataRelated, bool>> MasterdataRelatedParentFilter(string? masterdataType)
     {
         return string.IsNullOrEmpty(masterdataType)
                     ? m => false
                     : Guid.TryParse(masterdataType, out var masterdataTypeId)
                         ? m => m.ParentMasterdata.MasterdataTypeId == masterdataTypeId
                         : m => m.ParentMasterdata.MasterdataType.Code == masterdataType;
+    }
+
+    private static Expression<Func<MasterdataRelated, bool>> MasterdataRelatedChildFilter(string? masterdataType)
+    {
+        return string.IsNullOrEmpty(masterdataType)
+                    ? m => false
+                    : Guid.TryParse(masterdataType, out var masterdataTypeId)
+                        ? m => m.ChildMasterdata.MasterdataTypeId == masterdataTypeId
+                        : m => m.ChildMasterdata.MasterdataType.Code == masterdataType;
     }
 
     private static Expression<Func<Masterdata, bool>> MasterdataFilter(string? masterdataType, string masterdata)
@@ -457,9 +484,14 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
         );
     }
 
-    private static Expression<Func<MasterdataRelated, bool>> MasterdataRelatedFilter(string? masterdataType, string masterdata)
+    private static Expression<Func<MasterdataRelated, bool>> MasterdataRelatedFilter(string? masterdataType, string masterdata, string? relatedMasterdataType = null)
     {
-        var filter = MasterdataRelatedFilter(masterdataType);
+        var filter = MasterdataRelatedParentFilter(masterdataType);
+
+        if(!string.IsNullOrEmpty(relatedMasterdataType))
+        {
+            filter = filter.And(MasterdataRelatedChildFilter(relatedMasterdataType));
+        }
 
         return filter.And(
             string.IsNullOrEmpty(masterdata)

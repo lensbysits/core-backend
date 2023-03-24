@@ -112,10 +112,18 @@ public class MasterdataController : ControllerBase
         return result;
     }
 
-    [HttpGet("{masterdataType}/{masterdata}/related")]
-    public async Task<ResultListModel<MasterdataRelatedModel>> GetRelated(string masterdataType, string masterdata)
+    //[HttpGet("{masterdataType}/{masterdata}/related")]
+    //public async Task<ResultListModel<MasterdataRelatedModel>> GetRelated(string masterdataType, string masterdata)
+    //{
+    //    var result = await _masterdataService.GetMasterdataRelated(masterdataType, masterdata);
+    //    return result;
+    //}
+
+
+    [HttpGet("{masterdataType}/{masterdata}/related/{relatedMasterdataType?}")]
+    public async Task<ResultListModel<MasterdataModel>> GetRelated(string masterdataType, string masterdata, string? relatedMasterdataType = null, [FromQuery]bool includeDescendants = false)
     {
-        var result = await _masterdataService.GetMasterdataRelated(masterdataType, masterdata);
+        var result = await _masterdataService.GetMasterdataRelated(masterdataType, masterdata, relatedMasterdataType, includeDescendants);
         return result;
     }
 

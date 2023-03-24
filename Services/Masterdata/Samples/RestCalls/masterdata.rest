@@ -347,6 +347,7 @@ GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterd
 ### testing vars
 @masterdataRelatedCustomUsedType=status
 @masterdataRelatedCustomUsedMasterdata=15
+@masterdataRelatedCustomRelatedType=uom
 
 
 ### ADD MASTERDATA Related Items TO AN EXISTING MASTERDATA
@@ -357,18 +358,18 @@ Content-Type: application/json
 
 [
     {
-        "masterdataId": "f2c7f6f1-cb71-ed11-9cbd-48e7daf5481e"
-    },
-    {
-        "masterdataId": "f3c7f6f1-cb71-ed11-9cbd-48e7daf5481e"
-    },
-    {
-        "masterdataId": "86b32133-cb71-ed11-9cbd-48e7daf5481e"
+        "masterdataId": "0dafd445-3bca-ed11-bb04-001a7dda7110"
     }
 ]
 
 ### ALL RELATED USED ON ALL MASTERDATA ITEMS BELONGING TO A MASTERDATA TYPE
 GET {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
+
+###
+GET {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related/{{masterdataRelatedCustomRelatedType}}
+
+###
+GET {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related/{{masterdataRelatedCustomRelatedType}}?includeDescendants=true
 
 ### DELETE RELATED
 DELETE {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
