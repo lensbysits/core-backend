@@ -2,7 +2,7 @@
 --DROP PROCEDURE IF EXISTS [system].[sp_GetMasterdataRecursiveTree]
 
 --efcore.migration.up
-CREATE OR ALTER PROC [system].sp_GetMasterdataRecursiveTree 
+CREATE OR ALTER PROC [dbo].sp_GetMasterdataRecursiveTree 
 	@rootId AS UNIQUEIDENTIFIER
 AS BEGIN
 	WITH cte(Id, [Key], Name, MasterdataTypeId, [level], [path]) AS
