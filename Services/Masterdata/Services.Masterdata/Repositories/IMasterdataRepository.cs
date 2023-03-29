@@ -10,7 +10,7 @@ public interface IMasterdataRepository
     
     Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains);
     
-    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string? masterdataType = null, QueryModel? querymodel = null);
+    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string? masterdataType = null, MasterdataQueryModel? querymodel = null);
     
     Task<MasterdataModel?> GetMasterdata(string masterdataType, string value);
     

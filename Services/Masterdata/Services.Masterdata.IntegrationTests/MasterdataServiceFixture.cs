@@ -86,7 +86,7 @@ public class MasterdataServiceFixture : IDisposable
         };
 
         MasterdataType = await MasterdataService.ImportMasterdata(masterdataCreate);
-        Masterdatas = await MasterdataService.GetMasterdata(MasterdataType?.Code ?? string.Empty, QueryModel.Default);
+        Masterdatas = await MasterdataService.GetMasterdata(MasterdataType?.Code ?? string.Empty, MasterdataQueryModel.Default);
     }
 
     public void Dispose()

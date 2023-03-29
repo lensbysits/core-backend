@@ -39,6 +39,8 @@ GET {{api-url}}/{{masterdataMainUsedType}}/details
 GET {{api-url}}/{{masterdataMainUsedType}}/?noLimit=true
 # Authorization: Bearer {{access_token}}
 
+###
+GET {{api-url}}/{{masterdataMainUsedType}}/?masterdatafilter=uom:kg&includeDescendants=false
 
 ### GET THE DETAILS OF A SINGLE MASTERDATA
 GET {{api-url}}/{{masterdataMainUsedType}}/{{masterdataMain4Get}}

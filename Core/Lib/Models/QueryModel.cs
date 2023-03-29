@@ -5,7 +5,7 @@ namespace Lens.Core.Lib.Models;
 
 public class QueryModel
 {
-    public static QueryModel Default => new QueryModel();
+    public static QueryModel Default => new();
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int Offset { get; set; } = 0;

@@ -52,7 +52,7 @@ public class MasterdataController : ControllerBase
     /// <param name="queryModel">The settings for paging, sorting and filtering.</param>
     /// <returns>A list of masterdatas belonging to a specific masterdata type.</returns>
     [HttpGet("{masterdataType}")]
-    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, [FromQuery] QueryModel queryModel)
+    public async Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, [FromQuery] MasterdataQueryModel queryModel)
     {
         var result = await _masterdataService.GetMasterdata(masterdataType, queryModel);
         return result;

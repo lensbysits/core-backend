@@ -10,9 +10,9 @@ public interface IMasterdataService
     
     Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains);
     
-    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel);
+    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(MasterdataQueryModel querymodel);
     
-    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel);
+    Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, MasterdataQueryModel querymodel);
     
     Task<MasterdataModel?> GetMasterdata(string masterdataType, string masterdata);
     

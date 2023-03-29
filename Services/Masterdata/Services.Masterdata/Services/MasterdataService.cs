@@ -29,10 +29,10 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     public Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains)
         => _masterdataRepository.GetMasterdataType(masterdataType, domain);
 
-    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel)
+    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(MasterdataQueryModel querymodel)
         => _masterdataRepository.GetMasterdata(querymodel: querymodel);
 
-    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel)
+    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, MasterdataQueryModel querymodel)
         => _masterdataRepository.GetMasterdata(masterdataType, querymodel);
 
     public Task<MasterdataModel?> GetMasterdata(string masterdataType, string value)
