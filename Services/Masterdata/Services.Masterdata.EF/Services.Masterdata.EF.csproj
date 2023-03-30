@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <None Remove="RawSql\StoredProcedures\sp_GetMasterdataRecursiveTree.sql" />
+	<None Remove="RawSql\StoredProcedures\sp_GetMasterdataFilterByRelatedMasterdata.sql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +18,9 @@
     <Content Include="RawSql\StoredProcedures\sp_GetMasterdataRecursiveTree.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+	  <Content Include="RawSql\StoredProcedures\sp_GetMasterdataFilterByRelatedMasterdata.sql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
   </ItemGroup>
 
 </Project>
