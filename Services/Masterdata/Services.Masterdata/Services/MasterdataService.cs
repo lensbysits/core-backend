@@ -29,10 +29,10 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     public Task<MasterdataTypeModel?> GetMasterdataType(string masterdataType, string? domain = IMetadataModel.AllDomains)
         => _masterdataRepository.GetMasterdataType(masterdataType, domain);
 
-    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(QueryModel querymodel)
+    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(MasterdataQueryModel querymodel)
         => _masterdataRepository.GetMasterdata(querymodel: querymodel);
 
-    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, QueryModel querymodel)
+    public Task<ResultPagedListModel<MasterdataModel>> GetMasterdata(string masterdataType, MasterdataQueryModel querymodel)
         => _masterdataRepository.GetMasterdata(masterdataType, querymodel);
 
     public Task<MasterdataModel?> GetMasterdata(string masterdataType, string value)
@@ -46,6 +46,10 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     public Task<ResultPagedListModel<string>> GetTags(string masterdataType, QueryModel querymodel)
         => _masterdataRepository.GetTags(masterdataType, querymodel);
+
+    public Task<ResultListModel<MasterdataModel>> GetMasterdataRelated(string masterdataType, string masterdata, string? relatedMasterdataType = null, bool includeDescendants = false)
+        => _masterdataRepository.GetMasterdataRelated(masterdataType, masterdata, relatedMasterdataType, includeDescendants);
+
     #endregion Get
 
     #region Add/Post
@@ -66,6 +70,11 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     {
         model.Sanitize(htmlSanitizer);
         return _masterdataRepository.AddMasterdataKeys(masterdataType, masterdata, model);
+    }
+
+    public Task<ICollection<MasterdataRelatedModel>> AddMasterdataRelated(string masterdataType, string masterdata, ICollection<MasterdataRelatedCreateModel> model)
+    {
+        return _masterdataRepository.AddMasterdataRelated(masterdataType, masterdata, model);
     }
 
     #endregion Add/Post
@@ -99,6 +108,10 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     public Task DeleteMasterdataKeys(string masterdataType, string masterdata, Guid alternativeKeyId)
         => _masterdataRepository.DeleteMasterdataKeys(masterdataType, masterdata, alternativeKeyId);
+
+    public Task DeleteMasterdataRelated(string masterdataType, string masterdata, List<Guid> relatedMasterdataIds) 
+        => _masterdataRepository.DeleteMasterdataRelated(masterdataType, masterdata, relatedMasterdataIds);
+
     #endregion Delete
 
     #region Others

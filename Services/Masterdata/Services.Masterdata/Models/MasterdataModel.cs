@@ -35,4 +35,6 @@ public class MasterdataModel : IdModel
     public string[]? Tags { get; set; }
 
     public int? MasterdataKeysCount { get; set; }
+    public int? ParentMasterdataCount { get; set; }
+    public int? ChildMasterdataCount { get; set; }
 }

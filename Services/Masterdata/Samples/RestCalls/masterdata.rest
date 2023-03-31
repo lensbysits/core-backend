@@ -17,19 +17,45 @@ grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecre
 
 
 #############################################################
+### MAIN REQUESTS
+#############################################################
+
+### testing vars
+@masterdataMainUsedType=status
+@masterdataMain4Get=
+
+### ALL MASTERDATA TYPES AVAILABLE
+GET {{api-url}}
+# Authorization: Bearer {{access_token}}
+
+
+### SINGLE MASTERDATA TYPE DETAILS
+GET {{api-url}}/{{masterdataMainUsedType}}/details
+# Authorization: Bearer {{access_token}}
+
+
+### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
+# @name MasterdataRequest
+GET {{api-url}}/{{masterdataMainUsedType}}/?noLimit=true
+# Authorization: Bearer {{access_token}}
+
+###
+GET {{api-url}}/{{masterdataMainUsedType}}/?masterdatafilter=uom:kg&includeDescendants=false
+
+### GET THE DETAILS OF A SINGLE MASTERDATA
+GET {{api-url}}/{{masterdataMainUsedType}}/{{masterdataMain4Get}}
+# Authorization: Bearer {{access_token}}
+
+
+#############################################################
 ### MASTERDATA TYPE
+#############################################################
 
 ### testing vars
 @masterdataTypeCustom4Get=status
 @masterdataTypeCustom4Add=testing-type
 @masterdataTypeCustom4Delete=testing-type
 @masterdataTypeCustom4Update=testing-type
-
-
-### ALL MASTERDATA TYPES AVAILABLE
-# @name MasterdataTypeRequest
-GET {{api-url}}
-# Authorization: Bearer {{access_token}}
 
 
 ### USE THIS VARIABLE IF YOU WANT TO USE ID's WHEN CALLING THE API
@@ -39,18 +65,8 @@ GET {{api-url}}
 # @masterdataTypeDesc={{MasterdataTypeRequest.response.body.$.value[0].description}}
 
 
-### SINGLE MASTERDATA TYPE DETAILS
-GET {{api-url}}/{{masterdataTypeCustom4Get}}/details
-# Authorization: Bearer {{access_token}}
-
-
 ### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE - FILTERED BY TAGS
 GET {{api-url}}/{{masterdataTypeCustom4Get}}/?Tags=test1
-# Authorization: Bearer {{access_token}}
-
-
-### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
-GET {{api-url}}/{{masterdataTypeCustom4Get}}
 # Authorization: Bearer {{access_token}}
 
 
@@ -142,6 +158,7 @@ GET {{api-url}}/{{masterdataTypeCustom4Update}}/details
 
 #############################################################
 ### MASTERDATAS
+#############################################################
 
 ### testing vars
 @masterdataCustomUsedType=testing-type
@@ -149,27 +166,6 @@ GET {{api-url}}/{{masterdataTypeCustom4Update}}/details
 @masterdataCustom4Add=testing-data
 @masterdataCustom4Delete=testing-data
 @masterdataCustom4Update=testing-data
-
-
-### ALL MASTERDATA TYPES AVAILABLE
-GET {{api-url}}
-# Authorization: Bearer {{access_token}}
-
-
-### SINGLE MASTERDATA TYPE DETAILS
-GET {{api-url}}/{{masterdataCustomUsedType}}/details
-# Authorization: Bearer {{access_token}}
-
-
-### GET THE DETAILS OF A SINGLE MASTERDATA
-GET {{api-url}}/{{masterdataCustomUsedType}}/{{masterdataCustom4Get}}
-# Authorization: Bearer {{access_token}}
-
-
-### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
-# @name MasterdataRequest
-GET {{api-url}}/{{masterdataCustomUsedType}}
-# Authorization: Bearer {{access_token}}
 
 
 ### USE THIS VARIABLE IF YOU WANT TO USE ID's WHEN CALLING THE API
@@ -269,6 +265,7 @@ GET {{api-url}}/{{masterdataCustomUsedType}}/{{masterdataCustom4Update}}
 
 #############################################################
 ### IMPORT BULK MASTERDATAS TO A MASTERDATA TYPE
+#############################################################
 
 ### ADD A MASTERDATA TYPE INCLUDING MASTERDATA IN ONE CALL
 POST {{api-url}}/import
@@ -278,47 +275,27 @@ Content-Type: application/json
 #< ./data/statusses.json
 #< ./data/time-unit-type.json
 #< ./data/quotes.json
+< ./data/countries.json
 
 
 #############################################################
 ### MASTERDATA-KEYS
+#############################################################
 
 ### testing vars
 @masterdataKeyCustomUsedType=testing-type
-@masterdataKeyCustomUsedMasterdata=testing-data key
-@masterdataKeyCustomUsedMasterdataId=CED7BF98-57B9-ED11-9D16-04421A02152C
+@masterdataKeyCustomUsedMasterdata=c96a5e8b-76ad-ed11-9d09-04421a02152c
 @masterdataKeyCustom4DeleteId=b834b633-15b8-ed11-9d15-04421a02152c
 
 
-### ALL MASTERDATA TYPES AVAILABLE
-GET {{api-url}}
-# Authorization: Bearer {{access_token}}
-
-
-### SINGLE MASTERDATA TYPE DETAILS
-GET {{api-url}}/{{masterdataKeyCustomUsedType}}/details
-# Authorization: Bearer {{access_token}}
-
-
-### ALL MASTERDATAS BELONGING TO A MASTERDATA TYPE
-# @name MasterdataRequest
-GET {{api-url}}/{{masterdataKeyCustomUsedType}}
-# Authorization: Bearer {{access_token}}
-
-
-### GET THE DETAILS OF A SINGLE MASTERDATA
-GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}
-# Authorization: Bearer {{access_token}}
-
-
 ### ALL MASTERDATA KEYS BELONGING TO A MASTERDATA ITEM
-GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys
 # Authorization: Bearer {{access_token}}
 
 
 ### ADD MASTERDATA KEY TO AN EXISTING MASTERDATA
 # @name MasterdataKeyRequest4Add
-POST {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+POST {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys
 # Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
@@ -332,6 +309,7 @@ Content-Type: application/json
     "key": "[testing-key key]x1"
 },
 {
+
     "domain": "[testing-key domain]x2",
     "key": "[testing-key key]x2"
 },
@@ -342,23 +320,66 @@ Content-Type: application/json
 ]
 
 ###
-GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys
 # Authorization: Bearer {{access_token}}
 
 
 ### DELETE A MASTERDATA-KEY BY ENTRY ID
-DELETE {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys/{{masterdataKeyCustom4DeleteId}}
+DELETE {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys/{{masterdataKeyCustom4DeleteId}}
 # Authorization: Bearer {{access_token}}
 
 ### DELETE ALL MASTERDATA-KEYS BELONGING TO A MASTERDATA ITEM
-DELETE {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+DELETE {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys
 # Authorization: Bearer {{access_token}}
 
 ###
-GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdataId}}/keys
+GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys
 # Authorization: Bearer {{access_token}}
 
 
 ### ALL DOMAINS USED ON ALL MASTERDATA ITEMS BELONGING TO A MASTERDATA TYPE
 GET {{api-url}}/{{masterdataKeyCustomUsedType}}/{{masterdataKeyCustomUsedMasterdata}}/keys/domains
 # Authorization: Bearer {{access_token}}
+
+
+#############################################################
+### MASTERDATA Related Items
+#############################################################
+
+### testing vars
+@masterdataRelatedCustomUsedType=time_units
+@masterdataRelatedCustomUsedMasterdata=5
+@masterdataRelatedCustomRelatedType=time_units
+
+
+### ADD MASTERDATA Related Items TO AN EXISTING MASTERDATA
+# @name MasterdataRelatedRequest4Add
+POST {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
+# Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+[
+    {
+        "masterdataId": "eec7f6f1-cb71-ed11-9cbd-48e7daf5481e"
+    },
+    {
+        "masterdataId": "eac7f6f1-cb71-ed11-9cbd-48e7daf5481e"
+    }
+]
+
+### ALL RELATED USED ON ALL MASTERDATA ITEMS BELONGING TO A MASTERDATA TYPE
+GET {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
+
+###
+GET {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related/{{masterdataRelatedCustomRelatedType}}
+
+###
+GET {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related/{{masterdataRelatedCustomRelatedType}}?includeDescendants=true
+
+### DELETE RELATED
+DELETE {{api-url}}/{{masterdataRelatedCustomUsedType}}/{{masterdataRelatedCustomUsedMasterdata}}/related
+Content-Type: application/json
+
+[
+    "068957b9-d1ae-ed11-baff-001a7dda7110"
+]
