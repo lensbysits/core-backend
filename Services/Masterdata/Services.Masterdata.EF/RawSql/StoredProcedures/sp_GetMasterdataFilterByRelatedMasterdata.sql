@@ -8,9 +8,10 @@ CREATE OR ALTER PROC [dbo].sp_GetMasterdataFilterByRelatedMasterdata
     @includeDescendants AS bit = 0
 AS BEGIN
 
--- DECLARE @masterdataType AS nvarchar(50) = 'status';
--- DECLARE @filterMasterdata AS nvarchar(max) = 'uom:kg';
--- DECLARE @filterMasterdata AS nvarchar(max) = '2f2d5cd5-f3b0-ed11-baff-001a7dda7110:e36f077b-f4b0-ed11-baff-001a7dda7110';
+-- DECLARE @masterdataType AS nvarchar(50) = 'pts';
+-- DECLARE @filterMasterdata AS nvarchar(max) = 'bus:AFRICA,countries:KEN';
+-- DECLARE @filterMasterdata AS nvarchar(max) = 'bus:NIGERIA,bus:KENIA';
+-- DECLARE @filterMasterdata AS nvarchar(max) = 'bus:NIGERIA';
 -- DECLARE @includeDescendants AS bit = 1;
 
 -- CREATE FILTER TABLE CTE
@@ -23,64 +24,63 @@ SELECT
   , CASE WHEN TRY_CONVERT(UNIQUEIDENTIFIER, PARSENAME(REPLACE([value], ':', '.'), 1)) IS NULL THEN 0 ELSE 1 END AS masterdataIsId
 FROM
     STRING_SPLIT (@filterMasterdata, ',')
-)
-
--- CREATE SELECT MASTERDATA RECURSIVE CTE
-, cte(Id, [Key], Name, MasterdataTypeId, [level], [path]) AS
+),
+-- CREATE TABLE WITH MASTERDATA THAT MAKES UP THE FILTER
+cteResult AS
 (
-SELECT 
-      mdChild.Id
-    , mdChild.[Key]
-    , mdChild.Name
-    , mdChild.MasterdataTypeId
-    , 1
-    , CAST(mdChild.[Key] AS NVARCHAR(MAX))
-FROM
-    Masterdatas mdChild
-    INNER JOIN MasterdataTypes mt ON mt.Id = mdChild.MasterdataTypeId
-WHERE 
-    1 = 1
-    AND mt.Code = CASE WHEN TRY_CONVERT(UNIQUEIDENTIFIER, @masterdataType) IS NULL THEN @masterdataType ELSE mt.Code END
-    AND mdChild.MasterdataTypeId = ISNULL(TRY_CONVERT(UNIQUEIDENTIFIER, @masterdataType), mdChild.MasterdataTypeId)
-    AND EXISTS (
-        SELECT 1
-        FROM MasterdataRelated AS m1
-        INNER JOIN Masterdatas AS md1 ON md1.Id = m1.ChildMasterdataId
-        INNER JOIN MasterdataTypes mt1 ON mt1.Id = md1.MasterdataTypeId
-        , cteFilter AS fltr
-        WHERE 
-            1 = 1
-            AND m1.ParentMasterdataId = mdChild.Id
-            AND mt1.Code = CASE WHEN TRY_CONVERT(UNIQUEIDENTIFIER, fltr.MasterdataType) IS NULL THEN fltr.MasterdataType ELSE mt1.Code END
-            AND md1.MasterdataTypeId = ISNULL(TRY_CONVERT(UNIQUEIDENTIFIER, fltr.MasterdataType), md1.MasterdataTypeId)
-            AND md1.[Key] = CASE WHEN TRY_CONVERT(UNIQUEIDENTIFIER, fltr.Masterdata) IS NULL THEN fltr.Masterdata ELSE md1.[Key] END
-            AND m1.ChildMasterdataId = ISNULL(TRY_CONVERT(UNIQUEIDENTIFIER, fltr.Masterdata), m1.ChildMasterdataId)
-
-        )
-UNION ALL
-SELECT
-      mdParent.Id
-    , mdParent.[Key]
-    , mdParent.Name
-    , mdParent.MasterdataTypeId
-    , childCte.[level] + 1
-    , childCte.[path] + ' -> ' + mdParent.[Key]
+-- START WITH A LIST OF MDs THAT WE NEED TO FILTER ON
+SELECT DISTINCT
+    mdParent.Id
+  , mdParent.MasterdataTypeId
+  , mdParent.[Key]
+  , mdtParent.Code
+  , 1 as level
+  , CAST(mdParent.[Key] AS NVARCHAR(MAX)) as [path]
 FROM
     Masterdatas mdParent
-    INNER JOIN MasterdataRelated r ON r.ParentMasterdataId = mdParent.Id
-    INNER JOIN cte childCte ON childCte.Id = r.ChildMasterdataId AND childCte.MasterdataTypeId = mdParent.MasterdataTypeId
+    INNER JOIN MasterdataTypes mdtParent ON mdtParent.Id = mdParent.MasterdataTypeId
+    , cteFilter AS fltr
+WHERE
+    1 = 1
+    AND mdtParent.Code = CASE WHEN TRY_CONVERT(UNIQUEIDENTIFIER, fltr.MasterdataType) IS NULL THEN fltr.MasterdataType ELSE mdtParent.Code END
+    AND mdParent.MasterdataTypeId = ISNULL(TRY_CONVERT(UNIQUEIDENTIFIER, fltr.MasterdataType), mdParent.MasterdataTypeId)
+    AND mdParent.[Key] = CASE WHEN TRY_CONVERT(UNIQUEIDENTIFIER, fltr.Masterdata) IS NULL THEN fltr.Masterdata ELSE mdParent.[Key] END
+    AND mdParent.Id = ISNULL(TRY_CONVERT(UNIQUEIDENTIFIER, fltr.Masterdata), mdParent.Id)
+
+UNION ALL
+
+-- INCLUDE IN THAT MDs LIST ALSO THE CHILD MDs IF REQUESTED
+SELECT
+    mdParentTree.Id
+  , mdParentTree.MasterdataTypeId
+  , mdParentTree.[Key]
+  , mdtParentTree.Code
+  , result.[level] + 1
+  , result.[path] + ' -> ' + mdParentTree.[Key]
+FROM
+    MasterdataRelated mdrTree
+    INNER JOIN Masterdatas mdParentTree ON mdParentTree.Id = mdrTree.ChildMasterdataId
+    INNER JOIN MasterdataTypes mdtParentTree ON mdtParentTree.Id = mdParentTree.MasterdataTypeId
+    INNER JOIN cteResult result ON result.Id = mdrTree.ParentMasterdataId AND result.MasterdataTypeId = mdParentTree.MasterdataTypeId
 WHERE
     1 = @includeDescendants
 )
 
--- RETURN DE-DUPLICATED RESULT
-SELECT 
-      Id
-    , [Key]
-    , Name
-    , MAX(level)    AS [level]
-    , MAX(path)     AS [path]
-FROM cte
-GROUP BY Id, [Key], Name
+-- RETURN MDs THAT HAVE A PARENT THAT EXISTS IN THE FILTER LIST
+-- AND THAT ARE OF TYPE THAT WAS REQUESTED (@masterdataType)
+SELECT
+    DISTINCT
+    md.Id
+  , md.[Key]
+  , md.Name
+FROM
+    cteResult
+    INNER JOIN MasterdataRelated mdr ON mdr.ParentMasterdataId = cteResult.Id
+    INNER JOIN Masterdatas md ON md.Id = mdr.ChildMasterdataId
+    INNER JOIN MasterdataTypes mt ON mt.Id = md.MasterdataTypeId
+WHERE
+    1 = 1
+    AND mt.Code = CASE WHEN TRY_CONVERT(UNIQUEIDENTIFIER, @masterdataType) IS NULL THEN @masterdataType ELSE mt.Code END
+    AND md.MasterdataTypeId = ISNULL(TRY_CONVERT(UNIQUEIDENTIFIER, @masterdataType), md.MasterdataTypeId)
 
 END
