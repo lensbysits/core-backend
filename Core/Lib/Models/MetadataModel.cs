@@ -10,5 +10,21 @@ public class MetadataModel : IMetadataModel
 
     private Dictionary<string, JsonElement>? metadataDictionary;
     [JsonIgnore]
-    public Dictionary<string, JsonElement>? MetadataDictionary => metadataDictionary ??= JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(Metadata?.ToString() ?? JsonNodeUtilities.EmptyObjectJson);
+    public Dictionary<string, JsonElement>? MetadataDictionary
+    {
+        get
+        {
+            return metadataDictionary;
+        }
+        set
+        {
+            var v = Metadata.ToString();
+            if (string.IsNullOrEmpty(v))
+            { 
+                v = JsonNodeUtilities.EmptyObjectJson; 
+            }
+
+            metadataDictionary ??= JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(v);
+        }
+    }
 }
