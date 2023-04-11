@@ -8,13 +8,13 @@ public class MetadataModel : IMetadataModel
     public string? Domain { get; set; } = IMetadataModel.AllDomains;
     public JsonElement? Metadata { get; set; }
 
-    private Dictionary<string, JsonElement>? metadataDictionary;
+    private Dictionary<string, JsonElement>? _metadataDictionary;
     [JsonIgnore]
     public Dictionary<string, JsonElement>? MetadataDictionary
     {
         get
         {
-            return metadataDictionary;
+            return _metadataDictionary;
         }
         set
         {
@@ -24,7 +24,7 @@ public class MetadataModel : IMetadataModel
                 v = JsonNodeUtilities.EmptyObjectJson; 
             }
 
-            metadataDictionary ??= JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(v);
+            _metadataDictionary ??= JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(v);
         }
     }
 }
