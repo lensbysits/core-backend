@@ -21,7 +21,7 @@ grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecre
 #############################################################
 
 ### testing vars
-@masterdataMainUsedType=status
+@masterdataMainUsedType=pts
 @masterdataMain4Get=
 
 ### ALL MASTERDATA TYPES AVAILABLE
@@ -40,7 +40,7 @@ GET {{api-url}}/{{masterdataMainUsedType}}/?noLimit=true
 # Authorization: Bearer {{access_token}}
 
 ###
-GET {{api-url}}/{{masterdataMainUsedType}}/?masterdatafilter=uom:kg&includeDescendants=false
+GET {{api-url}}/{{masterdataMainUsedType}}/?masterdatafilter=BUs:AFRICA&includeDescendants=true
 
 ### GET THE DETAILS OF A SINGLE MASTERDATA
 GET {{api-url}}/{{masterdataMainUsedType}}/{{masterdataMain4Get}}
