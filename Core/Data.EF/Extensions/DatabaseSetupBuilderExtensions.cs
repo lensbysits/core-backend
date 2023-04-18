@@ -12,6 +12,7 @@ public static class DatabaseSetupBuilderExtensions
         builder.Services.AddTransient<IModelBuilderService, CreateUpdateModelBuilderService>();
         builder.Services.AddTransient<IModelBuilderService, RecordStateModelBuilderService>();
         builder.Services.AddTransient<IModelBuilderService, TagsModelBuilderService>();
+        builder.Services.AddTransient<IModelBuilderService, TranslationModelBuilderService>();
         builder.Services.AddTransient<IModelBuilderService, TenantModelBuilderService>();
 
         return builder;

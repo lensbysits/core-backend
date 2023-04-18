@@ -13,6 +13,18 @@ public class MasterdataTypeModel : IdModel, IMetadataModel
     public int? MasterdatasCount { get; set; }
 
     [JsonIgnore]
+    public string? Translation
+    {
+        set
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            Translations = JsonSerializer.Deserialize<IEnumerable<TranslationModel>>(value ?? "[]", options);
+        }
+    }
+
+    public IEnumerable<TranslationModel>? Translations { get; set; }
+
+    [JsonIgnore]
     public string? MetadataJson { get; set; }
 
     public JsonElement? Metadata 

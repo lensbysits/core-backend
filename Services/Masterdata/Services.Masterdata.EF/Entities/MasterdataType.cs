@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Lens.Services.Masterdata.EF.Entities;
 
-public class MasterdataType : BaseEntity
+public class MasterdataType : BaseEntity, ITranslationEntity
 {
     [StringLength(50), Required]
     public string? Code { get; set; }
@@ -12,5 +12,6 @@ public class MasterdataType : BaseEntity
     [StringLength(1024)]
     public string? Description { get; set; }
     public string? MetadataJson { get; set; }
+    public string? Translation { get; set; }
     public virtual ICollection<Masterdata> Masterdatas { get; set; } = new HashSet<Masterdata>();
 }

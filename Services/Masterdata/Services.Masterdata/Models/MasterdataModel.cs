@@ -1,4 +1,6 @@
-﻿using Lens.Core.Lib.Models;
+﻿using Lens.Core;
+using Lens.Core.Lib.Models;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -12,6 +14,17 @@ public class MasterdataModel : IdModel
     public string? Value { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
+
+    [JsonIgnore]
+    public string? Translation {
+        set
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            Translations = JsonSerializer.Deserialize<IEnumerable<TranslationModel>>(value ?? "[]", options);
+        }
+    }
+
+    public IEnumerable<TranslationModel>? Translations { get; set; }
 
     [JsonIgnore]
     public string MetadataJson

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Lens.Services.Masterdata.EF.Entities;
 
-public class Masterdata : BaseEntity, ITagsEntity
+public class Masterdata : BaseEntity, ITagsEntity, ITranslationEntity
 {
     public Guid MasterdataTypeId { get; set; }
     public virtual MasterdataType MasterdataType { get; set; } = default!;
@@ -14,6 +14,7 @@ public class Masterdata : BaseEntity, ITagsEntity
     [StringLength(50), Required]
     public string? Value { get; set; }
     [StringLength(50)]
+
     public string? Name { get; set; }
     [StringLength(1024)]
     public string? Description { get; set; }
@@ -21,6 +22,8 @@ public class Masterdata : BaseEntity, ITagsEntity
 
     [StringLength(2048)]
     public string? Tag { get; set; }
+
+    public string? Translation { get; set; }
 
     public virtual ICollection<MasterdataKey> MasterdataKeys { get; set; } = new HashSet<MasterdataKey>();
 
