@@ -21,7 +21,7 @@ grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecre
 #############################################################
 
 ### testing vars
-@masterdataMainUsedType=pts
+@masterdataMainUsedType=languages
 @masterdataMain4Get=
 
 ### ALL MASTERDATA TYPES AVAILABLE
@@ -38,6 +38,9 @@ GET {{api-url}}/{{masterdataMainUsedType}}/details
 # @name MasterdataRequest
 GET {{api-url}}/{{masterdataMainUsedType}}/?noLimit=true
 # Authorization: Bearer {{access_token}}
+
+###
+GET {{api-url}}/{{masterdataMainUsedType}}/?noLimit=true&orderBy=value%20asc
 
 ###
 GET {{api-url}}/{{masterdataMainUsedType}}/?masterdatafilter=BUs:AFRICA&includeDescendants=true
@@ -275,7 +278,8 @@ Content-Type: application/json
 #< ./data/statusses.json
 #< ./data/time-unit-type.json
 #< ./data/quotes.json
-< ./data/countries.json
+#< ./data/countries.json
+< ./data/languages.json
 
 
 #############################################################

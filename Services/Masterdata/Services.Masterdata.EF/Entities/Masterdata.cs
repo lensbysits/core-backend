@@ -1,6 +1,6 @@
 ﻿using Lens.Core.Data.EF.Entities;
+using Lens.Services.Masterdata.EF.Attributes;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Lens.Services.Masterdata.EF.Entities;
 
@@ -12,11 +12,16 @@ public class Masterdata : BaseEntity, ITagsEntity, ITranslationEntity
     [StringLength(50), Required]
     public string? Key { get; set; }
     [StringLength(50), Required]
+
+    [Translatable]
     public string? Value { get; set; }
     [StringLength(50)]
 
+    [Translatable]
     public string? Name { get; set; }
     [StringLength(1024)]
+
+    [Translatable]
     public string? Description { get; set; }
     public string? MetadataJson { get; set; }
 

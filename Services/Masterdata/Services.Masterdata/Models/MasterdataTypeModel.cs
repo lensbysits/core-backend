@@ -17,7 +17,7 @@ public class MasterdataTypeModel : IdModel, IMetadataModel
     {
         set
         {
-            JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
             Translations = JsonSerializer.Deserialize<IEnumerable<TranslationModel>>(value ?? "[]", options);
         }
     }

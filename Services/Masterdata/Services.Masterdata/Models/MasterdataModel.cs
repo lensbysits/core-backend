@@ -11,6 +11,7 @@ public class MasterdataModel : IdModel
     public Guid MasterdataTypeId { get; set; }
     public string? MasterdataTypeName { get; set; }
     public string? Key { get; set; }
+
     public string? Value { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
@@ -19,7 +20,7 @@ public class MasterdataModel : IdModel
     public string? Translation {
         set
         {
-            JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
             Translations = JsonSerializer.Deserialize<IEnumerable<TranslationModel>>(value ?? "[]", options);
         }
     }
