@@ -21,8 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Core\Tests\Core.Tests.csproj" />
-      <ProjectReference Include="..\Services.Masterdata\Services.Masterdata.csproj" />
+      <ProjectReference Include="..\App\Core.App.csproj" />
     </ItemGroup>
-
+    
 </Project>

@@ -1,5 +1,4 @@
 ﻿using Lens.Core.App.Web.Builders;
-using Lens.Services.Communication.Models;
 
 namespace Lens.Services.Communication.Web;
 

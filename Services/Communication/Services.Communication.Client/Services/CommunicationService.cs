@@ -25,7 +25,7 @@ namespace Lens.Services.Communication.Client.Services
 
             try
             {
-                var result = await _httpClient.PostAsync("", new StringContent(JsonSerializer.Serialize(sendInfo), System.Text.Encoding.UTF8, "application/json"));
+                var result = await _httpClient.PostAsync("send", new StringContent(JsonSerializer.Serialize(sendInfo), System.Text.Encoding.UTF8, "application/json"));
                 if (!result.IsSuccessStatusCode)
                 {
                     var responseText = await result.Content.ReadAsStringAsync();

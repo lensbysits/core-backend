@@ -8,16 +8,14 @@ namespace Lens.Services.Communication.Client;
 
 public static class IApplicationSetupBuilderExtentions
 {
-    private static CommunicationSettings? _settings;
+    private const string oauthClientConfigurationKey = "communication";
 
     public static IApplicationSetupBuilder AddCommunicationClient(this IApplicationSetupBuilder builder)
     {
-        _settings = builder.Configuration.GetSection(nameof(CommunicationSettings))?.Get<CommunicationSettings>() ?? throw new Exception($"Missing settings for '{nameof(CommunicationSettings)}'");
-
+        var settings = builder.Configuration.GetSection(nameof(CommunicationSettings))?.Get<CommunicationSettings>() ?? throw new Exception($"Missing settings for '{nameof(CommunicationSettings)}'");
         builder
-            .AddHttpClientService<ICommunicationService, CommunicationService>(client => {
-                client.BaseAddress = new Uri(_settings.Uri ?? throw new Exception($"Missing settings for '{nameof(CommunicationSettings.Uri)}'"));
-            });
+            .AddOAuthClient()
+            .AddHttpClientService<ICommunicationService, CommunicationService>(oauthClientConfigurationKey, settings.Uri);
 
         return builder;
     }
