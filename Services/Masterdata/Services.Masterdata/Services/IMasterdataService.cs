@@ -55,4 +55,8 @@ public interface IMasterdataService
 
     Task DeleteMasterdataRelated(string masterdataType, string masterdata, List<Guid> relatrelatedMasterdataIdsedIds);
     #endregion
+
+    #region Translations
+    Task<Dictionary<string, string>> GetLanguages();
+    #endregion
 }

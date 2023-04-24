@@ -4,6 +4,7 @@ using Lens.Core.Lib.Models;
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Services;
 using System.Net;
+using Lens.Core.App.Web.Filters;
 
 namespace Services.Masterdata.Web.Controllers;
 
@@ -228,6 +229,22 @@ public class MasterdataController : ControllerBase
     {
         await _masterdataService.DeleteMasterdataRelated(masterdataType, masterdata, relatedMasterdataIds);
         return this.NoContent();
+    }
+    #endregion
+
+    #region Translations
+    /// <summary>
+    /// List all languages.
+    /// </summary>
+    /// <param name="masterdataType">The masterdata type (Id or Code).</param>
+    /// <returns>A list of languages.</returns>
+    [IgnoreResultModelWrapper]
+    [HttpGet("{masterdataType}/langs")]
+    //[ProducesResponseType(typeof(IEnumerable<Dictionary<string, string>>), (int)HttpStatusCode.OK)]
+    public async Task<ActionResult<Dictionary<string, string>>> GetLanguages(string masterdataType)
+    {
+        var result = await _masterdataService.GetLanguages();
+        return result;
     }
     #endregion
 }

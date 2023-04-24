@@ -3,7 +3,7 @@ using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Repositories;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Lens.Services.Masterdata.Helpers;
 
 namespace Lens.Services.Masterdata.Services;
 
@@ -108,5 +108,12 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
 
     public Task DeleteMasterdataRelated(string masterdataType, string masterdata, List<Guid> relatedMasterdataIds)
         => _masterdataRepository.DeleteMasterdataRelated(masterdataType, masterdata, relatedMasterdataIds);
+    #endregion
+
+    #region Translations
+    public Task<Dictionary<string, string>> GetLanguages()
+    {
+        return Task.FromResult(LanguageHelper.Lang);
+    }
     #endregion
 }
