@@ -29,6 +29,10 @@ internal class AutomapperProfile : Profile
         // MasterdataKey
         CreateMap<MasterDataKeyEntity, MasterdataKeyModel>();
         CreateMap<MasterdataKeyCreateModel, MasterDataKeyEntity>();
+
+        // Translation
+        CreateMap<TranslationUpdateModel, MasterdataType>();
+        CreateMap<TranslationUpdateModel, MasterDataEntity>();
     }
 
     private void UpdateMetadata(IMetadataModel source, MasterdataType destination)

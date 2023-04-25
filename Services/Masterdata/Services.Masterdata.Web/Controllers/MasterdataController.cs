@@ -233,6 +233,24 @@ public class MasterdataController : ControllerBase
     #endregion
 
     #region Translations
+    [HttpPut("{masterdataType}/translation")]
+    [ProducesResponseType(typeof(MasterdataTypeModel), (int)HttpStatusCode.OK)]
+    public async Task<ActionResult<MasterdataTypeModel>> Put(string masterdataType, TranslationUpdateModel model)
+    {
+        var result = await _masterdataService.UpdateMasterdataTypeTranslation(masterdataType, model);
+        return this.Ok(result);
+    }
+
+    [HttpPut("{masterdataType}/{masterdata}/translation")]
+    [ProducesResponseType(typeof(MasterdataModel), (int)HttpStatusCode.OK)]
+    public async Task<ActionResult<MasterdataModel>> Put(string masterdataType, string masterdata, TranslationUpdateModel model)
+    {
+        var result = await _masterdataService.UpdateMasterdataTranslation(masterdataType, masterdata, model);
+        return AcceptedAtAction(nameof(Get), new { id = result.Id }, result);
+    }
+    #endregion
+
+    #region Languages
     /// <summary>
     /// List all languages.
     /// </summary>

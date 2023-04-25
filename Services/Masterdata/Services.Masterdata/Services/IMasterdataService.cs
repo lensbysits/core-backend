@@ -57,6 +57,12 @@ public interface IMasterdataService
     #endregion
 
     #region Translations
+    Task<MasterdataTypeModel> UpdateMasterdataTypeTranslation(string masterdataType, TranslationUpdateModel model);
+
+    Task<MasterdataModel> UpdateMasterdataTranslation(string masterdataType, string masterdata, TranslationUpdateModel model);
+    #endregion
+
+    #region Languages
     Task<Dictionary<string, string>> GetLanguages();
     #endregion
 }

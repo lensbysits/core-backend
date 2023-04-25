@@ -53,4 +53,10 @@ public interface IMasterdataRepository
 
     Task DeleteMasterdataRelated(string masterdataType, string masterdata, List<Guid> relatedMasterdataIds);
     #endregion
+
+    #region Translations
+    Task<MasterdataTypeModel> UpdateMasterdataTypeTranslation(string masterdataType, TranslationUpdateModel model);
+
+    Task<MasterdataModel> UpdateMasterdataTranslation(string masterdataType, string masterdata, TranslationUpdateModel model);
+    #endregion
 }

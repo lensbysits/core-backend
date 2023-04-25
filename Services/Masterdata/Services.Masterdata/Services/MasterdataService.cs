@@ -111,6 +111,22 @@ public class MasterdataService : BaseService<MasterdataService>, IMasterdataServ
     #endregion
 
     #region Translations
+    public Task<MasterdataTypeModel> UpdateMasterdataTypeTranslation(string masterdataType, TranslationUpdateModel model)
+    {
+        // TODO: sanitization
+        //model.Sanitize(htmlSanitizer);
+        return _masterdataRepository.UpdateMasterdataTypeTranslation(masterdataType, model);
+    }
+
+    public Task<MasterdataModel> UpdateMasterdataTranslation(string masterdataType, string masterdata, TranslationUpdateModel model)
+    {
+        // TODO: sanitization
+        //model.Sanitize(htmlSanitizer);
+        return _masterdataRepository.UpdateMasterdataTranslation(masterdataType, masterdata, model);
+    }
+    #endregion
+
+    #region Languages
     public Task<Dictionary<string, string>> GetLanguages()
     {
         return Task.FromResult(LanguageHelper.Lang);

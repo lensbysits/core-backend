@@ -438,6 +438,34 @@ public class MasterdataRepository : BaseRepository<MasterdataDbContext, Masterda
     }
     #endregion
 
+    #region Translations
+    public async Task<MasterdataTypeModel> UpdateMasterdataTypeTranslation(string masterdataType, TranslationUpdateModel model)
+    {
+        var dbEntity = await DbContext.MasterdataTypes.FirstOrDefaultAsync(MasterdataTypeFilter(masterdataType));
+        if (dbEntity == default)
+        {
+            throw new NotFoundException($"MasterdataType with id/code '{masterdataType}' not found.");
+        }
+
+        ApplicationService.Mapper.Map(model, dbEntity);
+        await DbContext.SaveChangesAsync();
+        return ApplicationService.Mapper.Map<MasterdataTypeModel>(dbEntity);
+    }
+
+    public async Task<MasterdataModel> UpdateMasterdataTranslation(string masterdataType, string masterdata, TranslationUpdateModel model)
+    {
+        var entity = await DbContext.Masterdatas.FirstOrDefaultAsync(MasterdataFilter(masterdataType, masterdata));
+        if (entity == default)
+        {
+            throw new NotFoundException($"Masterdata with id/key '{masterdata}' not found.");
+        }
+
+        ApplicationService.Mapper.Map(model, entity);
+        await DbContext.SaveChangesAsync();
+        return ApplicationService.Mapper.Map<MasterdataModel>(entity);
+    }
+    #endregion
+
     #region Filter helpers - MasterdataType
     private static Expression<Func<MasterdataType, bool>> MasterdataTypeFilter(string masterdataType)
     {
