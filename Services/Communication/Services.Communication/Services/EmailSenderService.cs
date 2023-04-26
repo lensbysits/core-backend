@@ -4,6 +4,7 @@ using Lens.Services.Communication.Settings;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
 using MimeKit;
+using System.Web;
 
 namespace Lens.Services.Communication;
 
@@ -160,7 +161,7 @@ public class EmailSenderService : BaseService<EmailSenderService, SendEmailSetti
         }
     }
 
-    private string SanatizeEmail(string email)
+    public string SanatizeEmail(string email)
     {
         var plusIndex = email.IndexOf('+');
         if (plusIndex > 0)
