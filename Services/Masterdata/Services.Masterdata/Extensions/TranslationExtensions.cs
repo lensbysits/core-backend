@@ -1,6 +1,5 @@
 ﻿using Ganss.Xss;
 using Lens.Core.Data.EF.Translation.Models;
-using System.Text.Json;
 
 namespace Lens.Services.Masterdata;
 
