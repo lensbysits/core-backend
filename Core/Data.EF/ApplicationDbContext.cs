@@ -166,15 +166,13 @@ public class ApplicationDbContext : DbContext
 
     private void InitializeTranslation()
     {
-        //ChangeTracker.DetectChanges();
+        ChangeTracker.DetectChanges();
 
-        List<EntityState> trackedEntityStates = new() { EntityState.Added };
-        var trackedEntities = ChangeTracker.Entries().Where(e => trackedEntityStates.Contains(e.State)).ToList();
+        var addedTranslationEntities = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added && e.Entity is ITranslationEntity);
 
-        foreach (var entry in trackedEntities)
+        foreach (var entry in addedTranslationEntities)
         {
-            if (entry.Entity is not ITranslationEntity) continue;
-
             var translationModel = new TranslationModel("en-US", true);
             foreach (var property in entry.Properties)
             {
@@ -184,11 +182,8 @@ public class ApplicationDbContext : DbContext
 
                 if (hasTranslatableAttribute)
                 {
-                    translationModel.Values.Add(new TranslatedField
-                    {
-                        Field = property.Metadata.Name.ToLower(),
-                        Value = ""
-                    });
+                    translationModel.Values.Add(
+                        new TranslatedField(property.Metadata.Name.ToLower()));
                 }
             }
 

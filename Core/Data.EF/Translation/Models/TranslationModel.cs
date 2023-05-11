@@ -16,6 +16,12 @@ public class TranslationModel
 
 public class TranslatedField
 {
+    public TranslatedField(string field, string value = "")
+    {
+        Field = field;
+        Value = value;
+    }
+
     public string? Field { get; set; }
     public string? Value { get; set; }
 }
