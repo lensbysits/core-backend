@@ -97,11 +97,6 @@ public class ApplicationDbContext : DbContext
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         SetCreatedUpdatedFields();
-
-        /*if (typeof(ITranslationEntity).IsAssignableFrom(entityType))
-        {
-            InitializeTranslation();
-        }*/
         InitializeTranslation();
 
         var changes = this.CaptureChanges(_userContext).ToList();

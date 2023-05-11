@@ -8,15 +8,25 @@ public static class TranslationExtensions
 {
     public static void Sanitize(this TranslationUpdateModel model, IHtmlSanitizer htmlSanitizer)
     {
-        if (model.Translations != null && model.Translations.Any())
+        if (model?.Translations?.Any() != true)
         {
-            var translationString = model.Translations.ToString();
-            if (!string.IsNullOrEmpty(translationString))
-            {
-                translationString = htmlSanitizer.Sanitize(translationString);
+            return;
+        }
 
-                JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
-                model.Translations = JsonSerializer.Deserialize<IEnumerable<TranslationModel>>(translationString, options);
+        foreach (var translation in model.Translations)
+        {
+            if (!translation.Values.Any())
+            {
+                continue;
+            }
+
+            foreach (var theValue in translation.Values)
+            {
+                if (string.IsNullOrEmpty(theValue.Value))
+                {
+                    continue;
+                }
+                theValue.Value = htmlSanitizer.Sanitize(theValue.Value);
             }
         }
     }
