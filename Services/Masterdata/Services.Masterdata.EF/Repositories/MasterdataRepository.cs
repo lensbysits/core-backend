@@ -2,6 +2,7 @@
 using Dapper;
 using Lens.Core.Data.EF;
 using Lens.Core.Data.EF.Repositories;
+using Lens.Core.Data.EF.Translation.Models;
 using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;

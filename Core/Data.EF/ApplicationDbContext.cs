@@ -1,10 +1,13 @@
 ﻿using Lens.Core.Data.EF.AuditTrail;
 using Lens.Core.Data.EF.Entities;
 using Lens.Core.Data.EF.Services;
+using Lens.Core.Data.EF.Translation.Attributes;
+using Lens.Core.Data.EF.Translation.Models;
 using Lens.Core.Data.Services;
 using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using System.Text.Json;
 using EFCore = Microsoft.EntityFrameworkCore.EF;
 
 namespace Lens.Core.Data.EF;
@@ -95,6 +98,12 @@ public class ApplicationDbContext : DbContext
     {
         SetCreatedUpdatedFields();
 
+        /*if (typeof(ITranslationEntity).IsAssignableFrom(entityType))
+        {
+            InitializeTranslation();
+        }*/
+        InitializeTranslation();
+
         var changes = this.CaptureChanges(_userContext).ToList();
 
         var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
@@ -152,6 +161,42 @@ public class ApplicationDbContext : DbContext
                 var method = SetGlobalQueryForTenantMethodInfo.MakeGenericMethod(t);
                 method.Invoke(this, new object[] { modelBuilder });
             }
+        }
+    }
+
+    private void InitializeTranslation()
+    {
+        //ChangeTracker.DetectChanges();
+
+        List<EntityState> trackedEntityStates = new() { EntityState.Added };
+        var trackedEntities = ChangeTracker.Entries().Where(e => trackedEntityStates.Contains(e.State)).ToList();
+
+        foreach (var entry in trackedEntities)
+        {
+            if (entry.Entity is not ITranslationEntity) continue;
+
+            var translationModel = new TranslationModel("en-US", true);
+            foreach (var property in entry.Properties)
+            {
+                var hasTranslatableAttribute =
+                    property.Metadata.PropertyInfo != null
+                    && property.Metadata.PropertyInfo.GetCustomAttributes(typeof(TranslatableAttribute), false).Any();
+
+                if (hasTranslatableAttribute)
+                {
+                    translationModel.Values.Add(new TranslatedField
+                    {
+                        Field = property.Metadata.Name.ToLower(),
+                        Value = ""
+                    });
+                }
+            }
+
+            var result = new TranslationModel[]
+            {
+                translationModel
+            };
+            entry.Property(ShadowProperties.Translation).CurrentValue = JsonSerializer.Serialize(result);
         }
     }
     #endregion

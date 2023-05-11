@@ -1,6 +1,5 @@
-﻿using Lens.Core;
+﻿using Lens.Core.Data.EF.Translation.Models;
 using Lens.Core.Lib.Models;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

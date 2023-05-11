@@ -1,4 +1,5 @@
 ﻿using Ganss.Xss;
+using Lens.Core.Data.EF.Translation.Models;
 using Lens.Core.Lib.Models;
 using Lens.Core.Lib.Services;
 using Lens.Services.Masterdata.Models;

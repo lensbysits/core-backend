@@ -1,6 +1,6 @@
 ﻿using Lens.Core.Lib.Models;
+using Lens.Core.Data.EF.Translation.Models;
 using Lens.Services.Masterdata.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Lens.Services.Masterdata.Repositories;
 

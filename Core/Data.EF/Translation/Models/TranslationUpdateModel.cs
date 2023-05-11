@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Lens.Services.Masterdata.Models;
+namespace Lens.Core.Data.EF.Translation.Models;
 
 public class TranslationUpdateModel
 {

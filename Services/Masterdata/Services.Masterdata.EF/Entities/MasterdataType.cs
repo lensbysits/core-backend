@@ -1,5 +1,5 @@
 ﻿using Lens.Core.Data.EF.Entities;
-using Lens.Services.Masterdata.EF.Attributes;
+using Lens.Core.Data.EF.Translation.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace Lens.Services.Masterdata.EF.Entities;

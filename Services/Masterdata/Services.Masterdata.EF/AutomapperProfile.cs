@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Lens.Core.Data.EF.Translation.Models;
 using Lens.Core.Lib.Models;
 using Lens.Services.Masterdata.EF.Entities;
 using Lens.Services.Masterdata.Models;

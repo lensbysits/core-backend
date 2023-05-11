@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Lens.Core.Data.EF.Translation.Models;
 using Lens.Core.Lib.Models;
 using Lens.Services.Masterdata.Models;
 using Lens.Services.Masterdata.Services;
