@@ -178,7 +178,7 @@ public class ApplicationDbContext : DbContext
                 if (hasTranslatableAttribute)
                 {
                     translationModel.Values.Add(
-                        new TranslatedField(property.Metadata.Name.ToLower()));
+                        new TranslatedField(property.Metadata.Name));
                 }
             }
 
