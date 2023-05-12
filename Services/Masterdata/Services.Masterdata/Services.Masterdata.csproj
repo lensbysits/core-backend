@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\Data.EF\Core.Data.EF.csproj" />
     <ProjectReference Include="..\..\..\Core\Lib.Web\Core.Lib.Web.csproj" />
   </ItemGroup>
 </Project>
