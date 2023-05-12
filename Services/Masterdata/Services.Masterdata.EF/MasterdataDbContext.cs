@@ -8,7 +8,7 @@ namespace Lens.Services.Masterdata.EF;
 
 public class MasterdataDbContext : ApplicationDbContext
 {
-    public MasterdataDbContext(DbContextOptions<MasterdataDbContext> options, IUserContext userContext, IEnumerable<IModelBuilderService> modelBuilders) : base(options, userContext, modelBuilders)
+    public MasterdataDbContext(DbContextOptions<MasterdataDbContext> options, IUserContext userContext, IEnumerable<IModelBuilderService> modelBuilders, IEnumerable<IDbContextInterceptorService> interceptorServices) : base(options, userContext, modelBuilders, interceptorServices)
     {
     }
 

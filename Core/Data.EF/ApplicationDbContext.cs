@@ -1,13 +1,10 @@
 ﻿using Lens.Core.Data.EF.AuditTrail;
 using Lens.Core.Data.EF.Entities;
 using Lens.Core.Data.EF.Services;
-using Lens.Core.Data.EF.Translation.Attributes;
-using Lens.Core.Data.EF.Translation.Models;
 using Lens.Core.Data.Services;
 using Lens.Core.Lib.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using System.Text.Json;
 using EFCore = Microsoft.EntityFrameworkCore.EF;
 
 namespace Lens.Core.Data.EF;
@@ -17,6 +14,7 @@ public class ApplicationDbContext : DbContext
     private readonly Guid _tenantId;
     private readonly IUserContext? _userContext;
     private readonly IAuditTrailService? _auditTrailService;
+    private readonly IEnumerable<IDbContextInterceptorService> _interceptorServices;
     private readonly IEnumerable<IModelBuilderService> _modelBuilders;
     private static readonly MethodInfo SetGlobalQueryForTenantMethodInfo = 
         typeof(ApplicationDbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance)
@@ -25,14 +23,16 @@ public class ApplicationDbContext : DbContext
     public ApplicationDbContext(DbContextOptions options,
         IUserContext userContext,
         IAuditTrailService auditTrailService,
-        IEnumerable<IModelBuilderService> modelBuilders) : this(options, userContext, modelBuilders)
+        IEnumerable<IModelBuilderService> modelBuilders,
+        IEnumerable<IDbContextInterceptorService> interceptorServices) : this(options, userContext, modelBuilders, interceptorServices)
     {
         _auditTrailService = auditTrailService;
     }
 
     public ApplicationDbContext(DbContextOptions options,
         IUserContext userContext,
-        IEnumerable<IModelBuilderService> modelBuilders) : base(options)
+        IEnumerable<IModelBuilderService> modelBuilders,
+        IEnumerable<IDbContextInterceptorService> interceptorServices) : base(options)
     {
         if (userContext != null && userContext.HasClaim("TenantId"))
         {
@@ -41,6 +41,7 @@ public class ApplicationDbContext : DbContext
 
         _userContext = userContext;
         _modelBuilders = modelBuilders;
+        _interceptorServices = interceptorServices;
     }
 
     #region Protected methods
@@ -96,11 +97,12 @@ public class ApplicationDbContext : DbContext
     // Only need AuditTrailing in here.
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        SetCreatedUpdatedFields();
-        InitializeTranslation();
+        foreach (var interceptorService in _interceptorServices)
+        {
+            await interceptorService.BeforeSave(this);
+        }
 
         var changes = this.CaptureChanges(_userContext).ToList();
-
         var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
 
         changes
@@ -118,29 +120,6 @@ public class ApplicationDbContext : DbContext
     #endregion Public methods
 
     #region Private methods
-    private void SetCreatedUpdatedFields()
-    {
-        List<EntityState> trackedEntityStates = new() { EntityState.Added, EntityState.Deleted, EntityState.Modified };
-        
-        // setup Updated fields
-        ChangeTracker.Entries()
-            .Where(e => trackedEntityStates.Contains(e.State) && e.Entity is ICreatedUpdatedEntity)
-            .ToList()
-            .ForEach(entry =>
-            {
-                entry.Property(ShadowProperties.UpdatedOn).CurrentValue = DateTime.UtcNow;
-                entry.Property(ShadowProperties.UpdatedBy).CurrentValue = _userContext?.Username;
-            });
-
-        // setup Created fields
-        ChangeTracker.Entries()
-           .Where(e => e.State == EntityState.Added && e.Entity is ICreatedUpdatedEntity)
-           .ToList()
-           .ForEach(entry =>
-           {
-               entry.Property(ShadowProperties.CreatedBy).CurrentValue = _userContext?.Username;
-           });
-    }
 
     private void SetGlobalQueryFilters(ModelBuilder modelBuilder)
     {
@@ -156,37 +135,6 @@ public class ApplicationDbContext : DbContext
                 var method = SetGlobalQueryForTenantMethodInfo.MakeGenericMethod(t);
                 method.Invoke(this, new object[] { modelBuilder });
             }
-        }
-    }
-
-    private void InitializeTranslation()
-    {
-        ChangeTracker.DetectChanges();
-
-        var addedTranslationEntities = ChangeTracker.Entries()
-            .Where(e => e.State == EntityState.Added && e.Entity is ITranslationEntity);
-
-        foreach (var entry in addedTranslationEntities)
-        {
-            var translationModel = new TranslationModel("en-US", true);
-            foreach (var property in entry.Properties)
-            {
-                var hasTranslatableAttribute =
-                    property.Metadata.PropertyInfo != null
-                    && property.Metadata.PropertyInfo.GetCustomAttributes(typeof(TranslatableAttribute), false).Any();
-
-                if (hasTranslatableAttribute)
-                {
-                    translationModel.Values.Add(
-                        new TranslatedField(property.Metadata.Name));
-                }
-            }
-
-            var result = new TranslationModel[]
-            {
-                translationModel
-            };
-            entry.Property(ShadowProperties.Translation).CurrentValue = JsonSerializer.Serialize(result);
         }
     }
     #endregion
