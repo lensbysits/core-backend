@@ -78,6 +78,11 @@ public class StartupBase
             options.Filters.Add(new ResultModelWrapperFilter());
         }
 
+        foreach(var filter in applicationSetup.Controller.GetRequestPipeLineFilters())
+        {
+            options.Filters.Add(filter);
+        }
+
         authMethod.ApplyMvcFilters(options.Filters);
     }
 

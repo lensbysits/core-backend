@@ -1,4 +1,6 @@
-﻿using Lens.Core.Data.EF.Entities;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Lens.Core.Data.EF.Entities;
 using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Models;
 using LinqKit;
@@ -7,6 +9,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using EFCore = Microsoft.EntityFrameworkCore.EF;
 
 namespace Lens.Core.Data.EF;
@@ -25,7 +28,7 @@ public static class EntityExtensions
     }
 
     public static IQueryable<TEntity> GetByQueryModel<TEntity>(this IQueryable<TEntity> entities, QueryModel queryModel, Expression<Func<TEntity, bool>>? searchPredicate = null)
-       where TEntity : class, IIdEntity
+       where TEntity : class, IEntity
     {
         // apply default filters
         if (typeof(ITagsEntity).IsAssignableFrom(typeof(TEntity)) && !string.IsNullOrEmpty(queryModel.Tag))
@@ -61,8 +64,8 @@ public static class EntityExtensions
             }
         }
 
-        // search by term
-        if (searchPredicate != null && !string.IsNullOrWhiteSpace(queryModel.SearchTerm))
+        // search by predicate
+        if (searchPredicate != null)
         {
             entities = entities.Where(searchPredicate);
         }
@@ -73,15 +76,44 @@ public static class EntityExtensions
         return entities;
     }
 
+    public static async Task<(IQueryable<TEntity> query, int totalSize)> ApplyPaging<TEntity>(this IQueryable<TEntity> entities, QueryModel queryModel)
+    {
+        var totalSize = await entities.CountAsync();
+
+        if (!queryModel.NoLimit)
+        {
+            var pagingQuery = entities
+                .Skip(queryModel.Offset)
+                .Take(queryModel.Limit);
+
+            return (pagingQuery, totalSize);
+        }
+
+        return (entities, totalSize);
+    }
+
+    public static async Task<ResultPagedListModel<TModel>> ToPagedResultListModel<TEntity, TModel>(this (IQueryable<TEntity> query, int totalSize) pagingResult, QueryModel queryModel, IConfigurationProvider configuration)
+    {
+        var result = await pagingResult.query
+            .ProjectTo<TModel>(configuration)
+            .ToListAsync();
+
+        return new ResultPagedListModel<TModel>(result)
+        {
+            TotalSize = pagingResult.totalSize,
+            OriginalQueryModel = queryModel
+        };
+    }
+
     public static void DeleteWhere<TEntity>(this DbSet<TEntity> entities, Expression<Func<TEntity, bool>> predicate)
-        where TEntity : class, IIdEntity
+        where TEntity : class, IEntity
     {
         var entitiesToDelete = entities.Where(predicate);
         entities.DeleteRange(entitiesToDelete);
     }
 
     public static void DeleteRange<TEntity>(this DbSet<TEntity> entities, IQueryable<TEntity> entitiesToDelete)
-        where TEntity : class, IIdEntity
+        where TEntity : class, IEntity
     {
         entities.AttachRange(entitiesToDelete);
         entities.RemoveRange(entitiesToDelete);
