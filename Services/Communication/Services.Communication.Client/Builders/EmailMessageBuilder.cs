@@ -12,6 +12,13 @@ namespace Lens.Services.Communication.Client.Builders
             _communicationMessageBuilder = communicationMessageBuilder;
         }
 
+        public EmailMessageBuilder From(EmailAddressBM from)
+        {
+            if (!string.IsNullOrEmpty(from))
+                _emailInfo.From = from;
+            return this;
+        }
+
         /// <summary>
         /// can be semi-colon delimited.
         /// </summary>

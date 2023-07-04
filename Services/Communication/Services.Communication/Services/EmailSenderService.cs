@@ -27,31 +27,33 @@ public class EmailSenderService : BaseService<EmailSenderService, SendEmailSetti
         }
     }
 
-    public Task<MimeMessage?> Send<TModel>(EmailTemplateBM template, TModel data, string toAddress, string ccAddress, string bccAddress, string subject, IEnumerable<EmailAttachmentBM>? attachments = null)
+    public Task<MimeMessage?> Send<TModel>(EmailTemplateBM template, TModel data,  string toAddress, string ccAddress, string bccAddress, string subject, EmailAddressBM? fromAddress = null, IEnumerable<EmailAttachmentBM>? attachments = null)
     {
         return Send(
             template, 
-            data, 
+            data,
             new[] { new EmailAddressBM { Email = toAddress } },
             new[] { new EmailAddressBM { Email = ccAddress } },
             new[] { new EmailAddressBM { Email = bccAddress } },
-            subject, 
+            subject,
+            fromAddress,
             attachments);
     }
 
-    public Task<MimeMessage?> Send<TModel>(EmailTemplateBM template, TModel data, string toAddress, string ccAddress, string bccAddress, string emailName, string subject, IEnumerable<EmailAttachmentBM>? attachments = null)
+    public Task<MimeMessage?> Send<TModel>(EmailTemplateBM template, TModel data, string toAddress, string ccAddress, string bccAddress, string emailName, string subject, EmailAddressBM? fromAddress = null, IEnumerable<EmailAttachmentBM>? attachments = null)
     {
         return Send(
-            template, 
-            data, 
+            template,
+            data,
             new[] { new EmailAddressBM { Email = toAddress, Name = emailName } },
             new[] { new EmailAddressBM { Email = ccAddress } },
             new[] { new EmailAddressBM { Email = bccAddress } },
-            subject, 
+            subject,
+            fromAddress,
             attachments);
     }
 
-    public async Task<MimeMessage?> Send<TModel>(EmailTemplateBM template, TModel data, IEnumerable<EmailAddressBM> toAddresses, IEnumerable<EmailAddressBM> ccAddresses, IEnumerable<EmailAddressBM> bccAddresses, string subject, IEnumerable<EmailAttachmentBM>? attachments = null)
+    public async Task<MimeMessage?> Send<TModel>(EmailTemplateBM template, TModel data, IEnumerable<EmailAddressBM> toAddresses, IEnumerable<EmailAddressBM> ccAddresses, IEnumerable<EmailAddressBM> bccAddresses, string subject, EmailAddressBM? fromAddress = null, IEnumerable<EmailAttachmentBM>? attachments = null)
     {
         if (!toAddresses?.Any() ?? true)
         {
@@ -74,7 +76,7 @@ public class EmailSenderService : BaseService<EmailSenderService, SendEmailSetti
         }
 
         var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress(Settings.SenderName, Settings.SenderAddress));
+        emailMessage.From.Add(new MailboxAddress(fromAddress.Name ?? Settings.SenderName, fromAddress.Email ?? Settings.SenderAddress));
 
         // Use a fixed email-address when one is provided in the configuration (for dev-purposes)
         var onlySendTo = !string.IsNullOrEmpty(Settings.OnlySendTo);
