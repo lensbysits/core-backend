@@ -1,53 +1,52 @@
-﻿namespace Lens.Core.Data.EF.Providers
+﻿namespace Lens.Core.Data.EF.Providers;
+
+public class RawSqlProvider
 {
-    public class RawSqlProvider
+    private static RawSqlProvider instance = null!;
+    private Dictionary<string, string> createCommands;
+    private List<string> dropCommands;
+
+    private RawSqlProvider()
     {
-        private static RawSqlProvider instance = null!;
-        private Dictionary<string, string> createCommands;
-        private List<string> dropCommands;
+        this.createCommands = new();
+        this.dropCommands = new();
+    }
 
-        private RawSqlProvider()
+    public static RawSqlProvider Instance
+    {
+        get
         {
-            this.createCommands = new();
-            this.dropCommands = new();
-        }
-
-        public static RawSqlProvider Instance
-        {
-            get
+            if (instance == null)
             {
-                if (instance == null)
-                {
-                    instance = new RawSqlProvider();
-                }
-
-                return instance;
+                instance = new RawSqlProvider();
             }
-        }
 
-        public void AddCreateCommand(string fileName, string contents)
-        {
-            if (!this.createCommands.ContainsKey(fileName))
-            {
-                this.createCommands.Add(fileName, contents);
-            }
+            return instance;
         }
+    }
 
-        public void AddDropCommand(string contents)
+    public void AddCreateCommand(string fileName, string contents)
+    {
+        if (!this.createCommands.ContainsKey(fileName))
         {
-            if (!this.dropCommands.Contains(contents))
-            {
-                this.dropCommands.Add(contents);
-            }
+            this.createCommands.Add(fileName, contents);
         }
+    }
 
-        public ICollection<string> GetSqlCommands()
+    public void AddDropCommand(string contents)
+    {
+        if (!this.dropCommands.Contains(contents))
         {
-            var commands = this.dropCommands
-                            .Concat(this.createCommands.Select(c => c.Value))
-                            .SelectMany(v => v.Split("GO", StringSplitOptions.RemoveEmptyEntries))
-                            .ToList();
-            return commands;
+            this.dropCommands.Add(contents);
         }
+    }
+
+    public ICollection<string> GetSqlCommands()
+    {
+        var commands = this.dropCommands
+                        .Concat(this.createCommands.Select(c => c.Value))
+                        .SelectMany(v => v.Split("GO", StringSplitOptions.RemoveEmptyEntries))
+                        .ToList();
+        return commands;
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace Lens.Core.Lib.Exceptions
+﻿namespace Lens.Core.Lib.Exceptions;
+
+public class ApiStartupException : Exception
 {
-    public class ApiStartupException : Exception
+    public ApiStartupException(string message) : base(message)
     {
-        public ApiStartupException(string message) : base(message)
-        {
-        }
     }
 }

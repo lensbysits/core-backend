@@ -1,9 +1,8 @@
-﻿namespace Lens.Core.Data.EF.Configuration
+﻿namespace Lens.Core.Data.EF.Configuration;
+
+public class MigrationSettings
 {
-    public class MigrationSettings
-    {
-        public bool BreakOnMigrationException { get; set; }
-        
-        public bool EnableRawSqlDebug { get; set; }
-    }
+    public bool BreakOnMigrationException { get; set; }
+    
+    public bool EnableRawSqlDebug { get; set; }
 }
