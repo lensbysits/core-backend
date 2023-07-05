@@ -15,14 +15,14 @@ public class ResultModelWrapperFilter : IResultFilter
         switch (context.Result)
         {
             case ObjectResult objectResult:
-            {
-                if (objectResult.Value != null)
                 {
-                    var result = VerifyResult(objectResult.Value);
-                    context.Result = new ObjectResult(result);
+                    if (objectResult.Value != null)
+                    {
+                        var result = VerifyResult(objectResult.Value);
+                        context.Result = new ObjectResult(result);
+                    }
+                    break;
                 }
-                break;
-            }
             default:
                 return;
         }
@@ -59,7 +59,7 @@ public class ResultModelWrapperFilter : IResultFilter
             // Else get the type of the objects in the IEnumerable
             else
             {
-                    if(resultType.IsGenericType)
+                if (resultType.IsGenericType)
                     resultType = resultType.GetGenericArguments()[0];
             }
 

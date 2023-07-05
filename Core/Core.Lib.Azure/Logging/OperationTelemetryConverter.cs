@@ -1,7 +1,6 @@
 ﻿using Microsoft.ApplicationInsights.Channel;
 using Serilog.Events;
 using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
-using System;
 
 namespace Lens.Core.Lib.Azure.Logging;
 

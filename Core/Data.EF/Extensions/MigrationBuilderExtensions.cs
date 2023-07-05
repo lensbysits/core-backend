@@ -1,6 +1,5 @@
 ﻿using Lens.Core.Data.EF.Providers;
 using Microsoft.EntityFrameworkCore.Migrations;
-using System.IO;
 
 namespace Lens.Core.Data.EF;
 

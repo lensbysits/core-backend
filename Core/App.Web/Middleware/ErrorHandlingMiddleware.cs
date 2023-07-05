@@ -40,9 +40,9 @@ public class ErrorHandlingMiddleware
     protected readonly ILogger _logger;
 
     public ErrorHandlingMiddleware(
-        RequestDelegate next, 
-        ILogger<ErrorHandlingMiddleware> logger, 
-        IWebHostEnvironment webHostEnvironment, 
+        RequestDelegate next,
+        ILogger<ErrorHandlingMiddleware> logger,
+        IWebHostEnvironment webHostEnvironment,
         ICorrelationContextAccessor correlationContext,
         IOptions<ApiExceptionHandlingConfig> exceptionHandlingConfig)
     {
@@ -59,7 +59,7 @@ public class ErrorHandlingMiddleware
         {
             await next(context);
         }
-        catch(PublicException ex)
+        catch (PublicException ex)
         {
             await HandleExceptionAsync(context, ex, ex.HttpStatusCode, (isDevelopment, message, exceptionType) =>
             {

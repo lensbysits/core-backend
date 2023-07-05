@@ -10,7 +10,7 @@ public class FilesystemBlobService : BaseService<FilesystemBlobService>, IBlobSe
     private readonly BlobSettings _blobServiceSettings;
 
     public FilesystemBlobService(
-        IApplicationService<FilesystemBlobService> applicationService, 
+        IApplicationService<FilesystemBlobService> applicationService,
         IConfiguration configuration) : base(applicationService)
     {
         _blobServiceSettings = configuration.GetSection(nameof(BlobSettings)).Get<BlobSettings>();
@@ -20,7 +20,7 @@ public class FilesystemBlobService : BaseService<FilesystemBlobService>, IBlobSe
     {
         var root = _blobServiceSettings.ContainerPath ?? string.Empty;
         var path = Path.Combine(root, relativePathAndName);
-        
+
         if (File.Exists(path))
         {
             File.Delete(path);
@@ -38,7 +38,7 @@ public class FilesystemBlobService : BaseService<FilesystemBlobService>, IBlobSe
     {
         var root = _blobServiceSettings.ContainerPath ?? string.Empty;
         var path = Path.Combine(root, relativePathAndName);
-        
+
         return await Task.FromResult(File.OpenRead(path));
     }
 
@@ -55,9 +55,9 @@ public class FilesystemBlobService : BaseService<FilesystemBlobService>, IBlobSe
     {
         var root = _blobServiceSettings.ContainerPath ?? string.Empty;
         var path = Path.Combine(root, relativePathAndName);
-        
-        return File.Exists(path) 
-            ? await Task.FromResult(path.Replace(root, "~").Replace("\\", "/")) 
+
+        return File.Exists(path)
+            ? await Task.FromResult(path.Replace(root, "~").Replace("\\", "/"))
             : await Task.FromResult(string.Empty);
     }
 
@@ -73,16 +73,16 @@ public class FilesystemBlobService : BaseService<FilesystemBlobService>, IBlobSe
             Directory.CreateDirectory(folderPath);
         }
         var filePath = Path.Combine(folderPath, newFileName);
-        
+
         using (var fileStream = new FileStream(filePath, FileMode.Create))
         {
             await stream.CopyToAsync(fileStream);
         }
 
-        return new BlobMetadataModel 
-        { 
+        return new BlobMetadataModel
+        {
             RelativePathAndName = Path.Combine(relativePath, newFileName),
-            FullPathAndName = filePath 
+            FullPathAndName = filePath
         };
     }
 

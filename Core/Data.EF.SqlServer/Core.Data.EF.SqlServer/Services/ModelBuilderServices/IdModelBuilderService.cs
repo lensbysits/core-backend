@@ -8,7 +8,7 @@ public class IdModelBuilderService : IModelBuilderService
 {
     public void ConfigureBaseProperties(Type entityType, EntityTypeBuilder builder)
     {
-        
+
         if (!typeof(IIdEntity).IsAssignableFrom(entityType)) return;
 
         // IId entity

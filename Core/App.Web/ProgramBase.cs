@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Lens.Core.App.Web;
 
-public abstract class ProgramBase<TStartup> : ProgramBase where TStartup: class
+public abstract class ProgramBase<TStartup> : ProgramBase where TStartup : class
 {
     public static Task<int> Start(string[] args) => Start(args, CreateWebHostBuilder);
 

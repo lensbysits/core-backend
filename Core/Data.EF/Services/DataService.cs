@@ -21,7 +21,7 @@ public abstract class DataService<TService, TEntity, TDbContext> : BaseService<T
         ApplicationDbContext = applicationDbContext;
     }
 
-    protected async Task<ResultListModel<TModel>> Get<TModel>(QueryModel queryModel, Expression<Func<TEntity, bool>>? searchPredicate = null, 
+    protected async Task<ResultListModel<TModel>> Get<TModel>(QueryModel queryModel, Expression<Func<TEntity, bool>>? searchPredicate = null,
         Expression<Func<TEntity, bool>>? filterPredicate = null)
     {
         var entities = ApplicationDbContext.Set<TEntity>().AsQueryable();
@@ -35,7 +35,7 @@ public abstract class DataService<TService, TEntity, TDbContext> : BaseService<T
         var result = await filteredEntitites
             .ToResultList<TEntity, TModel>(queryModel, ApplicationService.Mapper);
         ApplicationService.Logger.LogInformation($"Returned {result.Value?.Count()} model items.");
-        
+
         return result;
     }
 
@@ -105,7 +105,7 @@ public abstract class DataService<TService, TEntity, TDbContext> : BaseService<T
     protected async Task HardDelete(Expression<Func<TEntity, bool>> filterPredicate)
     {
         ApplicationDbContext.Set<TEntity>().DeleteWhere(filterPredicate);
-        
+
         await ApplicationDbContext.SaveChangesAsync();
         ApplicationService.Logger.LogInformation(LoggingEvents.DeleteItem, $"Hard deleted multiple entities of type {typeof(TEntity).Name} by user '{ApplicationService.UserContext.Username}'");
     }

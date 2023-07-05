@@ -9,7 +9,7 @@ namespace Lens.Core.Blob;
 
 public static class IApplicationSetupBuilderExtensions
 {
-    public static IApplicationSetupBuilder AddBlobManagementService(this IApplicationSetupBuilder builder, 
+    public static IApplicationSetupBuilder AddBlobManagementService(this IApplicationSetupBuilder builder,
         BlobImplementationType blobImplementationType,
         string connectionStringName = "DefaultConnection",
         string connectionStringPassword = "dbPassword")

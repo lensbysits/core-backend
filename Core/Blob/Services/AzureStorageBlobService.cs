@@ -44,8 +44,8 @@ public class AzureStorageBlobService : BaseService<AzureStorageBlobService>, IBl
         var response = await blobClient.DownloadToAsync(fStream);
 
         return new BlobDownloadResultModel(
-                    fStream, 
-                    response.Headers.ContentType!, 
+                    fStream,
+                    response.Headers.ContentType!,
                     response.Headers.ContentLength);
     }
 

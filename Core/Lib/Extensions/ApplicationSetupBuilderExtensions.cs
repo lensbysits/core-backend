@@ -6,7 +6,7 @@ namespace Lens.Core.Lib;
 
 public static class ApplicationSetupBuilderExtensions
 {
-    public static IApplicationSetupBuilder AddProgramInitializer<T>(this IApplicationSetupBuilder applicationSetup) 
+    public static IApplicationSetupBuilder AddProgramInitializer<T>(this IApplicationSetupBuilder applicationSetup)
         where T : class, IProgramInitializer
     {
         applicationSetup.Services.AddTransient<IProgramInitializer, T>();
@@ -48,7 +48,7 @@ public static class ApplicationSetupBuilderExtensions
     /// Add a HttpClient Service without getting a bearer-token from the configured IdentityServer
     /// This method should be only used for testing-purpose.
     /// </summary>
-    public static IApplicationSetupBuilder AddHttpClientServiceWithoutToken<TClient, TImplementation>(this IApplicationSetupBuilder applicationSetup, 
+    public static IApplicationSetupBuilder AddHttpClientServiceWithoutToken<TClient, TImplementation>(this IApplicationSetupBuilder applicationSetup,
         string? baseUri = null)
         where TClient : class
         where TImplementation : class, TClient
@@ -63,7 +63,7 @@ public static class ApplicationSetupBuilderExtensions
     /// <summary>
     /// Add a HttpClient Service that gets a bearer-token from the configured IdentityServer
     /// </summary>
-    public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation>(this IApplicationSetupBuilder builder, 
+    public static IApplicationSetupBuilder AddHttpClientService<TClient, TImplementation>(this IApplicationSetupBuilder builder,
         Action<HttpClient>? configureClient = null)
         where TClient : class
         where TImplementation : class, TClient

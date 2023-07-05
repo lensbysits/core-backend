@@ -11,7 +11,7 @@ public class RecordStateModelBuilderService : IModelBuilderService
     {
         // RecordState
         if (!typeof(IRecordStateEntity).IsAssignableFrom(entityType)) return;
-        
+
         builder
             .Property<RecordStateEnum>(ShadowProperties.RecordState)
             .HasDefaultValue(RecordStateEnum.NotDefined);

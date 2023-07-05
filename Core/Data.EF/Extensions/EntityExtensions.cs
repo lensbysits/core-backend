@@ -9,7 +9,6 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using EFCore = Microsoft.EntityFrameworkCore.EF;
 
 namespace Lens.Core.Data.EF;

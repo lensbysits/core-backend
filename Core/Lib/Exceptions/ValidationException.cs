@@ -3,7 +3,7 @@
 namespace Lens.Core.Lib.Exceptions;
 
 public class ValidationException : PublicException
-{ 
+{
     public ValidationException(string message) : base(message)
     {
         this.HttpStatusCode = HttpStatusCode.UnprocessableEntity;

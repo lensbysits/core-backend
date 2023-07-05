@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Lens.Core.Blob.Models;
+﻿namespace Lens.Core.Blob.Models;
 
 public class BlobDownloadResultModel
 {

@@ -1,5 +1,4 @@
 ﻿using Lens.Core.App.Web.Authentication;
-using System;
 
 namespace Lens.Core.App.Web;
 

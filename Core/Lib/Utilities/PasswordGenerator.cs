@@ -127,7 +127,7 @@ public static class PasswordGenerator
 
         // Generate 4 random bytes.
         rng.GetNonZeroBytes(randomBytes);
-        
+
         // Convert 4 bytes into a 32-bit integer value.
         int seed = (randomBytes[0] & 0x7f) << 24 |
                     randomBytes[1] << 16 |

@@ -3,7 +3,7 @@
 public class OAuthClientSettings : Dictionary<string, OAuthClientSetting>
 {
 }
-    
+
 public class OAuthClientSetting
 {
     public string? Authority { get; set; }

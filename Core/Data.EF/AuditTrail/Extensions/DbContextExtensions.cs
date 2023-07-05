@@ -24,7 +24,7 @@ public static class DbContextExtensions
         foreach (var entry in trackedEntities)
         {
             if (entry.Entity is not IAuditTrailEntity) continue;
-            
+
             changes.Add(LogChanges(entry, userContext, changeReason, changeToken));
         }
 
@@ -35,7 +35,7 @@ public static class DbContextExtensions
     private static EntityChangeModel LogChanges(EntityEntry entry, IUserContext? userContext, string? changeReason, Guid changeToken)
     {
         var idPropertyName = entry.Metadata.FindPrimaryKey()?.Properties[0]?.Name ?? "Id";
-        
+
         return new EntityChangeModel
         {
             ChangeType = entry.State.ToString(),
@@ -72,8 +72,8 @@ public static class DbContextExtensions
 
     private static EntityChangeProperty? GetPropertyChange(PropertyEntry prop)
     {
-        var hasNonAuditAttribute = 
-            prop.Metadata.PropertyInfo != null 
+        var hasNonAuditAttribute =
+            prop.Metadata.PropertyInfo != null
             && prop.Metadata.PropertyInfo.GetCustomAttributes(typeof(NonAuditAttribute), false).Any();
 
         switch (prop.EntityEntry.State)

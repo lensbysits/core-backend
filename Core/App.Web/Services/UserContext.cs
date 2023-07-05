@@ -29,7 +29,7 @@ public class UserContext : IUserContext
     }
 
     public string? Email => ClaimValue<string>("email");
-    
+
     public T? ClaimValue<T>(string claim)
     {
         var value = UserClaims?.Claims?.FirstOrDefault(c => c.Type == claim)?.Value;
@@ -41,7 +41,7 @@ public class UserContext : IUserContext
 
     public ICollection<T?> ClaimValues<T>(string claim)
     {
-        if(UserClaims == null || UserClaims.Claims == null)
+        if (UserClaims == null || UserClaims.Claims == null)
         {
             return new List<T?>();
         }
@@ -64,5 +64,5 @@ public class UserContext : IUserContext
     public bool IsInRole(string role)
     {
         return UserClaims != null && UserClaims.IsInRole(role);
-    }    
+    }
 }

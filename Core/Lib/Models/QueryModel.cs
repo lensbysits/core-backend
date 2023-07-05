@@ -42,7 +42,7 @@ public class QueryModel
         get
         {
             List<string> queryStringSegments = new();
-                
+
             queryStringSegments.Add($"{nameof(Offset)}={Offset}");
             queryStringSegments.Add($"{nameof(Limit)}={Limit}");
             queryStringSegments.Add($"{nameof(NoLimit)}={NoLimit}");

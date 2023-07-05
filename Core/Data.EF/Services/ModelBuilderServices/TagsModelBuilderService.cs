@@ -12,6 +12,6 @@ public class TagsModelBuilderService : IModelBuilderService
         // Tags
         builder
             .Property<string>(ShadowProperties.Tag)
-            .HasMaxLength(2048); 
+            .HasMaxLength(2048);
     }
 }

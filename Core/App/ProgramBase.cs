@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Core;
 
 namespace Lens.Core.App;
 
@@ -136,7 +135,7 @@ public class ProgramBase
             {
                 await initializer.Initialize();
             }
-            catch(ApiStartupException ase)
+            catch (ApiStartupException ase)
             {
                 logger?.LogError(ase, "Error running initializer {initializer}", initializer.GetType().Name);
                 throw;

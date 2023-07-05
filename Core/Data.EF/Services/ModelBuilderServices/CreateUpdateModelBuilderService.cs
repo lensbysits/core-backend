@@ -8,7 +8,7 @@ public class CreateUpdateModelBuilderService : IModelBuilderService
 {
     public void ConfigureBaseProperties(Type entityType, EntityTypeBuilder builder)
     {
-        
+
         if (!typeof(ICreatedUpdatedEntity).IsAssignableFrom(entityType)) return;
 
         // Created/Updated On/By

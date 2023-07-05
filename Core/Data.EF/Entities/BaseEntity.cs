@@ -10,7 +10,7 @@ public abstract class BaseEntity : IBaseEntity
 
 public abstract class BaseEntityWithImage : BaseEntity, IImageEntity
 {
-    [NonAudit] 
+    [NonAudit]
     [MaxLength(1024 * 1024)]
     public byte[]? Image { get; set; }
 

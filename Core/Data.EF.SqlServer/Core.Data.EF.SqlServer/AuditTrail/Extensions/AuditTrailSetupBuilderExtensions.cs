@@ -9,8 +9,8 @@ namespace Lens.Core.Data.EF.AuditTrail;
 
 public static class AuditTrailSetupBuilderExtensions
 {
-    public static IApplicationSetupBuilder AddAuditTrailing(this IApplicationSetupBuilder builder, 
-        string connectionStringName = "DefaultConnection", 
+    public static IApplicationSetupBuilder AddAuditTrailing(this IApplicationSetupBuilder builder,
+        string connectionStringName = "DefaultConnection",
         string connectionStringPassword = "dbPassword",
         Action<IServiceProvider, DbContextOptionsBuilder>? dbContextOptions = null)
     {
@@ -18,8 +18,8 @@ public static class AuditTrailSetupBuilderExtensions
             .AddProgramInitializer<AuditTrailInitializerService>()
             .AddAssemblies(typeof(AutoMapperProfile).Assembly)
             .AddSqlServerDatabase<AuditTrailDbContext>(
-                connectionStringName, 
-                connectionStringPassword, 
+                connectionStringName,
+                connectionStringPassword,
                 typeof(AuditTrailSetupBuilderExtensions).Assembly,
                 dbContextOptions)
             .Services

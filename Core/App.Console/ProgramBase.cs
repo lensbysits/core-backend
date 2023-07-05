@@ -14,7 +14,7 @@ public abstract class ProgramBase : App.ProgramBase
                 .UseConsoleLifetime()
                 .ConfigureServices((context, services) =>
                 {
-                    var applicationSetup = new ApplicationSetupBuilder (services, context.Configuration);
+                    var applicationSetup = new ApplicationSetupBuilder(services, context.Configuration);
                     ApplicationSetup?.Invoke(context, applicationSetup);
                     applicationSetup.AddApplicationServices();
                 });

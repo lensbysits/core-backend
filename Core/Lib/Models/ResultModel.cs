@@ -6,7 +6,7 @@ public static class ResultModel
 {
     public static IResultModel From<T>(T value)
     {
-        return new ResultModel<T> {  Value = value };
+        return new ResultModel<T> { Value = value };
     }
 
     public static IResultModel From<T>(IEnumerable<T> value)

@@ -73,12 +73,12 @@ public class BlobManagementService : BaseService<BlobManagementService>, IBlobMa
     {
         var blobEntity = await _blobDbContext.BlobInfos.GetById(blobInfoId);
         bool canDeleteBlobInfo = true;
-        
+
         if (!blobEntity.SkipFileDeletion)
         {
             canDeleteBlobInfo = await _blobService.DeleteBlob(blobEntity.RelativePathAndName);
         }
-        
+
         if (canDeleteBlobInfo)
         {
             _blobDbContext.BlobInfos.Remove(blobEntity);

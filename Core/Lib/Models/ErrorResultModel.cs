@@ -22,7 +22,7 @@ public class ErrorResultModel : ResultModel<object?>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("errorType")]
     public string? ErrorType { get; set; }
-    
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("errorCode")]
     public string? ErrorCode { get; set; }
@@ -43,7 +43,7 @@ public class ErrorResultModel : ResultModel<object?>
     [JsonPropertyName("data")]
     public IDictionary? Data { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("dataDetails")]
     public Dictionary<string, object>? DataDetails { get; set; }
 }

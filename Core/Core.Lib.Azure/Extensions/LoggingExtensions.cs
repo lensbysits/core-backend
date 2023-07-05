@@ -3,7 +3,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Configuration;
-using Serilog.Events;
 
 namespace Lens.Core.Lib.Azure.Extensions;
 

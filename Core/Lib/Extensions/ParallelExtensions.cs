@@ -41,7 +41,7 @@ public static class ParallelExtensions
                 .Select(AwaitPartition));
     }
 
-    public static Task AsyncParallelForEach<T>(this IEnumerable<T> source, Func<T, Task> body, int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, 
+    public static Task AsyncParallelForEach<T>(this IEnumerable<T> source, Func<T, Task> body, int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded,
         TaskScheduler? scheduler = null)
     {
         var options = new ExecutionDataflowBlockOptions
@@ -61,7 +61,7 @@ public static class ParallelExtensions
     }
 
 #pragma warning disable AsyncFixer01 // Unnecessary async/await usage
-    public static async Task AsyncParallelForEach<T>(this IAsyncEnumerable<T> source, Func<T, Task> body, int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded, 
+    public static async Task AsyncParallelForEach<T>(this IAsyncEnumerable<T> source, Func<T, Task> body, int maxDegreeOfParallelism = DataflowBlockOptions.Unbounded,
         TaskScheduler? scheduler = null)
     {
         var options = new ExecutionDataflowBlockOptions

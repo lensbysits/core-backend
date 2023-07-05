@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Nodes;
-using Lens.Core.App.Web.Authentication;
+﻿using Lens.Core.App.Web.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Nodes;
 
 namespace Lens.Core.App.Web;
 
@@ -61,45 +61,45 @@ public static class ServiceCollectionExtensions
 
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo 
-            { 
-                Title = swaggerSettings?.AppName ?? "Protected API", 
-                Version = "v1" 
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = swaggerSettings?.AppName ?? "Protected API",
+                Version = "v1"
             });
 
-                foreach(var definition in swaggerSettings?.ExtraDefinitions ?? new())
+            foreach (var definition in swaggerSettings?.ExtraDefinitions ?? new())
+            {
+                options.SwaggerDoc(definition.GroupName, new OpenApiInfo
                 {
-                    options.SwaggerDoc(definition.GroupName, new OpenApiInfo
-                    {
-                        Title = definition.AppName,
-                        Version = definition.VersionInfo
-                    });
-                }                
-
-                options.DocInclusionPredicate((docName, api) =>
-                {
-                    // if we have a groupname on the endpoint (set by ApiExplorerSettingsAttribute)
-                    // the Groupname must equal the current docName
-                    if (!string.IsNullOrWhiteSpace(api.GroupName))
-                    {
-                        var groups = api.GroupName.ToLowerInvariant().Split('|', StringSplitOptions.RemoveEmptyEntries);
-                        return groups.Contains(docName.ToLowerInvariant());
-                    }
-
-                    // for backwards compatibility we return all endpoints
-                    // if the document is v1
-                    return docName.Equals("v1");
+                    Title = definition.AppName,
+                    Version = definition.VersionInfo
                 });
+            }
 
-                if (!string.IsNullOrEmpty(swaggerSettings?.ApiHostname))
+            options.DocInclusionPredicate((docName, api) =>
+            {
+                // if we have a groupname on the endpoint (set by ApiExplorerSettingsAttribute)
+                // the Groupname must equal the current docName
+                if (!string.IsNullOrWhiteSpace(api.GroupName))
                 {
-                    options.AddServer(new OpenApiServer
-                    {
-                        Url = swaggerSettings.ApiHostname
-                    });
+                    var groups = api.GroupName.ToLowerInvariant().Split('|', StringSplitOptions.RemoveEmptyEntries);
+                    return groups.Contains(docName.ToLowerInvariant());
                 }
 
-            
+                // for backwards compatibility we return all endpoints
+                // if the document is v1
+                return docName.Equals("v1");
+            });
+
+            if (!string.IsNullOrEmpty(swaggerSettings?.ApiHostname))
+            {
+                options.AddServer(new OpenApiServer
+                {
+                    Url = swaggerSettings.ApiHostname
+                });
+            }
+
+
             options.EnableAnnotations();
 
             if (!string.IsNullOrEmpty(swaggerSettings?.XMLCommentsPath))
@@ -107,7 +107,8 @@ public static class ServiceCollectionExtensions
                 if (File.Exists(swaggerSettings.XMLCommentsPath))
                 {
                     options.IncludeXmlComments(swaggerSettings.XMLCommentsPath);
-                } else if (File.Exists(Path.Combine(AppContext.BaseDirectory, swaggerSettings.XMLCommentsPath)))
+                }
+                else if (File.Exists(Path.Combine(AppContext.BaseDirectory, swaggerSettings.XMLCommentsPath)))
                 {
                     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, swaggerSettings.XMLCommentsPath));
                 }

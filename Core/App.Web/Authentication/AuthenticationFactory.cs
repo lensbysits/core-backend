@@ -24,7 +24,7 @@ internal static class AuthenticationFactory
         switch (type)
         {
             case AuthenticationMethod.OAuth2:
-                return InitializeAuthenticationMethod(type, 
+                return InitializeAuthenticationMethod(type,
                     () => new OAuth2Authentication<OAuthSettings>(authSection.Get<OAuthSettings>()));
 
             case AuthenticationMethod.ApiKey:
@@ -32,7 +32,7 @@ internal static class AuthenticationFactory
                     () => new ApiKeyAuthentication<ApiKeyAuthSettings>(authSection.Get<ApiKeyAuthSettings>()));
 
             case AuthenticationMethod.AzureAd:
-                return InitializeAuthenticationMethod(type, 
+                return InitializeAuthenticationMethod(type,
                     () => new AzureAuthentication<AzureAuthSettings>(authSection.Get<AzureAuthSettings>(), configuration));
 
             default:

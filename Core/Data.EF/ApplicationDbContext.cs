@@ -10,12 +10,12 @@ using EFCore = Microsoft.EntityFrameworkCore.EF;
 namespace Lens.Core.Data.EF;
 
 public class ApplicationDbContext : DbContext
-{   
+{
     private readonly Guid _tenantId;
     private readonly IUserContext? _userContext;
     private readonly IAuditTrailService? _auditTrailService;
     private readonly IEnumerable<IModelBuilderService> _modelBuilders;
-    private static readonly MethodInfo SetGlobalQueryForTenantMethodInfo = 
+    private static readonly MethodInfo SetGlobalQueryForTenantMethodInfo =
         typeof(ApplicationDbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance)
         .Single(t => t.IsGenericMethod && t.Name == "SetGlobalQueryForTenant");
 
@@ -58,7 +58,7 @@ public class ApplicationDbContext : DbContext
             // TODO: JST - 16-08-2022 - Check if indeed also works on other databases. In that case, this check is not needed
             // If this does not work for other databases, this method should move to a database-specific library.
             //if (!Database.IsSqlServer()) return;
-            
+
             foreach (var service in _modelBuilders)
             {
                 service.ConfigureBaseProperties(entityType, builder);
@@ -117,7 +117,7 @@ public class ApplicationDbContext : DbContext
     private void SetCreatedUpdatedFields()
     {
         List<EntityState> trackedEntityStates = new() { EntityState.Added, EntityState.Deleted, EntityState.Modified };
-        
+
         // setup Updated fields
         ChangeTracker.Entries()
             .Where(e => trackedEntityStates.Contains(e.State) && e.Entity is ICreatedUpdatedEntity)

@@ -44,7 +44,7 @@ public class ResultPagedListModel<TValue> : ResultListModel<TValue>
     /// PageSize, PageIndex, SortingProperty, SortingDirection.
     /// </summary>
     private QueryModel? originalQueryModel;
-    public QueryModel? OriginalQueryModel 
+    public QueryModel? OriginalQueryModel
     {
         get => originalQueryModel;
         set

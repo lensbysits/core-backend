@@ -28,7 +28,7 @@ public abstract class BaseRepository<TDbContext> : IRepository<TDbContext>
     public virtual Task<IEnumerable<TModel>> Get<TModel>(Expression<Func<TModel, int, bool>>? predicate = null) { return Task.FromResult<IEnumerable<TModel>>(default!); }
 }
 
-public abstract class BaseRepository<TDbContext, TEntity>: BaseRepository<TDbContext>, IRepository
+public abstract class BaseRepository<TDbContext, TEntity> : BaseRepository<TDbContext>, IRepository
     where TDbContext : ApplicationDbContext
     where TEntity : class, IIdEntity
 {
@@ -67,9 +67,9 @@ public abstract class BaseRepository<TDbContext, TEntity>: BaseRepository<TDbCon
         IQueryable<TModel> query = DbContext.Set<TEntity>()
             .ProjectTo<TModel>(ApplicationService.Mapper.ConfigurationProvider);
 
-        if(predicate != null)
+        if (predicate != null)
             query.Where(predicate);
-        
+
         var result = await query.ToListAsync();
 
         return result;

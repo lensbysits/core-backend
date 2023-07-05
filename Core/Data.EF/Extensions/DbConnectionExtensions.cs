@@ -8,7 +8,7 @@ public static class DbConnectionExtensions
     {
         var connectionString = connection.ConnectionString;
         var passwordStartIndex = connectionString.IndexOf(passwordPropertyName);
-        if(passwordStartIndex == -1)
+        if (passwordStartIndex == -1)
         {
             return connectionString;
         }

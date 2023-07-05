@@ -8,7 +8,7 @@ namespace Lens.Core.Blob;
 
 public static class IApplicationSetupBuilderExtensions
 {
-    public static IApplicationSetupBuilder AddBlobService(this IApplicationSetupBuilder builder, 
+    public static IApplicationSetupBuilder AddBlobService(this IApplicationSetupBuilder builder,
         BlobImplementationType blobImplementationType)
     {
         var blobSettings = builder.Configuration.GetSection(nameof(BlobSettings)).Get<BlobSettings>();
