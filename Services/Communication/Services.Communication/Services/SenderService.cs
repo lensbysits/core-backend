@@ -31,7 +31,8 @@ public class SenderService : BaseService<SenderService>, ISenderService
                     sendInfo.Email.To, 
                     sendInfo.Email.CC, 
                     sendInfo.Email.BCC, 
-                    sendInfo.Email.Subject);
+                    sendInfo.Email.Subject,
+                    sendInfo.Email.From);
             }
             catch (Exception e)
             {
