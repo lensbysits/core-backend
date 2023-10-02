@@ -24,21 +24,19 @@ public static class ApplicationBuilderExtensions
     {
         var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
 
-        if (swaggerSettings is null)
+        if (swaggerSettings != null)
         {
-            return appBuilder.UseSwagger();
-        }
-
-        appBuilder.UseSwagger(options =>
-        {
-                options.RouteTemplate = "swagger/{documentName}/swagger.json";
-
-            //Nintex only supports version 2 for now: https://help.nintex.com/en-US/xtensions/04_Reference/REF_KnownIssues.htm
-            if (!string.IsNullOrEmpty(swaggerSettings.OpenAPIVersion) && swaggerSettings.OpenAPIVersion.Equals("2"))
+            appBuilder.UseSwagger(options =>
             {
-                options.SerializeAsV2 = true;
-            }
-        });
+                    options.RouteTemplate = "swagger/{documentName}/swagger.json";
+
+                //Nintex only supports version 2 for now: https://help.nintex.com/en-US/xtensions/04_Reference/REF_KnownIssues.htm
+                if (!string.IsNullOrEmpty(swaggerSettings.OpenAPIVersion) && swaggerSettings.OpenAPIVersion.Equals("2"))
+                {
+                    options.SerializeAsV2 = true;
+                }
+            });
+        }
 
         return appBuilder;
     }
@@ -48,11 +46,8 @@ public static class ApplicationBuilderExtensions
         var swaggerSettings = configuration.GetSection(nameof(SwaggerSettings)).Get<SwaggerSettings>();
         var authMethod = AuthenticationFactory.GetAuthenticationMethod(configuration);
 
-        if (swaggerSettings is null)
+        if (swaggerSettings != null)
         {
-            return appBuilder.UseSwaggerUI();
-        }
-
             appBuilder.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("swagger/v1/swagger.json", swaggerSettings?.AppName ?? "API V1");
@@ -65,7 +60,8 @@ public static class ApplicationBuilderExtensions
                 options.RoutePrefix = string.Empty;
 
             authMethod.UseSwaggerUI(options, swaggerSettings!);
-        });
+            });
+        }
         return appBuilder;
     }
 }
