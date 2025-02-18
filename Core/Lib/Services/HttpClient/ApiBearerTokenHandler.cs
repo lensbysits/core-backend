@@ -1,4 +1,5 @@
-﻿using IdentityModel.Client;
+﻿using Duende.IdentityModel.Client;
+using Lens.Core.Lib.Exceptions;
 
 namespace Lens.Core.Lib.Services;
 
@@ -17,10 +18,11 @@ public class ApiBearerTokenHandler : DelegatingHandler
         CancellationToken cancellationToken)
     {
         // request the access token
-        var accessToken = await _oAuthClientService.GetBearerToken(ClientName ?? throw new ArgumentNullException(nameof(ClientName)));
+        var accessToken = await _oAuthClientService.GetBearerToken(ClientName ?? throw new ArgumentNullException(nameof(ClientName))) 
+            ?? throw new UnauthorizedException($"Couldn't retrieve the token for the client '{ClientName}'");
 
-        // set the bearer token to the outgoing request
-        request.SetBearerToken(accessToken);
+		// set the bearer token to the outgoing request
+		request.SetBearerToken(accessToken);
 
         // Proceed calling the inner handler, that will actually send the request
         // to our protected api
