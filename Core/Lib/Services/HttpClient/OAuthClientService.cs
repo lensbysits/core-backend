@@ -1,4 +1,4 @@
-﻿using IdentityModel.Client;
+﻿using Duende.IdentityModel.Client;
 using Lens.Core.Lib.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -46,7 +46,7 @@ public class OAuthClientService : IOAuthClientService
             Address = clientSettings.Authority,
             Policy =
             {
-                Authority = clientSettings.Authority,
+                Authority = clientSettings.Authority!,
                 ValidateEndpoints = false,
                 RequireHttps = clientSettings.RequireHttps,
             }
@@ -65,7 +65,7 @@ public class OAuthClientService : IOAuthClientService
         {
             Address = disco.TokenEndpoint,
 
-            ClientId = clientSettings.ClientId,
+            ClientId = clientSettings.ClientId!,
             ClientSecret = clientSettings.ClientSecret,
             Scope = clientSettings.Scope
         });
