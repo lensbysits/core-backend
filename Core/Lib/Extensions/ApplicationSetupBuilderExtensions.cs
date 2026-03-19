@@ -23,24 +23,7 @@ public static class ApplicationSetupBuilderExtensions
         {
             applicationSetup.Services
                 .Configure<OAuthClientSettings>(applicationSetup.Configuration.GetSection(nameof(OAuthClientSettings)))
-                .AddDistributedMemoryCache()
                 .AddScoped<IOAuthClientTokenService, OAuthClientTokenService>();
-
-            var _clientBuilder = applicationSetup.Services.AddClientCredentialsTokenManagement();
-
-            var section = applicationSetup.Configuration.GetSection(nameof(OAuthClientSettings));
-            foreach (var item in section.GetChildren())
-            {
-                var clientSettings = item.Get<OAuthClientSetting>();
-                _clientBuilder.AddClient(item.Key, client =>
-                {
-                    client.TokenEndpoint = clientSettings.Authority + "/oauth2/token";
-                    client.ClientId = clientSettings.ClientId;
-                    client.ClientSecret = clientSettings.ClientSecret;
-                    client.Scope = clientSettings.Scope;
-                    client.Resource = string.Join(' ', (clientSettings.Resources ?? new List<string>())).Trim();
-                });
-            }
         }
 
         return applicationSetup;
@@ -54,11 +37,14 @@ public static class ApplicationSetupBuilderExtensions
         where TClient : class
         where TImplementation : class, TClient
     {
-        applicationSetup.Services.AddHttpClient<TClient, TImplementation>(client =>
-        {
-            client.BaseAddress = new Uri(baseUri ?? string.Empty);
-        })
-        .AddClientCredentialsTokenHandler(clientName);
+        applicationSetup.AddHttpClientService<TClient, TImplementation, ApiBearerTokenHandler>(
+            client => client.BaseAddress = new Uri(baseUri ?? string.Empty),
+            serviceProvider =>
+            {
+                var handler = ActivatorUtilities.CreateInstance<ApiBearerTokenHandler>(serviceProvider);
+                handler.ClientName = clientName;
+                return handler;
+            });
 
         return applicationSetup;
     }

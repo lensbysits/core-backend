@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Lens.Core.App.Web.Authentication;
@@ -33,15 +33,10 @@ internal class ApiKeyAuthentication<T> : AuthenticationBase<T> where T : ApiKeyA
             Description = "API Key Authentication",
         });
 
-        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+
+        options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
         {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
-                },
-                Array.Empty<string>()
-            }
+            [new OpenApiSecuritySchemeReference("ApiKey", document)] = new List<string>()
         });
     }
 

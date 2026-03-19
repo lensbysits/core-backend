@@ -30,11 +30,6 @@ public static class ApplicationBuilderExtensions
           {
             options.RouteTemplate = "swagger/{documentName}/swagger.json";
 
-            //Nintex only supports version 2 for now: https://help.nintex.com/en-US/xtensions/04_Reference/REF_KnownIssues.htm
-            if (!string.IsNullOrEmpty(swaggerSettings.OpenAPIVersion) && swaggerSettings.OpenAPIVersion.Equals("2"))
-            {
-                options.SerializeAsV2 = true;
-            }
           });
         }
 

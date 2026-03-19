@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Lens.Core.App.Web;
 
@@ -125,10 +125,10 @@ public static class ServiceCollectionExtensions
             // custom strategy to pick a winner or merge the descriptions for the purposes of the Swagger docs
             options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 
-            options.MapType<FileResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
-            options.MapType<FileStreamResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
-            options.MapType<FileContentResult>(() => new OpenApiSchema { Type = "file", Format = "binary" });
-            options.MapType<JsonNode>(() => new OpenApiSchema { Type = "object" });
+            options.MapType<FileResult>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "binary" });
+            options.MapType<FileStreamResult>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "binary" });
+            options.MapType<FileContentResult>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "binary" });
+            options.MapType<JsonNode>(() => new OpenApiSchema { Type = JsonSchemaType.Object });
 
             if (swaggerSettings != null)
             {

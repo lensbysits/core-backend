@@ -3,6 +3,7 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <UserSecretsId>3adbdddd-8d66-4371-a7c7-a2cf3bf18559</UserSecretsId>
+        <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
