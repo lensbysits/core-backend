@@ -56,16 +56,17 @@ public class StartupBase
             .AddCors(Configuration)
             .AddSwagger(Configuration);
 
-        var mvcBuilder = applicationSetup.ControllerOptions.UsingViews ?
-            services.AddControllersWithViews(options => ConfigureControllers(options, applicationSetup)) :
-            services.AddControllers(options => ConfigureControllers(options, applicationSetup));
-
-        mvcBuilder.AddJsonOptions(options => ConfigureJsonOptions(options, applicationSetup));
         services.Configure<ApiExceptionHandlingConfig>(option => Configuration.Bind(nameof(ApiExceptionHandlingConfig), option));
 
         applicationSetup.AddApplicationServices();
 
         OnSetupApplication(applicationSetup);
+
+        var mvcBuilder = applicationSetup.ControllerOptions.UsingViews ?
+            services.AddControllersWithViews(options => ConfigureControllers(options, applicationSetup)) :
+            services.AddControllers(options => ConfigureControllers(options, applicationSetup));
+
+        mvcBuilder.AddJsonOptions(options => ConfigureJsonOptions(options, applicationSetup));
 
         services.AddAuthentication(Configuration, applicationSetup.AuthOptions.AuthorizationOptions);
 
