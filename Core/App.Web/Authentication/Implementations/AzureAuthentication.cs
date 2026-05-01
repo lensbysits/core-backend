@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
+using System.Security.Claims;
 using System.Text;
 
 namespace Lens.Core.App.Web.Authentication;
@@ -16,6 +17,8 @@ internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureA
     private const string ScopePolicyName = "ApiScopePolicy";
     private const string RolePolicyName = "ApiRolePolicy";
     private const string ScopeOrRolePolicyName = "ApiScopeOrRolePolicy";
+    private static readonly string[] ScopeClaimTypes = { ClaimConstants.Scope, ClaimConstants.Scp, "scp" };
+    private static readonly string[] RoleClaimTypes = { ClaimConstants.Role, ClaimConstants.Roles, ClaimTypes.Role, "roles", "role", "Role Name" };
     private readonly IConfiguration configuration;
 
     public AzureAuthentication(T authSettings, IConfiguration configuration) : base(authSettings)
@@ -42,7 +45,9 @@ internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureA
 
         services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
         {
+            options.MapInboundClaims = false;
             options.TokenValidationParameters.NameClaimType = "name";
+            options.TokenValidationParameters.RoleClaimType = "roles";
 
             if (this.AuthSettings.IncludeConfigInBearerHeader)
             {
@@ -106,16 +111,16 @@ internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureA
     {
         return policy => policy.RequireAssertion(context =>
                 {
-                    var scopeClaim = context.User.FindFirst(ClaimConstants.Scope) ?? context.User.FindFirst(ClaimConstants.Scp);
-                    var roleClaim = context.User.FindFirst(ClaimConstants.Role) ?? context.User.FindFirst(ClaimConstants.Roles);
+                    var incomingScopes = GetClaimValues(context.User, ScopeClaimTypes).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+                    var incomingRoles = GetClaimValues(context.User, RoleClaimTypes).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+                    var isAppOnlyToken = IsAppOnlyToken(context.User);
 
-                    var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {scopeClaim?.Value} Found roles: {roleClaim?.Value} ";
+                    var logStr = $"Authz:ScopePolicy: User object id: {context.User?.GetObjectId()} of tenant: {context.User?.GetTenantId()} Found scopes: {string.Join(' ', incomingScopes)} Found roles: {string.Join(' ', incomingRoles)} App-only token: {isAppOnlyToken} ";
 
-                    if (scopeClaim != null && !string.IsNullOrEmpty(scopeClaim.Value))
+                    if (this.AuthSettings.RequiredScopes.Any() && incomingScopes.Any())
                     {
-                        var incommingScopes = scopeClaim.Value.Split(' ');
-                        var accessAllowed = this.AuthSettings.RequiredScopes.All(
-                            s => incommingScopes.Contains(s));
+                        var accessAllowed = this.AuthSettings.RequiredScopes.Any(
+                            s => incomingScopes.Contains(s, StringComparer.OrdinalIgnoreCase));
 
                         if (logger != null)
                         {
@@ -129,11 +134,11 @@ internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureA
                         }
                     }
 
-                    if (roleClaim != null && !string.IsNullOrEmpty(roleClaim.Value))
+                    if (this.AuthSettings.RequiredAppRoles.Any() && incomingRoles.Any())
                     {
-                        var incommingRoles = roleClaim.Value.Split(' ');
-                        var accessAllowed = this.AuthSettings.RequiredAppRoles.All(
-                            s => incommingRoles.Contains(s));
+                        var accessAllowed = (!this.AuthSettings.RolesForApplicationsOnly || isAppOnlyToken)
+                            && this.AuthSettings.RequiredAppRoles.Any(
+                                s => incomingRoles.Contains(s, StringComparer.OrdinalIgnoreCase));
 
                         if (logger != null)
                         {
@@ -149,5 +154,43 @@ internal class AzureAuthentication<T> : OAuth2Authentication<T> where T : AzureA
 
                     return false;
                 });
+    }
+
+    private static IEnumerable<string> GetClaimValues(ClaimsPrincipal? user, IEnumerable<string> claimTypes)
+    {
+        if (user == null)
+        {
+            return Enumerable.Empty<string>();
+        }
+
+        var claimTypeSet = claimTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return user.Claims
+            .Where(claim => claimTypeSet.Contains(claim.Type))
+            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Where(value => !string.IsNullOrWhiteSpace(value));
+    }
+
+    private static bool IsAppOnlyToken(ClaimsPrincipal? user)
+    {
+        if (user == null)
+        {
+            return false;
+        }
+
+        if (user.HasClaim(claim =>
+            string.Equals(claim.Type, "idtyp", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(claim.Value, "app", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        var hasDelegatedScope = GetClaimValues(user, ScopeClaimTypes).Any();
+        var hasClientAppClaim = user.HasClaim(claim =>
+            string.Equals(claim.Type, "azp", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(claim.Type, "appid", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(claim.Type, "client_id", StringComparison.OrdinalIgnoreCase));
+
+        return hasClientAppClaim && !hasDelegatedScope;
     }
 }

@@ -21,7 +21,7 @@ public class AuthorizeCheckOperationFilter : IOperationFilter
         {
             new OpenApiSecurityRequirement
             {
-                [new OpenApiSecuritySchemeReference("oauth2")] = new List<string> { "api" }
+                [new OpenApiSecuritySchemeReference("oauth2")] = new List<string>()
             }
         };
 
