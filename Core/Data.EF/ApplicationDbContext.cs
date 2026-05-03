@@ -53,6 +53,11 @@ public class ApplicationDbContext : DbContext
         {
             ConfigureBaseProperties(item.ClrType, modelBuilder);
         }
+
+        // Apply global filters once after base entity configuration to avoid
+        // recursive model-building calls through repeated modelBuilder.Entity(...)
+        // invocations.
+        SetGlobalQueryFilters(modelBuilder);
     }
 
     protected void ConfigureBaseProperties(Type entityType, ModelBuilder modelBuilder)
@@ -67,8 +72,6 @@ public class ApplicationDbContext : DbContext
             {
                 service.ConfigureBaseProperties(entityType, builder);
             }
-
-            SetGlobalQueryFilters(modelBuilder);
         });
     }
     #endregion Protected methods

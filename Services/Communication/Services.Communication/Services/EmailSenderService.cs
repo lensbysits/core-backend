@@ -76,7 +76,7 @@ public class EmailSenderService : BaseService<EmailSenderService, SendEmailSetti
         }
 
         var emailMessage = new MimeMessage();
-        emailMessage.From.Add(new MailboxAddress(fromAddress.Name ?? Settings.SenderName, fromAddress.Email ?? Settings.SenderAddress));
+        emailMessage.From.Add(new MailboxAddress(fromAddress?.Name ?? Settings.SenderName, fromAddress?.Email ?? Settings.SenderAddress));
 
         // Use a fixed email-address when one is provided in the configuration (for dev-purposes)
         var onlySendTo = !string.IsNullOrEmpty(Settings.OnlySendTo);

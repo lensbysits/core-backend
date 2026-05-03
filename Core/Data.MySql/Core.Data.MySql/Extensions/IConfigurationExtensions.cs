@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using MySqlConnector;
 using Serilog;
 
 namespace Lens.Core.Data.EF.MySql.Extensions;

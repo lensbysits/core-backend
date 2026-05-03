@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Lens.Core.App.Web;
@@ -21,13 +21,7 @@ public class AuthorizeCheckOperationFilter : IOperationFilter
         {
             new OpenApiSecurityRequirement
             {
-                [
-                    new OpenApiSecurityScheme {Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "oauth2"}
-                    }
-                ] = new[] {"api"}
+                [new OpenApiSecuritySchemeReference("oauth2")] = new List<string>()
             }
         };
 

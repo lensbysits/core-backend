@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -72,6 +72,8 @@ internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSe
         //https://www.c-sharpcorner.com/article/enable-oauth-2-authorization-using-azure-ad-and-swagger-in-net-5-0/
         if (swaggerSettings.SwaggerAuthEnabled)
         {
+            var scope = swaggerSettings.Scope ?? string.Empty;
+
             options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.OAuth2,
@@ -83,23 +85,17 @@ internal class OAuth2Authentication<T> : AuthenticationBase<T> where T : OAuthSe
                         TokenUrl = new Uri($"{swaggerSettings.Authority}token"),
                         Scopes = new Dictionary<string, string>
                             {
-                                {swaggerSettings.Scope ?? string.Empty, swaggerSettings.ScopeName ?? string.Empty}
+                                {scope, swaggerSettings.ScopeName ?? string.Empty}
                             }
                     }
                 }
             });
-        }
 
-        options.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-                },
-                new[] { swaggerSettings.Scope }
-            }
-        });
+                [new OpenApiSecuritySchemeReference("oauth2", document)] = new List<string> { scope }
+            });
+        }
 
         options.OperationFilter<AuthorizeCheckOperationFilter>();
     }

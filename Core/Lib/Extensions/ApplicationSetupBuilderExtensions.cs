@@ -1,8 +1,12 @@
 ﻿using Lens.Core.Lib.Builders;
+using Lens.Core.Lib.Exceptions;
 using Lens.Core.Lib.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+
 namespace Lens.Core.Lib;
+
 
 public static class ApplicationSetupBuilderExtensions
 {
@@ -13,13 +17,13 @@ public static class ApplicationSetupBuilderExtensions
         return applicationSetup;
     }
 
-    public static IApplicationSetupBuilder AddOAuthClient(this IApplicationSetupBuilder applicationSetup)
+    public static IApplicationSetupBuilder AddOAuthClientServices(this IApplicationSetupBuilder applicationSetup)
     {
-        if (!applicationSetup.Services.Any(d => d.ServiceType == typeof(IOAuthClientService)))
+        if (!applicationSetup.Services.Any(d => d.ServiceType == typeof(IOAuthClientTokenService)))
         {
             applicationSetup.Services
                 .Configure<OAuthClientSettings>(applicationSetup.Configuration.GetSection(nameof(OAuthClientSettings)))
-                .AddScoped<IOAuthClientService, OAuthClientService>();
+                .AddScoped<IOAuthClientTokenService, OAuthClientTokenService>();
         }
 
         return applicationSetup;
@@ -33,20 +37,14 @@ public static class ApplicationSetupBuilderExtensions
         where TClient : class
         where TImplementation : class, TClient
     {
-        if (!applicationSetup.Services.Any(d => d.ServiceType == typeof(ApiBearerTokenHandler)))
-        {
-            applicationSetup.Services.AddTransient<ApiBearerTokenHandler>();
-        }
-
-        applicationSetup
-            .AddHttpClientService<TClient, TImplementation>(
-                client => client.BaseAddress = new Uri(baseUri ?? string.Empty),
-                services =>
-                {
-                    var handler = services.GetRequiredService<ApiBearerTokenHandler>();
-                    handler.ClientName = clientName;
-                    return handler;
-                });
+        applicationSetup.AddHttpClientService<TClient, TImplementation, ApiBearerTokenHandler>(
+            client => client.BaseAddress = new Uri(baseUri ?? string.Empty),
+            serviceProvider =>
+            {
+                var handler = ActivatorUtilities.CreateInstance<ApiBearerTokenHandler>(serviceProvider);
+                handler.ClientName = clientName;
+                return handler;
+            });
 
         return applicationSetup;
     }

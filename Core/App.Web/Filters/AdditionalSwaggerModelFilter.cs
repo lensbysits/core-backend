@@ -1,5 +1,5 @@
 ﻿using Lens.Core.Lib.Attributes;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
@@ -26,8 +26,8 @@ namespace Lens.Core.App.Web.Filters
             {
                 var schema = new OpenApiSchema
                 {
-                    Type = "object",
-                    Properties = new Dictionary<string, OpenApiSchema>()
+                    Type = JsonSchemaType.Object,
+                    Properties = new Dictionary<string, IOpenApiSchema>()
                 };
 
                 var properties = modelType.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance);

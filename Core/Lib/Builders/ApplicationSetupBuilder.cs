@@ -39,7 +39,7 @@ public class ApplicationSetupBuilder : IApplicationSetupBuilder
 
     public IApplicationSetupBuilder AddAutoMapper()
     {
-        Services.AddAutoMapper(Assemblies);
+        Services.AddAutoMapper(cfg => { }, Assemblies.ToArray());
         return this;
     }
 
