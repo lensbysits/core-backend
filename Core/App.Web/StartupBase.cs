@@ -53,6 +53,7 @@ public class StartupBase
                 config.AddToLoggingScope = true;
                 config.UpdateTraceIdentifier = true;
             })
+            .AddAuthentication(Configuration, applicationSetup.AuthOptions.AuthorizationOptions)
             .AddCors(Configuration)
             .AddSwagger(Configuration);
 
