@@ -45,8 +45,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Communication", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Communication.Web", "Services\Communication\Services.Communication.Web\Services.Communication.Web.csproj", "{69847B9B-B4C5-4E2E-815B-06BC0A30D413}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Communication.Web.Client", "Services\Communication\Services.Communication.Web.Client\Services.Communication.Web.Client.csproj", "{FD1FF2BC-9834-421E-B1EB-F54CFAC0C101}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Masterdata.UnitTests", "Services\Masterdata\Services.Masterdata.UnitTests\Services.Masterdata.UnitTests.csproj", "{632DB7A6-9A92-44CE-8251-5C664E090CF2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{72A618BC-6982-42B7-B1F5-67F3B1B71632}"
